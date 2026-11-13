@@ -1,0 +1,159 @@
+{
+ "results": {
+  "arch": {
+   "group": "variant",
+   "members": [
+    "outputs/test_arch_s42/bayes_arch_seed42_draws.npz",
+    "outputs/test_arch_s43/bayes_arch_seed43_draws.npz",
+    "outputs/test_arch_s44/bayes_arch_seed44_draws.npz",
+    "outputs/test_arch_s45/bayes_arch_seed45_draws.npz",
+    "outputs/test_arch_s46/bayes_arch_seed46_draws.npz"
+   ],
+   "wis_original15": 0.11968474061008401,
+   "wis_origin0": 0.17669169192442188,
+   "wis_all28": 0.13750970961993558,
+   "r2_original15": 0.7563392662887345,
+   "coverage_all28": {
+    "0.8": 0.7821874651499944,
+    "0.9": 0.8805202408832387,
+    "0.95": 0.9321679491468718
+   },
+   "member_wis_original15": [
+    0.1272653239395226,
+    0.12605238806207197,
+    0.12381518956077758,
+    0.12395048139684267,
+    0.12790357586000622
+   ],
+   "member_wis_mean": 0.12579739176384422,
+   "ensemble_gain_pct": 4.859123919862595,
+   "disagreement_index": 0.086843732299308
+  },
+  "v2ref": {
+   "group": "reference",
+   "members": [
+    "outputs/test_v2_s42/bayes_v2_seed42_draws.npz",
+    "outputs/test_v2_s43/bayes_v2_seed43_draws.npz",
+    "outputs/test_v2_s44/bayes_v2_seed44_draws.npz",
+    "outputs/test_v2_s45/bayes_v2_seed45_draws.npz",
+    "outputs/test_v2_s46/bayes_v2_seed46_draws.npz"
+   ],
+   "wis_original15": 0.12379106053630819,
+   "wis_origin0": 0.1901080103588057,
+   "wis_all28": 0.14487323438829033,
+   "r2_original15": 0.7360817327360327,
+   "coverage_all28": {
+    "0.8": 0.7774896843983495,
+    "0.9": 0.8758364001338241,
+    "0.95": 0.9284041485446638
+   },
+   "member_wis_original15": [
+    0.1277135863615283,
+    0.12605238806207197,
+    0.12443615600808401,
+    0.12645541695518564,
+    0.1248454873572875
+   ],
+   "member_wis_mean": 0.12590060694883148,
+   "ensemble_gain_pct": 1.675564926689077,
+   "disagreement_index": 0.05069129453434906
+  },
+  "v1cal": {
+   "group": "reference",
+   "members": [
+    "outputs/test_bayes_cal_s42/bayes_cal_seed42_draws.npz",
+    "outputs/test_bayes_cal_s43/bayes_cal_seed43_draws.npz",
+    "outputs/test_bayes_cal_s44/bayes_cal_seed44_draws.npz",
+    "outputs/test_bayes_cal_s45/bayes_cal_seed45_draws.npz",
+    "outputs/test_bayes_cal_s46/bayes_cal_seed46_draws.npz"
+   ],
+   "wis_original15": 0.12356800336898467,
+   "wis_origin0": 0.18905723590389925,
+   "wis_all28": 0.14417091589125133,
+   "r2_original15": 0.7461016068102462,
+   "coverage_all28": {
+    "0.8": 0.7903702464592394,
+    "0.9": 0.8821372811419648,
+    "0.95": 0.9300351288056206
+   },
+   "member_wis_original15": [
+    0.1251087492419731,
+    0.12618227905605656,
+    0.1256058544944961,
+    0.1254282906459605,
+    0.125252720402981
+   ],
+   "member_wis_mean": 0.12551557876829345,
+   "ensemble_gain_pct": 1.5516602946189395,
+   "disagreement_index": 0.05131993747582238
+  },
+  "pwarps": {
+   "group": "reference",
+   "members": [
+    "outputs/test_pw_arps_bayes/pw_arps_bayes_seed42_draws.npz"
+   ],
+   "wis_original15": 0.15088812005287486,
+   "wis_origin0": 0.22353620990224177,
+   "wis_all28": 0.17527982199766978,
+   "r2_original15": 0.6505328067589204,
+   "coverage_all28": {
+    "0.8": 0.8159640905542545,
+    "0.9": 0.8943487230957958,
+    "0.95": 0.9304115088658416
+   }
+  }
+ },
+ "comparisons": {
+  "arch_vs_v2ref": {
+   "original15": {
+    "point": 0.03317137690261396,
+    "lower95": 0.014643313146827314,
+    "upper95": 0.059977971183995324
+   },
+   "origin0": {
+    "point": 0.07057208378048963,
+    "lower95": 0.051017646251043915,
+    "upper95": 0.08675457893412673
+   },
+   "all28": {
+    "point": 0.05082736503707075,
+    "lower95": 0.029736338330039237,
+    "upper95": 0.08031606590049309
+   }
+  },
+  "arch_vs_v1cal": {
+   "original15": {
+    "point": 0.031426118841662465,
+    "lower95": 0.01834366719885889,
+    "upper95": 0.046479107636359644
+   },
+   "origin0": {
+    "point": 0.06540635125842509,
+    "lower95": 0.051486080267028334,
+    "upper95": 0.07919446598174741
+   },
+   "all28": {
+    "point": 0.046203537170703135,
+    "lower95": 0.03404740711395944,
+    "upper95": 0.05773311146024714
+   }
+  },
+  "arch_vs_pwarps": {
+   "original15": {
+    "point": 0.20679811924130564,
+    "lower95": 0.17536665159890058,
+    "upper95": 0.23869638088982537
+   },
+   "origin0": {
+    "point": 0.20956120710065818,
+    "lower95": 0.1715194710154849,
+    "upper95": 0.2509267339027916
+   },
+   "all28": {
+    "point": 0.2154846573168948,
+    "lower95": 0.19149718720055248,
+    "upper95": 0.24057018754684203
+   }
+  }
+ }
+}

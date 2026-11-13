@@ -1,0 +1,24 @@
+# Per-well Patzek-Male-Marder slab scaling-curve benchmark (CPU), fitted on all TRAIN; added after
+# the frozen test evaluation as an additional industry/physics baseline (reviewer-expected), disclosed as such.
+lanes = 1
+min_available_gb = 40
+
+[[job]]
+label = "pw_scaling_bayes"
+output = "val_pw_scaling_bayes"
+args = "run --models pw_scaling_bayes --seeds 42 --device cpu --split validation"
+
+[[job]]
+label = "pw_scaling_map"
+output = "val_pw_scaling_map"
+args = "run --models pw_scaling_map --seeds 42 --device cpu --split validation"
+
+[[job]]
+label = "pw_scaling_bayes"
+output = "test_pw_scaling_bayes"
+args = "run --models pw_scaling_bayes --seeds 42 --device cpu --split test --protocol configs/depletion_final_protocol.toml"
+
+[[job]]
+label = "pw_scaling_map"
+output = "test_pw_scaling_map"
+args = "run --models pw_scaling_map --seeds 42 --device cpu --split test --protocol configs/depletion_final_protocol.toml"

@@ -1,0 +1,31 @@
+# Width-diverse ensemble ("arch"): one-time test forecasts from the five frozen validation fits
+# (prior network widths 32/64/128/256/512 for seeds 42-46) under the frozen ensemble protocol.
+# The released checkpoints are in models/ensemble/; to use them instead of a refit, replace
+# outputs/val_arch_s4X/ with models/ensemble/ in the --model paths.
+lanes = 2
+min_available_gb = 40
+
+[[job]]
+label = "bayes_arch"
+output = "test_arch_s42"
+args = "repredict --model outputs/val_arch_s42/bayes_arch_seed42_model.pt --device cuda --split test --protocol configs/depletion_arch_protocol.toml"
+
+[[job]]
+label = "bayes_arch"
+output = "test_arch_s43"
+args = "repredict --model outputs/val_arch_s43/bayes_arch_seed43_model.pt --device cuda --split test --protocol configs/depletion_arch_protocol.toml"
+
+[[job]]
+label = "bayes_arch"
+output = "test_arch_s44"
+args = "repredict --model outputs/val_arch_s44/bayes_arch_seed44_model.pt --device cuda --split test --protocol configs/depletion_arch_protocol.toml"
+
+[[job]]
+label = "bayes_arch"
+output = "test_arch_s45"
+args = "repredict --model outputs/val_arch_s45/bayes_arch_seed45_model.pt --device cuda --split test --protocol configs/depletion_arch_protocol.toml"
+
+[[job]]
+label = "bayes_arch"
+output = "test_arch_s46"
+args = "repredict --model outputs/val_arch_s46/bayes_arch_seed46_model.pt --device cuda --split test --protocol configs/depletion_arch_protocol.toml"

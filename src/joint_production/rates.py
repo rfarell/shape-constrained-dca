@@ -1,0 +1,191 @@
+"""Positive joint rate families with analytic integrals.
+
+Latents are phase-major (oil, gas, water), four parameters per phase. Volumes
+are in the caller's phase-normalized units; query times and returned rates
+use days and normalized volume/day. No random draws occur when querying a
+trajectory. These finite tails describe continued operation under the model,
+not a reservoir/material-balance guarantee.
+"""
+
+from __future__ import annotations
+
+import math
+from collections.abc import Sequence
+
+import torch
+from torch import Tensor, nn
+
+
+class _RateFamily(nn.Module):
+    latent_size = 12
+    parameters_per_phase = 4
+    phase_order = ("oil", "gas", "water")
+    time_scale_days = 360.0
+
+    @staticmethod
+    def _parameters_and_times(z: Tensor, times: Tensor | Sequence[float]):
+        if z.shape[-1] != 12 or not z.is_floating_point():
+            raise ValueError("z must be a floating tensor with last dimension 12")
+        times = torch.as_tensor(times, device=z.device, dtype=z.dtype)
+        if times.ndim != 1:
+            raise ValueError("times must be one-dimensional")
+        if bool(torch.any(torch.isnan(times) | (times < 0))):
+            raise ValueError("times must be nonnegative, finite or positive infinity")
+        infinite = torch.isposinf(times)
+        # Avoid inf*0 and invalid gradients in branches later discarded by where.
+        finite_times = torch.where(infinite, torch.zeros_like(times), times)
+        return z.reshape(*z.shape[:-1], 3, 4), finite_times / 360.0, infinite
+
+    def forward(self, z: Tensor, times: Tensor | Sequence[float]) -> Tensor:
+        return self.cumulative(z, times)
+
+
+class EnvelopeRate(_RateFamily):
+    """Exponential envelope with bounded, piecewise constant log residuals.
+
+    Each phase has (log A, log d, r1, r2). In normalized time u=t/360,
+    q_day(t)=A exp(-d*u + rho*tanh(r_j))/360; r_0=0 and the
+    residual changes at days 90 and 360. Jump discontinuities are permitted.
+    The same final multiplier persists in the assumed exponential tail.
+    Latents are not clipped: very extreme values can exceed floating precision.
+    """
+
+    amplitude_indices = (0, 4, 8)
+
+    def __init__(self, rho: float = math.log(4.0)):
+        super().__init__()
+        if not math.isfinite(rho) or rho < 0:
+            raise ValueError("rho must be finite and nonnegative")
+        self.rho = float(rho)
+
+    def initial_latent(self, *, device=None, dtype=None) -> Tensor:
+        return torch.zeros(12, device=device, dtype=dtype)
+
+    def cumulative(self, z: Tensor, times: Tensor | Sequence[float]) -> Tensor:
+        p, u, infinite = self._parameters_and_times(z, times)
+        a = p[..., 0].exp().unsqueeze(-2)
+        d = p[..., 1].exp().unsqueeze(-2)
+        u = u[:, None]
+        multipliers = (torch.ones_like(a),
+                       (self.rho * p[..., 2].tanh()).exp().unsqueeze(-2),
+                       (self.rho * p[..., 3].tanh()).exp().unsqueeze(-2))
+        result = torch.zeros_like(a * u)
+        for start, width, multiplier in zip((0., .25, 1.), (.25, .75, None), multipliers):
+            duration = (u - start).clamp_min(0)
+            if width is not None:
+                duration = duration.clamp_max(width)
+            integral = (-torch.expm1(-d * duration)) / d
+            result = result + a * multiplier * torch.exp(-d * start) * integral
+        return torch.where(infinite[:, None], self.total_volume(z).unsqueeze(-2), result)
+
+    def rate(self, z: Tensor, times: Tensor | Sequence[float]) -> Tensor:
+        p, u, infinite = self._parameters_and_times(z, times)
+        u = u[:, None]
+        r1 = p[..., 2].unsqueeze(-2)
+        r2 = p[..., 3].unsqueeze(-2)
+        residual = torch.where(u < .25, torch.zeros_like(r1), torch.where(u < 1., r1, r2))
+        log_rate = p[..., 0].unsqueeze(-2) - p[..., 1].exp().unsqueeze(-2) * u
+        result = (log_rate + self.rho * residual.tanh()).exp() / 360.0
+        return torch.where(infinite[:, None], torch.zeros_like(result), result)
+
+    def total_volume(self, z: Tensor) -> Tensor:
+        if z.shape[-1] != 12:
+            raise ValueError("z must have last dimension 12")
+        p = z.reshape(*z.shape[:-1], 3, 4)
+        d = p[..., 1].exp()
+        m1 = (self.rho * p[..., 2].tanh()).exp()
+        m2 = (self.rho * p[..., 3].tanh()).exp()
+        mass = -torch.expm1(-.25 * d)
+        mass = mass + m1 * torch.exp(-.25 * d) * (-torch.expm1(-.75 * d))
+        mass = mass + m2 * torch.exp(-d)
+        return (p[..., 0] - p[..., 1]).exp() * mass
+
+
+class PositiveBasisRate(_RateFamily):
+    """Four fixed Erlang densities per phase, with positive volume weights.
+
+    ``original`` uses (integer shape, scale in days): (1,360), (2,90),
+    (2,360), (3,720). ``fast`` uses (1,30), (1,180), (2,360), (2,720).
+    The fast dictionary is a matched four-component alternative motivated by
+    a training-only approximation diagnostic. Each density integrates to one
+    on [0,infinity); exp(z) gives its volume contribution. No monotone-decline
+    constraint is imposed. The original default preserves old checkpoints.
+    """
+
+    amplitude_indices = tuple(range(12))
+
+    def __init__(self, preset: str = "original"):
+        super().__init__()
+        if preset not in {"original", "fast"}:
+            raise ValueError("Positive basis preset must be 'original' or 'fast'")
+        self.preset = preset
+        self.shapes = (1, 2, 2, 3) if preset == "original" else (1, 1, 2, 2)
+        self.scales_days = (360., 90., 360., 720.) if preset == "original" else (30., 180., 360., 720.)
+
+    def initial_latent(self, *, device=None, dtype=None) -> Tensor:
+        # Equal contributions normalized so Q(1080)=1 in each phase.
+        prototype = torch.zeros(12, device=device, dtype=dtype)
+        mass = self.cumulative(prototype, [1080.0])[0, 0]
+        return torch.full_like(prototype, -float(mass.log()))
+
+    def cumulative(self, z: Tensor, times: Tensor | Sequence[float]) -> Tensor:
+        p, u, infinite = self._parameters_and_times(z, times)
+        tau = z.new_tensor([scale / self.time_scale_days for scale in self.scales_days])
+        shape = z.new_tensor(self.shapes)
+        x = u[:, None] / tau
+        # Gamma CDF's library backward has a 0*log(0) singularity at zero.
+        # Its convergent lower-tail series gives the correct boundary derivative
+        # and avoids cancellation: exp(-x)*x**n/n! * sum_j x**j/(n+1)_j.
+        term = torch.ones_like(x)
+        series = term
+        small_x = x.clamp_max(.1)
+        for j in range(1, 9):
+            term = term * small_x / (shape + j)
+            series = series + term
+        small_cdf = small_x.pow(shape) * torch.exp(-small_x) * series / z.new_tensor([math.factorial(n) for n in self.shapes])
+        ordinary_cdf = torch.special.gammainc(shape, x.clamp_min(.1))
+        basis = torch.where(x < .1, small_cdf, ordinary_cdf)
+        basis = torch.where(infinite[:, None], torch.ones_like(basis), basis)
+        return torch.einsum("...pk,tk->...tp", p.exp(), basis)
+
+    def rate(self, z: Tensor, times: Tensor | Sequence[float]) -> Tensor:
+        p, u, infinite = self._parameters_and_times(z, times)
+        tau = z.new_tensor([scale / self.time_scale_days for scale in self.scales_days])
+        x = u[:, None] / tau
+        polynomial = torch.stack(tuple(torch.ones_like(u) if n == 1 else x[:, index].pow(n - 1) / math.factorial(n - 1)
+                                       for index, n in enumerate(self.shapes)), dim=-1)
+        basis = polynomial * torch.exp(-x) / tau / 360.0
+        basis = torch.where(infinite[:, None], torch.zeros_like(basis), basis)
+        return torch.einsum("...pk,tk->...tp", p.exp(), basis)
+
+    def rate_derivative(self, z: Tensor, times: Tensor | Sequence[float], *, order: int = 1) -> Tensor:
+        """Model-implied q' or q'', in normalized volume/day**(order+1).
+
+        Differentiate the same sampled weights analytically. Values at zero
+        are right derivatives; positive infinity denotes the zero tail limit.
+        Signs are unrestricted. These derivatives neither add observations nor
+        establish recovery of physical acceleration from cumulative reports.
+        """
+        if type(order) is not int or order not in (1, 2):
+            raise ValueError("Rate derivative order must be integer 1 or 2")
+        p, u, infinite = self._parameters_and_times(z, times)
+        tau = z.new_tensor(self.scales_days)
+        x = u[:, None] * self.time_scale_days / tau
+        columns = []
+        for index, shape in enumerate(self.shapes):
+            # Leibniz rule for exp(-x) * x**(shape-1)/(shape-1)!.
+            # Polynomial powers avoid division by time at the zero boundary.
+            polynomial = torch.zeros_like(u)
+            for k in range(min(order, shape - 1) + 1):
+                power = shape - 1 - k
+                polynomial = polynomial + (math.comb(order, k) * (-1) ** (order - k)
+                    * x[:, index].pow(power) / math.factorial(power))
+            columns.append(polynomial * torch.exp(-x[:, index]) / tau[index].pow(order + 1))
+        basis = torch.stack(columns, dim=-1)
+        basis = torch.where(infinite[:, None], torch.zeros_like(basis), basis)
+        return torch.einsum("...pk,tk->...tp", p.exp(), basis)
+
+    def total_volume(self, z: Tensor) -> Tensor:
+        if z.shape[-1] != 12:
+            raise ValueError("z must have last dimension 12")
+        return z.reshape(*z.shape[:-1], 3, 4).exp().sum(-1)

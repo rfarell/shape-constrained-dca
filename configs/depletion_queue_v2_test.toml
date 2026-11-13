@@ -1,0 +1,28 @@
+# v2 disclosed second look at test (configs/depletion_v2_protocol.toml): five all-TRAIN fits, test forecasts.
+lanes = 2
+min_available_gb = 40
+
+[[job]]
+label = "bayes_v2"
+output = "test_v2_s42"
+args = "repredict --model outputs/val_v2_s42/bayes_v2_seed42_model.pt --device cuda --split test --protocol configs/depletion_v2_protocol.toml"
+
+[[job]]
+label = "bayes_v2"
+output = "test_v2_s43"
+args = "repredict --model outputs/val_v2_s43/bayes_v2_seed43_model.pt --device cuda --split test --protocol configs/depletion_v2_protocol.toml"
+
+[[job]]
+label = "bayes_v2"
+output = "test_v2_s44"
+args = "repredict --model outputs/val_v2_s44/bayes_v2_seed44_model.pt --device cuda --split test --protocol configs/depletion_v2_protocol.toml"
+
+[[job]]
+label = "bayes_v2"
+output = "test_v2_s45"
+args = "repredict --model outputs/val_v2_s45/bayes_v2_seed45_model.pt --device cuda --split test --protocol configs/depletion_v2_protocol.toml"
+
+[[job]]
+label = "bayes_v2"
+output = "test_v2_s46"
+args = "repredict --model outputs/val_v2_s46/bayes_v2_seed46_model.pt --device cuda --split test --protocol configs/depletion_v2_protocol.toml"

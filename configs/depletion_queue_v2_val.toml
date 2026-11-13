@@ -1,0 +1,29 @@
+# Candidate v2 (frozen configuration + interval OU persistent deviation, selected on the TRAIN-internal
+# holdout 2026-10-04): five seeds fitted on all TRAIN, validation forecasts. Developed after the v1 test opening.
+lanes = 2
+min_available_gb = 40
+
+[[job]]
+label = "bayes_v2"
+output = "val_v2_s42"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --set discrepancy=ou_interval --seeds 42"
+
+[[job]]
+label = "bayes_v2"
+output = "val_v2_s43"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --set discrepancy=ou_interval --seeds 43"
+
+[[job]]
+label = "bayes_v2"
+output = "val_v2_s44"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --set discrepancy=ou_interval --seeds 44"
+
+[[job]]
+label = "bayes_v2"
+output = "val_v2_s45"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --set discrepancy=ou_interval --seeds 45"
+
+[[job]]
+label = "bayes_v2"
+output = "val_v2_s46"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --set discrepancy=ou_interval --seeds 46"

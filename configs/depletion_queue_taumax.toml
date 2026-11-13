@@ -1,0 +1,14 @@
+# Sensitivity (reviewer request): slowest decay time tau_max of the v1 configuration; seed 42, all TRAIN,
+# validation forecasts; compare with v1 seed 42 (tau_max 3,650 d). Post-test analysis; validation only.
+lanes = 2
+min_available_gb = 40
+
+[[job]]
+label = "bayes_taumax1825"
+output = "val_taumax1825"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 42 --set decay_max_days=1825"
+
+[[job]]
+label = "bayes_taumax7300"
+output = "val_taumax7300"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 42 --set decay_max_days=7300"

@@ -1,0 +1,56 @@
+# Final comparison protocol for the physics-structured Bayesian model.
+# FROZEN 2026-10-03 before any validation, calibration or test scoring of the Bayesian model.
+# Criteria below were drafted 2026-10-02 before validation scoring; the configuration was selected
+# on the TRAIN-internal holdout only. The test split is refused unless status = "frozen".
+[experiment]
+status = "frozen"
+training_split = "train (7,017 records)"
+selection_split = "validation (450 records; reused development cohort, disclosed)"
+calibration_split = "calibration (423 records): fits only the declared calibration parameters"
+confirmation_split = "test (854 records): one evaluation after freezing; prior Bakken exposure disclosed"
+training_seeds = [42, 43, 44, 45, 46]
+origins_days = [0, 30, 60, 90, 180, 360, 720]
+samples_per_fit = 256
+combination = "Equal-weight mixture of the five fitted laws for EVERY family (1,280 draws), plus separately scored single fits."
+static_features = "nonspatial_17 (34 inputs), fitted on TRAIN only; same inputs for all families"
+competitors = ["basis", "dca", "neural", "forest"]
+primary_scope = "original15 increment cells (origins 60-720)"
+secondary_scopes = ["origin0 (attributes only)", "all28 (every origin)"]
+
+[candidate]
+model = "bayes (DepletionBayesForecaster)"
+configuration = "objective=predictive (empirical Bayes by posterior-predictive CRPS), rate_clock=true, water flowback, components=1, noise_mode=well, epochs=200, width=256, rank=8, prior_width=64, prior_weight_decay=1e-3, train_samples=16, predictive_samples=32, covariate_clip=4, proposals=2048, adaptive_rounds=2; five plain seeds 42-46 fitted on all TRAIN, equal mixture"
+rejected_alternatives = "global noise, ELBO/IWAE objectives, mixture priors K=4/8, learned eta, 600 epochs, Bayesian bootstrap seeds, wider prior network, OU deviation law (too slow to finish), recorded in problem_statement.md"
+calibration_parameters = "prior_inflation nu in {1,1.25,1.5,1.75,2} x report_inflation kappa in {1,1.15,1.3}, chosen on the CALIBRATION split by minimal macro scaled WIS over all28 cells of the equal five-fit mixture (scripts/depletion_calibrate.py)"
+competitors_on_validation = "archived five-seed validation forecasts of basis/dca/neural/forest (secondary attributes), imported unchanged; per-well industry DCA (arps/duong/sedm, bayes and map) fitted on all TRAIN"
+reporting = "raw and calibrated Bayes results are both reported; competitors are raw (their earlier common trajectory calibration was rejected)"
+
+[claims.properties]
+required = [
+  "nonnegative latent rates and nondecreasing cumulatives in every sampled trajectory",
+  "oil deliverability nondecreasing until peak <= 180 days, completely monotone (nonincreasing, decelerating) afterwards",
+  "finite closed-form EUR for every phase",
+  "gas and water rates derived from oil through bounded positive depletion-indexed ratios",
+  "every rate, volume and ratio from the same joint sample",
+  "exact Bayesian conditioning given population parameters: empty history returns the prior; posterior precision >= prior precision in the amortized proposal",
+]
+comparison = "Same checks on sampled trajectories of basis and DCA fits; neural/forest recorded as report-only."
+
+[claims.accuracy]
+reference = "strongest competitor mixture by validation original15 macro scaled WIS"
+noninferior_if = "paired whole-group bootstrap 95% upper bound of relative WIS loss <= 0.02 AND macro R2 >= reference - 0.01"
+superior_if = "paired whole-group bootstrap 95% lower bound of relative WIS gain > 0"
+also_report = ["origin0 and all28 scopes", "per-phase WIS/R2/native errors", "single-fit averages", "energy and variogram scores"]
+
+[claims.calibration]
+levels = [0.8, 0.9, 0.95]
+macro_tolerance = 0.03
+phase_tolerance = 0.04
+history_regime_tolerance = 0.05
+definition = "Empirical central-interval coverage of reported increments, macro over cells and phases; by phase; by origin (history regime). Pass if |coverage - nominal| <= tolerance at every level for macro and phases, and for each origin at 90%."
+also_report = ["interval widths", "PIT histograms", "synthetic SBC rank uniformity"]
+
+[limits]
+latent = "Latent instantaneous rates, interior dynamics, post-1080 tails and EUR are model-implied, not validated by canonical reports."
+availability = "Static attributes assumed available before first production (retrospective benchmark)."
+exposure = "Validation reused across development; Bakken outcomes inspected in a previous project."

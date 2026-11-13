@@ -1,0 +1,28 @@
+# Post-test refinement (v2) of the physics-structured Bayesian model.
+# FROZEN 2026-10-05, AFTER the v1 test opening (configs/depletion_final_protocol.toml, frozen 2026-10-03).
+# v2 changes only the report law: a persistent operational deviation on report intervals (discrepancy =
+# "ou_interval"), selected on the TRAIN-internal holdout and checked on validation. Its test evaluation is a
+# DISCLOSED SECOND LOOK at the same test wells; v1 remains the prespecified confirmatory result. The latent
+# production law and every structural property are identical to v1.
+[experiment]
+status = "frozen"
+supersedes_for_reporting = "none: v1 (prespecified, single test opening) and v2 (post-test refinement) are both reported"
+training_split = "train (7,017 records)"
+selection_split = "TRAIN-internal holdout (development); validation (450 records) checked once per candidate"
+calibration_split = "calibration (423 records)"
+confirmation_split = "test (854 records): second look after the v1 opening, disclosed"
+training_seeds = [42, 43, 44, 45, 46]
+origins_days = [0, 30, 60, 90, 180, 360, 720]
+samples_per_fit = 256
+combination = "Equal-weight mixture of the five fitted laws (1,280 draws), plus single fits."
+
+[candidate]
+model = "bayes (DepletionBayesForecaster)"
+configuration = "v1 configuration (objective=predictive, rate_clock=true, flowback, components=1, noise_mode=well, epochs=200, width=256, rank=8, prior_width=64, prior_weight_decay=1e-3, train_samples=16, predictive_samples=32, covariate_clip=4, proposals=2048, adaptive_rounds=2) plus discrepancy=ou_interval; five plain seeds 42-46 fitted on all TRAIN (jpf-v2-val-20261004)"
+calibration = "global grid selected prior_inflation=1.0, report_inflation=1.0 (jpf-v2-cal-20261004); per-phase grid selected 1.1/1.0/1.0 with no WIS change (jpf-v2-phasecal-20261004). v2 is reported without post-hoc inflation."
+rejected_after_v1 = "time-indexed ratios (tie), oil_penalty (internal gain, no validation gain), positive log-normal report law (about 1.5% WIS cost; reported as an ablation), structural ensembles, wider prior network (stopped)"
+
+[claims]
+accuracy = "statistically indistinguishable from the best flexible comparators (paired whole-group intervals containing zero), highest R2; superiority is not claimed"
+properties = "identical to configs/depletion_final_protocol.toml [claims.properties]"
+calibration = "coverage and width compared with all models given equal post-hoc calibration opportunity"

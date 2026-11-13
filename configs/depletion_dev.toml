@@ -1,0 +1,19 @@
+# TRAIN-internal development protocol for the physics-structured Bayesian model.
+# Development only: the holdout informed earlier development and is not independent confirmation.
+[experiment]
+status = "train_internal_development"
+parent = "accepted_train_only"
+partition_rule = "SHA256 UTF8 of earlier-history-v1|314159| followed by group_id; first floor(groups/5) held out"
+expected_fit_wells = 5625
+expected_holdout_wells = 1392
+expected_holdout_groups = 813
+origins_days = [0, 30, 60, 90, 180, 360, 720]
+samples = 256
+prediction_seed_rule = "numpy default_rng(2026 * 10000 + origin) per model and origin"
+static_features = "nonspatial_17 (34 inputs), StaticFeaturePreprocessor fitted on internal fitting rows only"
+static_availability_assumption = "Retrospective assumption: completion and geological attributes available before first production; timestamps unverified."
+scales = "fit_increment_scales on internal fitting rows, all 28 origin-endpoint cells"
+primary_scope = "original15 (origins 60-720)"
+secondary_scopes = ["origin0", "all28"]
+competitor_settings = "secondary_features_pilot.toml settings for basis/dca/neural/forest; forest n_jobs raised for speed"
+claim_limit = "Development screening only; validation, calibration and test roles unchanged."

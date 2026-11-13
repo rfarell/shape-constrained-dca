@@ -1,0 +1,64 @@
+# Complete the missing fair baseline replication for training seeds 43-46.
+# Retain the seed-42 secondary DCA, neural, and forest settings exactly.
+# All models use the actual TRAIN-encoded 17 static attributes (34 positions).
+# Complete the fixed five-seed baseline comparison; this adds no model variants.
+# Any external wall-time cap belongs to the launcher, not these model budgets.
+[experiment]
+status = "development_only"
+seeds = [43, 44, 45, 46]
+prediction_seed = 2026
+evaluation_bootstrap_seed = 42
+origins_days = [0, 30, 60, 90, 180, 360, 720]
+samples = 256
+bootstrap_replicates = 200
+static_features = "nonspatial_17"
+static_availability_assumption = "Retrospective assumption: initial completion and preproduction geological attributes were available before first production; original measurement and revision timestamps remain unverified."
+full_curve_evaluation = true
+calibration = "identity"
+selection_scope = "Original60/90/180/360/720incrementcells; secondary-only and day30 are separately reported tasks."
+baseline_replication_purpose = "Complete the fixed five-seed comparison of basis_secondary with dca_secondary, neural_secondary and forest_secondary: retain seed 42 and add the missing baseline fits for seeds 43-46."
+baseline_reference_rule = "Report all three pairwise comparisons on the original 15 history-conditioned increment cells. Select the strongest baseline reference by the lowest arithmetic mean of separately scored seed-42-46 macro scaled WIS values on those cells."
+evidence_criteria = "Apply configs/evidence_criteria.toml unchanged; no success threshold or evidence requirement is relaxed."
+adaptive_validation_limit = "This continuation follows inspected development validation results on a reused cohort; it is not independent-data confirmation and does not reset prior validation exposure."
+finite_issued_law_limit = "Score each seed's retained 256-draw law separately, without pooling draws across seeds. Group uncertainty is conditional on the fixed five fits per model family and their finite issued ensembles; it does not bootstrap training seeds or establish latent-production truth."
+
+[[models]]
+name = "dca_secondary"
+feature_variant = "actual"
+covariate_preprocessing = "external"
+kind = "conditional_rate"
+rate_family = "dca"
+basis_dictionary = "fast"
+history_rate_features = "last_interval"
+epochs = 60
+hidden_width = 128
+batch_size = 256
+train_samples = 16
+learning_rate = 0.001
+history_dropout = 0.1
+phase_dropout = 0.1
+log_every = 10
+device = "cpu"
+
+[[models]]
+name = "neural_secondary"
+feature_variant = "actual"
+covariate_preprocessing = "external"
+kind = "neural"
+history_rate_features = "last_interval"
+epochs = 300
+batch_size = 1024
+rank = 4
+hidden_width = 128
+learning_rate = 0.001
+log_every = 50
+device = "cpu"
+
+[[models]]
+name = "forest_secondary"
+feature_variant = "actual"
+covariate_preprocessing = "external"
+kind = "forest"
+min_samples_leaf = 4
+n_estimators = 200
+n_jobs = 2

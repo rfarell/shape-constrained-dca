@@ -1,0 +1,33 @@
+# Final test: per-well industry DCA (CPU), fitted on all TRAIN.
+lanes = 2
+min_available_gb = 40
+
+[[job]]
+label = "pw_arps_bayes"
+output = "test_pw_arps_bayes"
+args = "run --models pw_arps_bayes --seeds 42 --device cpu --split test --protocol configs/depletion_final_protocol.toml"
+
+[[job]]
+label = "pw_arps_map"
+output = "test_pw_arps_map"
+args = "run --models pw_arps_map --seeds 42 --device cpu --split test --protocol configs/depletion_final_protocol.toml"
+
+[[job]]
+label = "pw_duong_bayes"
+output = "test_pw_duong_bayes"
+args = "run --models pw_duong_bayes --seeds 42 --device cpu --split test --protocol configs/depletion_final_protocol.toml"
+
+[[job]]
+label = "pw_duong_map"
+output = "test_pw_duong_map"
+args = "run --models pw_duong_map --seeds 42 --device cpu --split test --protocol configs/depletion_final_protocol.toml"
+
+[[job]]
+label = "pw_sedm_bayes"
+output = "test_pw_sedm_bayes"
+args = "run --models pw_sedm_bayes --seeds 42 --device cpu --split test --protocol configs/depletion_final_protocol.toml"
+
+[[job]]
+label = "pw_sedm_map"
+output = "test_pw_sedm_map"
+args = "run --models pw_sedm_map --seeds 42 --device cpu --split test --protocol configs/depletion_final_protocol.toml"

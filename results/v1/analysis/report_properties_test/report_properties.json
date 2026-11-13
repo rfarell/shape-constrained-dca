@@ -1,0 +1,159 @@
+{
+ "runs": [
+  "outputs/test_bayes_cal_s42",
+  "outputs/test_bayes_cal_s43",
+  "outputs/test_bayes_cal_s44",
+  "outputs/test_bayes_cal_s45",
+  "outputs/test_bayes_cal_s46",
+  "outputs/test_competitors",
+  "outputs/test_pw_arps_bayes",
+  "outputs/test_pw_duong_bayes",
+  "outputs/test_pw_sedm_bayes"
+ ],
+ "results": {
+  "observed": {
+   "0": {
+    "wells": 854,
+    "negative_interval_fraction": 0.0005018400802944129,
+    "trajectories_with_negative_interval": 0.00702576112412178,
+    "oil_rate_rise_after_180": 0.08079625292740047,
+    "gas_rises_while_oil_falls_after_180": 0.2775175644028103
+   },
+   "180": {
+    "wells": 854,
+    "negative_interval_fraction": 0.0,
+    "trajectories_with_negative_interval": 0.0,
+    "oil_rate_rise_after_180": 0.08079625292740047,
+    "gas_rises_while_oil_falls_after_180": 0.2775175644028103
+   }
+  },
+  "bayes_cal_mix5": {
+   "0": {
+    "wells": 854,
+    "negative_interval_fraction": 0.009416123006579681,
+    "trajectories_with_negative_interval": 0.16055510831381734,
+    "oil_rate_rise_after_180": 0.191430949941452,
+    "gas_rises_while_oil_falls_after_180": 0.46479252049180325
+   },
+   "180": {
+    "wells": 854,
+    "negative_interval_fraction": 0.005659335967993755,
+    "trajectories_with_negative_interval": 0.04689695550351288,
+    "oil_rate_rise_after_180": 0.19410220286885246,
+    "gas_rises_while_oil_falls_after_180": 0.46054321574941454
+   }
+  },
+  "basis_mix5": {
+   "0": {
+    "wells": 854,
+    "negative_interval_fraction": 0.0019386186851789895,
+    "trajectories_with_negative_interval": 0.029917117974238877,
+    "oil_rate_rise_after_180": 0.060123316744730676,
+    "gas_rises_while_oil_falls_after_180": 0.2272303132318501
+   },
+   "180": {
+    "wells": 854,
+    "negative_interval_fraction": 0.002175017889669529,
+    "trajectories_with_negative_interval": 0.01640899443793911,
+    "oil_rate_rise_after_180": 0.08803973946135832,
+    "gas_rises_while_oil_falls_after_180": 0.28484612851288055
+   }
+  },
+  "dca_mix5": {
+   "0": {
+    "wells": 854,
+    "negative_interval_fraction": 0.0024354490771718524,
+    "trajectories_with_negative_interval": 0.03680291276346604,
+    "oil_rate_rise_after_180": 0.06247164080796253,
+    "gas_rises_while_oil_falls_after_180": 0.28328728776346607
+   },
+   "180": {
+    "wells": 854,
+    "negative_interval_fraction": 0.002693818306010929,
+    "trajectories_with_negative_interval": 0.019243084016393443,
+    "oil_rate_rise_after_180": 0.06343219408665106,
+    "gas_rises_while_oil_falls_after_180": 0.3118706088992974
+   }
+  },
+  "forest_mix5": {
+   "0": {
+    "wells": 854,
+    "negative_interval_fraction": 0.00039175762518122,
+    "trajectories_with_negative_interval": 0.005816378805620609,
+    "oil_rate_rise_after_180": 0.07973141100702576,
+    "gas_rises_while_oil_falls_after_180": 0.28395052693208434
+   },
+   "180": {
+    "wells": 854,
+    "negative_interval_fraction": 1.7076502732240437e-05,
+    "trajectories_with_negative_interval": 0.00015368852459016395,
+    "oil_rate_rise_after_180": 0.0760529493559719,
+    "gas_rises_while_oil_falls_after_180": 0.27515368852459016
+   }
+  },
+  "neural_mix5": {
+   "0": {
+    "wells": 854,
+    "negative_interval_fraction": 0.036855884771941565,
+    "trajectories_with_negative_interval": 0.5053361021662763,
+    "oil_rate_rise_after_180": 0.257495974824356,
+    "gas_rises_while_oil_falls_after_180": 0.4896049838992974
+   },
+   "180": {
+    "wells": 854,
+    "negative_interval_fraction": 0.005242587984647411,
+    "trajectories_with_negative_interval": 0.03744968530444965,
+    "oil_rate_rise_after_180": 0.1786775468384075,
+    "gas_rises_while_oil_falls_after_180": 0.3919002488290398
+   }
+  },
+  "pw_arps_bayes": {
+   "0": {
+    "wells": 854,
+    "negative_interval_fraction": 0.0069236070452771276,
+    "trajectories_with_negative_interval": 0.09550186621779859,
+    "oil_rate_rise_after_180": 0.15746212675644028,
+    "gas_rises_while_oil_falls_after_180": 0.3389975483021077
+   },
+   "180": {
+    "wells": 854,
+    "negative_interval_fraction": 0.007321042317200104,
+    "trajectories_with_negative_interval": 0.05132098946135832,
+    "oil_rate_rise_after_180": 0.15911793764637003,
+    "gas_rises_while_oil_falls_after_180": 0.3420804669203747
+   }
+  },
+  "pw_duong_bayes": {
+   "0": {
+    "wells": 854,
+    "negative_interval_fraction": 0.0040515309607449534,
+    "trajectories_with_negative_interval": 0.06369383050351288,
+    "oil_rate_rise_after_180": 0.1346192549765808,
+    "gas_rises_while_oil_falls_after_180": 0.32083851727166274
+   },
+   "180": {
+    "wells": 854,
+    "negative_interval_fraction": 0.0037380261189175123,
+    "trajectories_with_negative_interval": 0.028725117096018736,
+    "oil_rate_rise_after_180": 0.14922881293911008,
+    "gas_rises_while_oil_falls_after_180": 0.32259038348946134
+   }
+  },
+  "pw_sedm_bayes": {
+   "0": {
+    "wells": 854,
+    "negative_interval_fraction": 0.051028902852124455,
+    "trajectories_with_negative_interval": 0.46170594262295084,
+    "oil_rate_rise_after_180": 0.3026749121779859,
+    "gas_rises_while_oil_falls_after_180": 0.43230386416861827
+   },
+   "180": {
+    "wells": 854,
+    "negative_interval_fraction": 0.030256411820192557,
+    "trajectories_with_negative_interval": 0.20080594994145198,
+    "oil_rate_rise_after_180": 0.2066561768149883,
+    "gas_rises_while_oil_falls_after_180": 0.381408262587822
+   }
+  }
+ }
+}

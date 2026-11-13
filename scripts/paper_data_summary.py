@@ -1,0 +1,143 @@
+"""Descriptive data summary for the manuscript's data tables.
+
+Reads only data/processed/bakken_v1/records.jsonl (the accepted curated records; reports in
+phase order oil, gas, water; oil and water in bbl, gas in Mcf as exported) and the training-derived
+score scales stored in the saved test score file. Fits nothing and scores nothing.
+
+Writes outputs/data_summary/data_summary.json and data_summary.md; the released copy of the JSON
+is results/data_summary.json.
+
+    python scripts/paper_data_summary.py
+"""
+import hashlib
+import json
+from collections import Counter, defaultdict
+from pathlib import Path
+
+import numpy as np
+
+ROOT = Path(__file__).resolve().parents[1]
+RECORDS = ROOT / "data/processed/bakken_v1/records.jsonl"
+SCORES = ROOT / "results/scores/test/score_test_paper/scores.json"
+OUT = ROOT / "outputs/data_summary"
+SPLITS = ["train", "validation", "calibration", "test"]
+DAYS = [0, 30, 60, 90, 180, 360, 720, 1080]
+ORIGINS = [0, 30, 60, 90, 180, 360, 720]
+CELLS = [(o, e) for o in ORIGINS for e in DAYS if e > o]
+
+
+def sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def year(raw):
+    month, day, yy = raw.split("/")
+    return 2000 + int(yy)
+
+
+def pct(values):
+    a = np.asarray([v for v in values if v is not None and np.isfinite(v)], dtype=float)
+    if not a.size:
+        return dict(n=0)
+    p10, p50, p90 = np.percentile(a, [10, 50, 90])
+    return dict(n=int(a.size), p10=float(p10), p50=float(p50), p90=float(p90))
+
+
+def num(text):
+    try:
+        value = float(text)
+    except (TypeError, ValueError):
+        return None
+    return value if np.isfinite(value) else None
+
+
+records = [json.loads(line) for line in RECORDS.read_text().splitlines() if line.strip()]
+by_split = defaultdict(list)
+for rec in records:
+    by_split[rec["split"]].append(rec)
+
+years = sorted({year(r["first_prod_date_raw"]) for r in records})
+counts_by_year = {s: {y: 0 for y in years} for s in SPLITS}
+for rec in records:
+    counts_by_year[rec["split"]][year(rec["first_prod_date_raw"])] += 1
+
+variables = {}
+for split in SPLITS:
+    rows = by_split[split]
+    oil = [r["reports"][7][0] for r in rows]
+    gas = [r["reports"][7][1] for r in rows]
+    wat = [r["reports"][7][2] for r in rows]
+    ip30 = [r["reports"][1][0] / 30.0 for r in rows]
+    gor = [g / o if (o is not None and g is not None and o > 0) else None for o, g in zip(oil, gas)]
+    wcut = [100.0 * w / (o + w) if (o is not None and w is not None and o + w > 0) else None
+            for o, w in zip(oil, wat)]
+    lateral = [num(r["covariates_raw"].get("LateralLength_FT")) for r in rows]
+    proppant = [num(r["covariates_raw"].get("ProppantIntensity_LBSPerFT")) for r in rows]
+    variables[split] = {
+        "records": len(rows),
+        "groups": len({r["group_id"] for r in rows}),
+        "cum_oil_1080_mbbl": pct([v / 1e3 for v in oil]),
+        "cum_gas_1080_mmcf": pct([v / 1e3 for v in gas]),
+        "cum_water_1080_mbbl": pct([v / 1e3 for v in wat]),
+        "ip30_oil_bbl_per_calendar_day": pct(ip30),
+        "gor_1080_mcf_per_bbl": pct(gor),
+        "water_cut_1080_pct": pct(wcut),
+        "lateral_length_ft": pct(lateral),
+        "proppant_intensity_lbm_per_ft": pct(proppant),
+    }
+
+train = by_split["train"]
+s_phi = []
+for phase in range(3):
+    terminal = np.array([r["reports"][7][phase] for r in train], dtype=float)
+    positive = terminal[np.isfinite(terminal) & (terminal > 0)]
+    s_phi.append(float(np.median(positive)))
+
+scores = json.loads(SCORES.read_text())
+scale_sets = {json.dumps(res["all28"]["scales"]) for res in scores["results"].values()}
+if len(scale_sets) != 1:
+    raise ValueError("score scales differ between results")
+cell_scales = json.loads(scale_sets.pop())
+
+summary = dict(
+    inputs=dict(records=str(RECORDS.relative_to(ROOT)), records_sha256=sha256(RECORDS),
+                scores=str(SCORES.relative_to(ROOT)), scores_sha256=sha256(SCORES)),
+    units=dict(oil="bbl", gas="Mcf as exported (standard conditions not documented)", water="bbl",
+               ip30="day-30 cumulative oil / 30 calendar days from first production",
+               gor="cumulative gas / cumulative oil at day 1080", water_cut="water / (oil + water) at day 1080, %"),
+    percentiles="numpy linear interpolation; p10/p50/p90 are ordinary 10th/50th/90th percentiles, not exceedance P-values",
+    counts_by_first_production_year=counts_by_year,
+    variables=variables,
+    model_phase_scales_S_phi=dict(zip(["oil_bbl", "gas_mcf", "water_bbl"], s_phi)),
+    score_cell_scales=dict(cells=[f"{o}->{e}" for o, e in CELLS], phase_order=["oil", "gas", "water"],
+                           scales=cell_scales,
+                           definition="median absolute training increment per cell and phase (metrics.fit_increment_scales)"),
+)
+OUT.mkdir(parents=True, exist_ok=True)
+(OUT / "data_summary.json").write_text(json.dumps(summary, indent=1))
+
+lines = ["# Data summary (descriptive; generated by paper_data_summary.py)", ""]
+lines.append("Counts by first-production year and split")
+lines.append("| Year | " + " | ".join(SPLITS) + " |")
+lines.append("|---|" + "---:|" * len(SPLITS))
+for y in years:
+    lines.append(f"| {y} | " + " | ".join(str(counts_by_year[s][y]) for s in SPLITS) + " |")
+lines.append("")
+lines.append("10th/50th/90th percentiles by split")
+keys = list(variables["train"].keys())[2:]
+lines.append("| Variable | " + " | ".join(SPLITS) + " |")
+lines.append("|---|" + "---:|" * len(SPLITS))
+for key in keys:
+    cells = []
+    for s in SPLITS:
+        v = variables[s][key]
+        cells.append(f"{v['p10']:.4g} / {v['p50']:.4g} / {v['p90']:.4g} (n={v['n']})")
+    lines.append(f"| {key} | " + " | ".join(cells) + " |")
+lines.append("")
+lines.append(f"S_phi (median positive day-1080 training report): oil {s_phi[0]:.1f} bbl, gas {s_phi[1]:.1f} Mcf, water {s_phi[2]:.1f} bbl")
+lines.append("")
+lines.append("Score cell scales (oil bbl / gas Mcf / water bbl)")
+for (o, e), sc in zip(CELLS, cell_scales):
+    lines.append(f"| {o}->{e} | {sc[0]:.0f} | {sc[1]:.0f} | {sc[2]:.0f} |")
+(OUT / "data_summary.md").write_text("\n".join(lines) + "\n")
+print("\n".join(lines))

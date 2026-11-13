@@ -1,0 +1,1370 @@
+{
+ "fit_diagnostics": {
+  "configuration": {
+   "adaptive_rounds": 2,
+   "batch_size": 512,
+   "bootstrap": false,
+   "components": 1,
+   "covariate_clip": 4.0,
+   "decay_max_days": 3650.0,
+   "defensive_scale": 2.0,
+   "defensive_weight": 0.25,
+   "device": "cuda",
+   "discrepancy": "ou_interval",
+   "epochs": 200,
+   "feature_keep": 1.0,
+   "feature_mask": null,
+   "history_dropout": 0.1,
+   "importance": true,
+   "initial_noise_abs": 0.01,
+   "initial_noise_rel": 0.03,
+   "learn_temperature": false,
+   "learning_rate": 0.002,
+   "likelihood_temperature": 1.0,
+   "log_every": 50,
+   "noise_mode": "well",
+   "noise_warmup": 0.25,
+   "objective": "predictive",
+   "oil_penalty": false,
+   "phase_dropout": 0.1,
+   "predictive_bound_weight": 0.0,
+   "predictive_samples": 32,
+   "prior_inflation": 1.0,
+   "prior_linear": false,
+   "prior_scale": "contextual",
+   "prior_weight_decay": 0.001,
+   "prior_width": 128,
+   "proposals": 2048,
+   "random_prior_scale": 0.0,
+   "rank": 8,
+   "rate_clock": true,
+   "ratio_index": "depletion",
+   "ratio_time_scale": 730.0,
+   "report_inflation": 1.0,
+   "seed": 44,
+   "train_samples": 16,
+   "weight_decay": 0.0,
+   "width": 256
+  },
+  "decay_times_days": [
+   10.0,
+   23.22960568094821,
+   53.96145800923414,
+   125.35033915235539,
+   291.183895048234,
+   676.4087062613087,
+   1571.270752561052,
+   3650.0
+  ],
+  "history": [
+   {
+    "epoch": 1,
+    "mean_bound": 1.7287095953629465,
+    "mean_elbo": -140.54306052963236,
+    "observed_points": 49838
+   },
+   {
+    "epoch": 2,
+    "mean_bound": 1.6569226257453202,
+    "mean_elbo": -114.05609114888087,
+    "observed_points": 51930
+   },
+   {
+    "epoch": 3,
+    "mean_bound": 1.920093048856506,
+    "mean_elbo": -57.972007810834484,
+    "observed_points": 51261
+   },
+   {
+    "epoch": 4,
+    "mean_bound": 1.3037397762131504,
+    "mean_elbo": -20.77566518593169,
+    "observed_points": 51365
+   },
+   {
+    "epoch": 5,
+    "mean_bound": 0.7485411164140917,
+    "mean_elbo": -7.485985827939715,
+    "observed_points": 51637
+   },
+   {
+    "epoch": 6,
+    "mean_bound": 0.5246390653147877,
+    "mean_elbo": -2.9262364661053017,
+    "observed_points": 52218
+   },
+   {
+    "epoch": 7,
+    "mean_bound": 0.44456780781731425,
+    "mean_elbo": -0.1861184612987195,
+    "observed_points": 50813
+   },
+   {
+    "epoch": 8,
+    "mean_bound": 0.39761748853326206,
+    "mean_elbo": 4.46665801927646,
+    "observed_points": 51637
+   },
+   {
+    "epoch": 9,
+    "mean_bound": 0.3770369847819519,
+    "mean_elbo": 7.478893508395759,
+    "observed_points": 51828
+   },
+   {
+    "epoch": 10,
+    "mean_bound": 0.36847327847442385,
+    "mean_elbo": 7.985356025290923,
+    "observed_points": 50446
+   },
+   {
+    "epoch": 11,
+    "mean_bound": 0.3566964912493436,
+    "mean_elbo": 8.452230763374596,
+    "observed_points": 50700
+   },
+   {
+    "epoch": 12,
+    "mean_bound": 0.3383732193474696,
+    "mean_elbo": 9.168876466067719,
+    "observed_points": 50631
+   },
+   {
+    "epoch": 13,
+    "mean_bound": 0.33122034013240675,
+    "mean_elbo": 9.644735174870338,
+    "observed_points": 50669
+   },
+   {
+    "epoch": 14,
+    "mean_bound": 0.3127246210916542,
+    "mean_elbo": 10.50445972431014,
+    "observed_points": 50609
+   },
+   {
+    "epoch": 15,
+    "mean_bound": 0.3109830428028329,
+    "mean_elbo": 11.14746125956633,
+    "observed_points": 51942
+   },
+   {
+    "epoch": 16,
+    "mean_bound": 0.30720493716322655,
+    "mean_elbo": 11.077041783199657,
+    "observed_points": 51590
+   },
+   {
+    "epoch": 17,
+    "mean_bound": 0.29806106423815787,
+    "mean_elbo": 11.279410531665418,
+    "observed_points": 51556
+   },
+   {
+    "epoch": 18,
+    "mean_bound": 0.2994649266485515,
+    "mean_elbo": 11.178594340241991,
+    "observed_points": 50942
+   },
+   {
+    "epoch": 19,
+    "mean_bound": 0.2979846870231423,
+    "mean_elbo": 11.049451939430222,
+    "observed_points": 51040
+   },
+   {
+    "epoch": 20,
+    "mean_bound": 0.29568035742484067,
+    "mean_elbo": 11.284644560927259,
+    "observed_points": 50385
+   },
+   {
+    "epoch": 21,
+    "mean_bound": 0.2958901107136515,
+    "mean_elbo": 11.683908766421808,
+    "observed_points": 51094
+   },
+   {
+    "epoch": 22,
+    "mean_bound": 0.2922182748879714,
+    "mean_elbo": 11.442225052229995,
+    "observed_points": 50538
+   },
+   {
+    "epoch": 23,
+    "mean_bound": 0.2892942179549263,
+    "mean_elbo": 11.779429367381175,
+    "observed_points": 51386
+   },
+   {
+    "epoch": 24,
+    "mean_bound": 0.28628651132856264,
+    "mean_elbo": 11.81663716050016,
+    "observed_points": 50868
+   },
+   {
+    "epoch": 25,
+    "mean_bound": 0.2793517560131229,
+    "mean_elbo": 11.784199352376186,
+    "observed_points": 51282
+   },
+   {
+    "epoch": 26,
+    "mean_bound": 0.28052684237827097,
+    "mean_elbo": 11.940407973801175,
+    "observed_points": 51104
+   },
+   {
+    "epoch": 27,
+    "mean_bound": 0.28084833040686974,
+    "mean_elbo": 12.072058105823702,
+    "observed_points": 51698
+   },
+   {
+    "epoch": 28,
+    "mean_bound": 0.2828308526175342,
+    "mean_elbo": 11.957764897579386,
+    "observed_points": 50709
+   },
+   {
+    "epoch": 29,
+    "mean_bound": 0.27865325372706784,
+    "mean_elbo": 12.07113358569723,
+    "observed_points": 51240
+   },
+   {
+    "epoch": 30,
+    "mean_bound": 0.2796908336985936,
+    "mean_elbo": 12.018877843563518,
+    "observed_points": 51823
+   },
+   {
+    "epoch": 31,
+    "mean_bound": 0.2772771777466177,
+    "mean_elbo": 12.20481348253681,
+    "observed_points": 51853
+   },
+   {
+    "epoch": 32,
+    "mean_bound": 0.2796439025140243,
+    "mean_elbo": 12.2168658221446,
+    "observed_points": 51112
+   },
+   {
+    "epoch": 33,
+    "mean_bound": 0.2754714255044702,
+    "mean_elbo": 12.402011150131973,
+    "observed_points": 51537
+   },
+   {
+    "epoch": 34,
+    "mean_bound": 0.2760741590007834,
+    "mean_elbo": 12.23912075189401,
+    "observed_points": 51125
+   },
+   {
+    "epoch": 35,
+    "mean_bound": 0.27294333702133133,
+    "mean_elbo": 12.179162116234396,
+    "observed_points": 50455
+   },
+   {
+    "epoch": 36,
+    "mean_bound": 0.272545738331493,
+    "mean_elbo": 12.209762366305666,
+    "observed_points": 50775
+   },
+   {
+    "epoch": 37,
+    "mean_bound": 0.27097727303339847,
+    "mean_elbo": 12.315992612973988,
+    "observed_points": 51337
+   },
+   {
+    "epoch": 38,
+    "mean_bound": 0.269158397118993,
+    "mean_elbo": 12.347878655349291,
+    "observed_points": 50986
+   },
+   {
+    "epoch": 39,
+    "mean_bound": 0.26927391982407706,
+    "mean_elbo": 12.355615732826308,
+    "observed_points": 50921
+   },
+   {
+    "epoch": 40,
+    "mean_bound": 0.2720790698288922,
+    "mean_elbo": 12.69975174454293,
+    "observed_points": 51691
+   },
+   {
+    "epoch": 41,
+    "mean_bound": 0.2659291144706042,
+    "mean_elbo": 12.489572299931918,
+    "observed_points": 51126
+   },
+   {
+    "epoch": 42,
+    "mean_bound": 0.26348877205303206,
+    "mean_elbo": 12.31877669804199,
+    "observed_points": 50516
+   },
+   {
+    "epoch": 43,
+    "mean_bound": 0.2663995989642169,
+    "mean_elbo": 12.45275655525504,
+    "observed_points": 50829
+   },
+   {
+    "epoch": 44,
+    "mean_bound": 0.2673860416871809,
+    "mean_elbo": 12.627611736649369,
+    "observed_points": 51616
+   },
+   {
+    "epoch": 45,
+    "mean_bound": 0.2649099671031719,
+    "mean_elbo": 12.448966621474273,
+    "observed_points": 50653
+   },
+   {
+    "epoch": 46,
+    "mean_bound": 0.2625529648051033,
+    "mean_elbo": 12.528972332282915,
+    "observed_points": 50907
+   },
+   {
+    "epoch": 47,
+    "mean_bound": 0.262108761231204,
+    "mean_elbo": 12.440371070037504,
+    "observed_points": 50710
+   },
+   {
+    "epoch": 48,
+    "mean_bound": 0.26073258036296515,
+    "mean_elbo": 12.783754179671961,
+    "observed_points": 51545
+   },
+   {
+    "epoch": 49,
+    "mean_bound": 0.2636350145588157,
+    "mean_elbo": 12.754798979053612,
+    "observed_points": 51030
+   },
+   {
+    "epoch": 50,
+    "mean_bound": 0.26013103928839426,
+    "mean_elbo": 12.544588105615388,
+    "observed_points": 50878
+   },
+   {
+    "epoch": 51,
+    "mean_bound": 0.25908004797124096,
+    "mean_elbo": 12.828095006177929,
+    "observed_points": 51404
+   },
+   {
+    "epoch": 52,
+    "mean_bound": 0.2575662372123158,
+    "mean_elbo": 12.83059824743851,
+    "observed_points": 51154
+   },
+   {
+    "epoch": 53,
+    "mean_bound": 0.25790972663573986,
+    "mean_elbo": 12.861738409830897,
+    "observed_points": 51189
+   },
+   {
+    "epoch": 54,
+    "mean_bound": 0.25560275859989945,
+    "mean_elbo": 12.980826746064755,
+    "observed_points": 52012
+   },
+   {
+    "epoch": 55,
+    "mean_bound": 0.2613176304479641,
+    "mean_elbo": 12.80899921922261,
+    "observed_points": 51362
+   },
+   {
+    "epoch": 56,
+    "mean_bound": 0.2563740982453095,
+    "mean_elbo": 12.854602941765144,
+    "observed_points": 51324
+   },
+   {
+    "epoch": 57,
+    "mean_bound": 0.2591451095820336,
+    "mean_elbo": 12.585335991025964,
+    "observed_points": 49752
+   },
+   {
+    "epoch": 58,
+    "mean_bound": 0.2593696465713388,
+    "mean_elbo": 12.878024942822934,
+    "observed_points": 50908
+   },
+   {
+    "epoch": 59,
+    "mean_bound": 0.2571082120471459,
+    "mean_elbo": 12.900188610417272,
+    "observed_points": 50681
+   },
+   {
+    "epoch": 60,
+    "mean_bound": 0.2526134816406566,
+    "mean_elbo": 12.951074801909499,
+    "observed_points": 51137
+   },
+   {
+    "epoch": 61,
+    "mean_bound": 0.25366424736376614,
+    "mean_elbo": 13.030239802570462,
+    "observed_points": 51496
+   },
+   {
+    "epoch": 62,
+    "mean_bound": 0.2557547982258823,
+    "mean_elbo": 12.922814432674052,
+    "observed_points": 50926
+   },
+   {
+    "epoch": 63,
+    "mean_bound": 0.25527326593178584,
+    "mean_elbo": 12.974220731344403,
+    "observed_points": 51302
+   },
+   {
+    "epoch": 64,
+    "mean_bound": 0.24749122266166326,
+    "mean_elbo": 13.045292923039126,
+    "observed_points": 51458
+   },
+   {
+    "epoch": 65,
+    "mean_bound": 0.2518328174187343,
+    "mean_elbo": 13.054122766510018,
+    "observed_points": 51662
+   },
+   {
+    "epoch": 66,
+    "mean_bound": 0.25599073291467633,
+    "mean_elbo": 12.793580086333446,
+    "observed_points": 50281
+   },
+   {
+    "epoch": 67,
+    "mean_bound": 0.25240033073318696,
+    "mean_elbo": 12.754932443924154,
+    "observed_points": 50169
+   },
+   {
+    "epoch": 68,
+    "mean_bound": 0.2546425180714602,
+    "mean_elbo": 13.062100294840686,
+    "observed_points": 51526
+   },
+   {
+    "epoch": 69,
+    "mean_bound": 0.2520041214960144,
+    "mean_elbo": 13.110756062238798,
+    "observed_points": 51303
+   },
+   {
+    "epoch": 70,
+    "mean_bound": 0.25111595301111617,
+    "mean_elbo": 13.088580451479453,
+    "observed_points": 50782
+   },
+   {
+    "epoch": 71,
+    "mean_bound": 0.25062301385256813,
+    "mean_elbo": 13.061137046767902,
+    "observed_points": 50940
+   },
+   {
+    "epoch": 72,
+    "mean_bound": 0.250322067153471,
+    "mean_elbo": 13.169230641656144,
+    "observed_points": 51530
+   },
+   {
+    "epoch": 73,
+    "mean_bound": 0.2509792456095836,
+    "mean_elbo": 13.172227506894103,
+    "observed_points": 51581
+   },
+   {
+    "epoch": 74,
+    "mean_bound": 0.25160993773610785,
+    "mean_elbo": 13.023760130790041,
+    "observed_points": 51047
+   },
+   {
+    "epoch": 75,
+    "mean_bound": 0.25244228121463547,
+    "mean_elbo": 13.365576954379938,
+    "observed_points": 52036
+   },
+   {
+    "epoch": 76,
+    "mean_bound": 0.2471537266320874,
+    "mean_elbo": 13.525650054871646,
+    "observed_points": 52343
+   },
+   {
+    "epoch": 77,
+    "mean_bound": 0.24729541296055846,
+    "mean_elbo": 13.029767665294067,
+    "observed_points": 50780
+   },
+   {
+    "epoch": 78,
+    "mean_bound": 0.24468490180565874,
+    "mean_elbo": 13.337253446369864,
+    "observed_points": 51421
+   },
+   {
+    "epoch": 79,
+    "mean_bound": 0.25152381672739793,
+    "mean_elbo": 13.517223340010535,
+    "observed_points": 51702
+   },
+   {
+    "epoch": 80,
+    "mean_bound": 0.2486481810684725,
+    "mean_elbo": 13.18261846783791,
+    "observed_points": 50835
+   },
+   {
+    "epoch": 81,
+    "mean_bound": 0.24913998328044007,
+    "mean_elbo": 13.06807221493082,
+    "observed_points": 50314
+   },
+   {
+    "epoch": 82,
+    "mean_bound": 0.24802679585482512,
+    "mean_elbo": 13.410503769957828,
+    "observed_points": 51667
+   },
+   {
+    "epoch": 83,
+    "mean_bound": 0.24132643203285678,
+    "mean_elbo": 13.335485887051314,
+    "observed_points": 51467
+   },
+   {
+    "epoch": 84,
+    "mean_bound": 0.24687859369753287,
+    "mean_elbo": 13.35864886598328,
+    "observed_points": 51273
+   },
+   {
+    "epoch": 85,
+    "mean_bound": 0.24803457057014586,
+    "mean_elbo": 13.472135534851493,
+    "observed_points": 51513
+   },
+   {
+    "epoch": 86,
+    "mean_bound": 0.24412942053059322,
+    "mean_elbo": 13.554148216490775,
+    "observed_points": 51934
+   },
+   {
+    "epoch": 87,
+    "mean_bound": 0.24947954251339433,
+    "mean_elbo": 13.337030035588592,
+    "observed_points": 51026
+   },
+   {
+    "epoch": 88,
+    "mean_bound": 0.2454684580479546,
+    "mean_elbo": 13.287103291726018,
+    "observed_points": 50889
+   },
+   {
+    "epoch": 89,
+    "mean_bound": 0.24656803021526535,
+    "mean_elbo": 13.33953037461153,
+    "observed_points": 51379
+   },
+   {
+    "epoch": 90,
+    "mean_bound": 0.24820865163056735,
+    "mean_elbo": 13.394996353224336,
+    "observed_points": 51138
+   },
+   {
+    "epoch": 91,
+    "mean_bound": 0.2467024575346919,
+    "mean_elbo": 13.304690926602763,
+    "observed_points": 50819
+   },
+   {
+    "epoch": 92,
+    "mean_bound": 0.24132807395510034,
+    "mean_elbo": 13.395813530630965,
+    "observed_points": 51366
+   },
+   {
+    "epoch": 93,
+    "mean_bound": 0.241370151480161,
+    "mean_elbo": 13.448649937254794,
+    "observed_points": 51502
+   },
+   {
+    "epoch": 94,
+    "mean_bound": 0.2397733584856437,
+    "mean_elbo": 13.259608379219026,
+    "observed_points": 50820
+   },
+   {
+    "epoch": 95,
+    "mean_bound": 0.24523233239799114,
+    "mean_elbo": 13.50890523755319,
+    "observed_points": 51178
+   },
+   {
+    "epoch": 96,
+    "mean_bound": 0.24184439859793638,
+    "mean_elbo": 13.411036891603183,
+    "observed_points": 51072
+   },
+   {
+    "epoch": 97,
+    "mean_bound": 0.24309174420234728,
+    "mean_elbo": 13.40615529342309,
+    "observed_points": 51111
+   },
+   {
+    "epoch": 98,
+    "mean_bound": 0.24140118190429424,
+    "mean_elbo": 13.193073181027389,
+    "observed_points": 50551
+   },
+   {
+    "epoch": 99,
+    "mean_bound": 0.24141268585257145,
+    "mean_elbo": 13.49976765149107,
+    "observed_points": 51620
+   },
+   {
+    "epoch": 100,
+    "mean_bound": 0.24334724010188133,
+    "mean_elbo": 13.55879735519152,
+    "observed_points": 51534
+   },
+   {
+    "epoch": 101,
+    "mean_bound": 0.24089951813076235,
+    "mean_elbo": 13.239724115723506,
+    "observed_points": 50664
+   },
+   {
+    "epoch": 102,
+    "mean_bound": 0.23898503088316597,
+    "mean_elbo": 13.492245596720736,
+    "observed_points": 51577
+   },
+   {
+    "epoch": 103,
+    "mean_bound": 0.2359535029652894,
+    "mean_elbo": 13.52702471767856,
+    "observed_points": 51394
+   },
+   {
+    "epoch": 104,
+    "mean_bound": 0.24047008108207804,
+    "mean_elbo": 13.610140556119555,
+    "observed_points": 51678
+   },
+   {
+    "epoch": 105,
+    "mean_bound": 0.23977722640568697,
+    "mean_elbo": 13.49307697182589,
+    "observed_points": 51016
+   },
+   {
+    "epoch": 106,
+    "mean_bound": 0.23982350038103772,
+    "mean_elbo": 13.557421946370923,
+    "observed_points": 51575
+   },
+   {
+    "epoch": 107,
+    "mean_bound": 0.2402595613872167,
+    "mean_elbo": 13.683857830343658,
+    "observed_points": 51616
+   },
+   {
+    "epoch": 108,
+    "mean_bound": 0.24188652640301156,
+    "mean_elbo": 13.407537861360517,
+    "observed_points": 50891
+   },
+   {
+    "epoch": 109,
+    "mean_bound": 0.2411968183906962,
+    "mean_elbo": 13.466007402908733,
+    "observed_points": 50905
+   },
+   {
+    "epoch": 110,
+    "mean_bound": 0.23505804554967483,
+    "mean_elbo": 13.478157871499747,
+    "observed_points": 50985
+   },
+   {
+    "epoch": 111,
+    "mean_bound": 0.23764716443204018,
+    "mean_elbo": 13.480902373156063,
+    "observed_points": 50864
+   },
+   {
+    "epoch": 112,
+    "mean_bound": 0.23712340402835327,
+    "mean_elbo": 13.443817575034668,
+    "observed_points": 51124
+   },
+   {
+    "epoch": 113,
+    "mean_bound": 0.23931787688505166,
+    "mean_elbo": 13.551453012084588,
+    "observed_points": 51055
+   },
+   {
+    "epoch": 114,
+    "mean_bound": 0.23825459140592659,
+    "mean_elbo": 13.601900985580842,
+    "observed_points": 51361
+   },
+   {
+    "epoch": 115,
+    "mean_bound": 0.2371092831260285,
+    "mean_elbo": 13.490434528058868,
+    "observed_points": 50920
+   },
+   {
+    "epoch": 116,
+    "mean_bound": 0.24006524097803394,
+    "mean_elbo": 13.49568656147229,
+    "observed_points": 50967
+   },
+   {
+    "epoch": 117,
+    "mean_bound": 0.2396466056572643,
+    "mean_elbo": 13.528838131480452,
+    "observed_points": 50921
+   },
+   {
+    "epoch": 118,
+    "mean_bound": 0.23820204984124774,
+    "mean_elbo": 13.60586785218934,
+    "observed_points": 51227
+   },
+   {
+    "epoch": 119,
+    "mean_bound": 0.23649367006306649,
+    "mean_elbo": 13.689949483146862,
+    "observed_points": 51365
+   },
+   {
+    "epoch": 120,
+    "mean_bound": 0.23665051595975492,
+    "mean_elbo": 13.545350512334037,
+    "observed_points": 50690
+   },
+   {
+    "epoch": 121,
+    "mean_bound": 0.23654243649373943,
+    "mean_elbo": 13.638996104805987,
+    "observed_points": 51429
+   },
+   {
+    "epoch": 122,
+    "mean_bound": 0.23658652763200116,
+    "mean_elbo": 13.648773509226391,
+    "observed_points": 51192
+   },
+   {
+    "epoch": 123,
+    "mean_bound": 0.23582154375855738,
+    "mean_elbo": 13.606339285505495,
+    "observed_points": 50995
+   },
+   {
+    "epoch": 124,
+    "mean_bound": 0.2346757097340254,
+    "mean_elbo": 13.662538377774203,
+    "observed_points": 51351
+   },
+   {
+    "epoch": 125,
+    "mean_bound": 0.2331958877203126,
+    "mean_elbo": 13.769710137902562,
+    "observed_points": 51693
+   },
+   {
+    "epoch": 126,
+    "mean_bound": 0.23580195627400408,
+    "mean_elbo": 13.528737777839467,
+    "observed_points": 50595
+   },
+   {
+    "epoch": 127,
+    "mean_bound": 0.23464719616146595,
+    "mean_elbo": 13.695200219127152,
+    "observed_points": 51290
+   },
+   {
+    "epoch": 128,
+    "mean_bound": 0.23231599933072394,
+    "mean_elbo": 13.600402481046743,
+    "observed_points": 51166
+   },
+   {
+    "epoch": 129,
+    "mean_bound": 0.2366841382320298,
+    "mean_elbo": 13.668086200806792,
+    "observed_points": 50831
+   },
+   {
+    "epoch": 130,
+    "mean_bound": 0.23202835258576174,
+    "mean_elbo": 13.76431771115501,
+    "observed_points": 51453
+   },
+   {
+    "epoch": 131,
+    "mean_bound": 0.23252382633698834,
+    "mean_elbo": 13.454490654387097,
+    "observed_points": 50504
+   },
+   {
+    "epoch": 132,
+    "mean_bound": 0.2346793944498652,
+    "mean_elbo": 13.674247632142361,
+    "observed_points": 51047
+   },
+   {
+    "epoch": 133,
+    "mean_bound": 0.22986619068295033,
+    "mean_elbo": 13.565366587380797,
+    "observed_points": 51014
+   },
+   {
+    "epoch": 134,
+    "mean_bound": 0.23671877437459507,
+    "mean_elbo": 13.75855530518581,
+    "observed_points": 51046
+   },
+   {
+    "epoch": 135,
+    "mean_bound": 0.23387184316442103,
+    "mean_elbo": 13.593815130384284,
+    "observed_points": 51028
+   },
+   {
+    "epoch": 136,
+    "mean_bound": 0.2297800354099417,
+    "mean_elbo": 13.784830230406401,
+    "observed_points": 51788
+   },
+   {
+    "epoch": 137,
+    "mean_bound": 0.23470192216491578,
+    "mean_elbo": 13.521841322839595,
+    "observed_points": 50639
+   },
+   {
+    "epoch": 138,
+    "mean_bound": 0.23619039774203032,
+    "mean_elbo": 13.609592198095338,
+    "observed_points": 50726
+   },
+   {
+    "epoch": 139,
+    "mean_bound": 0.23765265270805727,
+    "mean_elbo": 13.613688494240805,
+    "observed_points": 50809
+   },
+   {
+    "epoch": 140,
+    "mean_bound": 0.23087737871170166,
+    "mean_elbo": 13.719165501375896,
+    "observed_points": 51402
+   },
+   {
+    "epoch": 141,
+    "mean_bound": 0.23378796158344742,
+    "mean_elbo": 14.025404589958203,
+    "observed_points": 52104
+   },
+   {
+    "epoch": 142,
+    "mean_bound": 0.2332134308619374,
+    "mean_elbo": 13.632816932473245,
+    "observed_points": 50891
+   },
+   {
+    "epoch": 143,
+    "mean_bound": 0.23247035143788283,
+    "mean_elbo": 13.606932726771495,
+    "observed_points": 50936
+   },
+   {
+    "epoch": 144,
+    "mean_bound": 0.23115026766516464,
+    "mean_elbo": 13.610392616904663,
+    "observed_points": 50736
+   },
+   {
+    "epoch": 145,
+    "mean_bound": 0.2307249805661603,
+    "mean_elbo": 13.841095751133018,
+    "observed_points": 51596
+   },
+   {
+    "epoch": 146,
+    "mean_bound": 0.23147567710351338,
+    "mean_elbo": 13.79337257589744,
+    "observed_points": 51311
+   },
+   {
+    "epoch": 147,
+    "mean_bound": 0.23276265744598323,
+    "mean_elbo": 13.866013569290063,
+    "observed_points": 51812
+   },
+   {
+    "epoch": 148,
+    "mean_bound": 0.23296470940452413,
+    "mean_elbo": 13.82023655872749,
+    "observed_points": 51428
+   },
+   {
+    "epoch": 149,
+    "mean_bound": 0.2330818753273407,
+    "mean_elbo": 13.543428525713322,
+    "observed_points": 50329
+   },
+   {
+    "epoch": 150,
+    "mean_bound": 0.23297245409421594,
+    "mean_elbo": 13.839413252053061,
+    "observed_points": 51393
+   },
+   {
+    "epoch": 151,
+    "mean_bound": 0.22922837196225992,
+    "mean_elbo": 13.52606522372641,
+    "observed_points": 50506
+   },
+   {
+    "epoch": 152,
+    "mean_bound": 0.23259057187514476,
+    "mean_elbo": 13.719079756460356,
+    "observed_points": 50990
+   },
+   {
+    "epoch": 153,
+    "mean_bound": 0.23012104379576215,
+    "mean_elbo": 13.64405649817001,
+    "observed_points": 51088
+   },
+   {
+    "epoch": 154,
+    "mean_bound": 0.23108583125084364,
+    "mean_elbo": 13.955336687001296,
+    "observed_points": 51920
+   },
+   {
+    "epoch": 155,
+    "mean_bound": 0.23136645296845057,
+    "mean_elbo": 13.911196159977267,
+    "observed_points": 51696
+   },
+   {
+    "epoch": 156,
+    "mean_bound": 0.23250269987014263,
+    "mean_elbo": 13.692303969657525,
+    "observed_points": 50943
+   },
+   {
+    "epoch": 157,
+    "mean_bound": 0.2296260793521983,
+    "mean_elbo": 13.937920616131676,
+    "observed_points": 52092
+   },
+   {
+    "epoch": 158,
+    "mean_bound": 0.22964346417568876,
+    "mean_elbo": 13.72139599179915,
+    "observed_points": 51230
+   },
+   {
+    "epoch": 159,
+    "mean_bound": 0.2305509104578505,
+    "mean_elbo": 13.766631050149917,
+    "observed_points": 51195
+   },
+   {
+    "epoch": 160,
+    "mean_bound": 0.23404120891908317,
+    "mean_elbo": 13.856585355365569,
+    "observed_points": 51511
+   },
+   {
+    "epoch": 161,
+    "mean_bound": 0.23318347277595364,
+    "mean_elbo": 13.778421140100937,
+    "observed_points": 51001
+   },
+   {
+    "epoch": 162,
+    "mean_bound": 0.22710817053189278,
+    "mean_elbo": 14.075693214649664,
+    "observed_points": 52241
+   },
+   {
+    "epoch": 163,
+    "mean_bound": 0.22916675925242289,
+    "mean_elbo": 13.83199344490333,
+    "observed_points": 51389
+   },
+   {
+    "epoch": 164,
+    "mean_bound": 0.22966413174272346,
+    "mean_elbo": 13.729091737536109,
+    "observed_points": 50841
+   },
+   {
+    "epoch": 165,
+    "mean_bound": 0.22925214139006977,
+    "mean_elbo": 13.704853744699617,
+    "observed_points": 50884
+   },
+   {
+    "epoch": 166,
+    "mean_bound": 0.2281372731549568,
+    "mean_elbo": 13.630357389227857,
+    "observed_points": 50531
+   },
+   {
+    "epoch": 167,
+    "mean_bound": 0.22791675551171522,
+    "mean_elbo": 13.591270941984106,
+    "observed_points": 50681
+   },
+   {
+    "epoch": 168,
+    "mean_bound": 0.22948652873051928,
+    "mean_elbo": 13.689303424980597,
+    "observed_points": 50793
+   },
+   {
+    "epoch": 169,
+    "mean_bound": 0.22973890379381476,
+    "mean_elbo": 13.708446316428821,
+    "observed_points": 50872
+   },
+   {
+    "epoch": 170,
+    "mean_bound": 0.23365685492358781,
+    "mean_elbo": 13.832173441172788,
+    "observed_points": 51385
+   },
+   {
+    "epoch": 171,
+    "mean_bound": 0.22941071814223915,
+    "mean_elbo": 13.665379101131453,
+    "observed_points": 50888
+   },
+   {
+    "epoch": 172,
+    "mean_bound": 0.23030651722609655,
+    "mean_elbo": 13.662284289941304,
+    "observed_points": 50542
+   },
+   {
+    "epoch": 173,
+    "mean_bound": 0.2297832032041637,
+    "mean_elbo": 13.730873274554748,
+    "observed_points": 50919
+   },
+   {
+    "epoch": 174,
+    "mean_bound": 0.2298859007064319,
+    "mean_elbo": 13.592192063691133,
+    "observed_points": 50437
+   },
+   {
+    "epoch": 175,
+    "mean_bound": 0.23022439417255494,
+    "mean_elbo": 13.818768732346633,
+    "observed_points": 51081
+   },
+   {
+    "epoch": 176,
+    "mean_bound": 0.23327284593189734,
+    "mean_elbo": 13.889157743998146,
+    "observed_points": 51478
+   },
+   {
+    "epoch": 177,
+    "mean_bound": 0.22903365169601675,
+    "mean_elbo": 13.815085858536792,
+    "observed_points": 51270
+   },
+   {
+    "epoch": 178,
+    "mean_bound": 0.23041017602724795,
+    "mean_elbo": 13.896707656945084,
+    "observed_points": 51484
+   },
+   {
+    "epoch": 179,
+    "mean_bound": 0.22898157974056196,
+    "mean_elbo": 13.69587367002661,
+    "observed_points": 50605
+   },
+   {
+    "epoch": 180,
+    "mean_bound": 0.22927876131857863,
+    "mean_elbo": 13.685258703800745,
+    "observed_points": 50935
+   },
+   {
+    "epoch": 181,
+    "mean_bound": 0.22839742686592507,
+    "mean_elbo": 14.067713906218826,
+    "observed_points": 52113
+   },
+   {
+    "epoch": 182,
+    "mean_bound": 0.23070748167160093,
+    "mean_elbo": 13.873555526887987,
+    "observed_points": 51381
+   },
+   {
+    "epoch": 183,
+    "mean_bound": 0.22918898429432583,
+    "mean_elbo": 13.598040174576136,
+    "observed_points": 50559
+   },
+   {
+    "epoch": 184,
+    "mean_bound": 0.22764911873554727,
+    "mean_elbo": 13.693336589244455,
+    "observed_points": 50897
+   },
+   {
+    "epoch": 185,
+    "mean_bound": 0.22728175962705113,
+    "mean_elbo": 13.988656726615858,
+    "observed_points": 51889
+   },
+   {
+    "epoch": 186,
+    "mean_bound": 0.22875571577910864,
+    "mean_elbo": 13.888849002311913,
+    "observed_points": 51682
+   },
+   {
+    "epoch": 187,
+    "mean_bound": 0.22851878540227258,
+    "mean_elbo": 13.934586970883153,
+    "observed_points": 51241
+   },
+   {
+    "epoch": 188,
+    "mean_bound": 0.23035887973812905,
+    "mean_elbo": 13.984982329982289,
+    "observed_points": 51381
+   },
+   {
+    "epoch": 189,
+    "mean_bound": 0.2293172163749677,
+    "mean_elbo": 13.840611792120361,
+    "observed_points": 51162
+   },
+   {
+    "epoch": 190,
+    "mean_bound": 0.22972522636654927,
+    "mean_elbo": 13.690250999229095,
+    "observed_points": 50733
+   },
+   {
+    "epoch": 191,
+    "mean_bound": 0.22975448997648196,
+    "mean_elbo": 14.008095450754325,
+    "observed_points": 51684
+   },
+   {
+    "epoch": 192,
+    "mean_bound": 0.22478580720196836,
+    "mean_elbo": 13.956456660232357,
+    "observed_points": 51810
+   },
+   {
+    "epoch": 193,
+    "mean_bound": 0.22730324777801703,
+    "mean_elbo": 13.653234555961633,
+    "observed_points": 50589
+   },
+   {
+    "epoch": 194,
+    "mean_bound": 0.2287927126046232,
+    "mean_elbo": 13.88509574443727,
+    "observed_points": 51275
+   },
+   {
+    "epoch": 195,
+    "mean_bound": 0.2315521680969076,
+    "mean_elbo": 13.883155064463908,
+    "observed_points": 51141
+   },
+   {
+    "epoch": 196,
+    "mean_bound": 0.22897086761552837,
+    "mean_elbo": 13.860210502662456,
+    "observed_points": 51471
+   },
+   {
+    "epoch": 197,
+    "mean_bound": 0.22555172251067404,
+    "mean_elbo": 13.92636295597749,
+    "observed_points": 51537
+   },
+   {
+    "epoch": 198,
+    "mean_bound": 0.23150124609618977,
+    "mean_elbo": 13.750250915891847,
+    "observed_points": 50869
+   },
+   {
+    "epoch": 199,
+    "mean_bound": 0.22946935129786156,
+    "mean_elbo": 13.737975086311007,
+    "observed_points": 50991
+   },
+   {
+    "epoch": 200,
+    "mean_bound": 0.22894312544546214,
+    "mean_elbo": 13.773501396489367,
+    "observed_points": 50971
+   },
+   {
+    "ou_sigma": [
+     0.08211608231067657,
+     0.10326337814331055,
+     0.09044743329286575
+    ],
+    "ou_tau_days": [
+     251.91058349609375,
+     152.19471740722656,
+     307.616455078125
+    ]
+   }
+  ],
+  "latent_dim": 23,
+  "noise_abs_normalized": [
+   0.005468389950692654,
+   0.005324643105268478,
+   0.00422231201082468
+  ],
+  "noise_rel": [
+   0.013977833092212677,
+   0.01828167773783207,
+   0.01307898573577404
+  ],
+  "peak_max_days": 180.0,
+  "phase_scales": [
+   154973.9333,
+   171130.1935,
+   116347.6129
+  ],
+  "ratio_degree": 3,
+  "training_wells": 7017
+ },
+ "fit_seconds": 5179.248661702004,
+ "kind": "bayes",
+ "model": "bayes_arch_seed44",
+ "prediction_diagnostics": {
+  "0": {
+   "ess_median": 2048.0,
+   "ess_p10": 2048.0,
+   "max_weight_p90": 0.00048828125,
+   "origin": 0.0,
+   "unique_draws_median": 256.0,
+   "unique_draws_p10": 256.0
+  },
+  "180": {
+   "ess_median": 799.7268500995806,
+   "ess_p10": 495.35400304957,
+   "max_weight_p90": 0.01694953398864885,
+   "origin": 180.0,
+   "unique_draws_median": 255.0,
+   "unique_draws_p10": 245.9
+  },
+  "30": {
+   "ess_median": 1042.9944062313157,
+   "ess_p10": 896.1814858576099,
+   "max_weight_p90": 0.006272163439836861,
+   "origin": 30.0,
+   "unique_draws_median": 256.0,
+   "unique_draws_p10": 255.0
+  },
+  "360": {
+   "ess_median": 674.3708478847063,
+   "ess_p10": 250.74859611905282,
+   "max_weight_p90": 0.03391081806295324,
+   "origin": 360.0,
+   "unique_draws_median": 253.0,
+   "unique_draws_p10": 225.9
+  },
+  "60": {
+   "ess_median": 977.2890868280847,
+   "ess_p10": 770.1857834247453,
+   "max_weight_p90": 0.008154816909586088,
+   "origin": 60.0,
+   "unique_draws_median": 256.0,
+   "unique_draws_p10": 254.0
+  },
+  "720": {
+   "ess_median": 515.7627504398605,
+   "ess_p10": 68.5216285311599,
+   "max_weight_p90": 0.07806748000682331,
+   "origin": 720.0,
+   "unique_draws_median": 247.0,
+   "unique_draws_p10": 166.0
+  },
+  "90": {
+   "ess_median": 900.8136937801138,
+   "ess_p10": 608.7856153480424,
+   "max_weight_p90": 0.011445606944991618,
+   "origin": 90.0,
+   "unique_draws_median": 256.0,
+   "unique_draws_p10": 250.0
+  }
+ },
+ "seed": 44,
+ "settings": {
+  "device": "cuda",
+  "discrepancy": "ou_interval",
+  "epochs": 200,
+  "log_every": 50,
+  "objective": "predictive",
+  "predictive_samples": 32,
+  "prior_width": 128,
+  "rank": 8,
+  "rate_clock": true,
+  "seed": 44,
+  "train_samples": 16,
+  "width": 256
+ },
+ "total_seconds": 5510.768989586999
+}

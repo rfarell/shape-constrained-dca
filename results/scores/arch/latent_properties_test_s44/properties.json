@@ -1,0 +1,75 @@
+{
+ "draws": 64,
+ "grid_days": [
+  0,
+  3650
+ ],
+ "results": {
+  "bayes": {
+   "0": {
+    "cumulative_decreasing_any": 0.0,
+    "eur_finite_fraction": 1.0,
+    "eur_over_cumulative3650_median": [
+     1.2220421779481987,
+     1.5978351114328027,
+     1.4534864901290039
+    ],
+    "gas_any_rise_after_day180": 0.13729166666666667,
+    "gas_rises_while_oil_declines_after_day180": 0.13729166666666667,
+    "interval_gas_rises_while_oil_falls_after_180": 0.0228125,
+    "interval_oil_rate_rise_after_180": 0.0,
+    "max_relative_integral_error": 0.004517624660399628,
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.0,
+    "oil_any_rise_first_90_days": 1.0,
+    "oil_decline_rate_increases_after_day180": 0.0,
+    "peak_day_max": 25.735181019509223,
+    "water_any_rise_after_day180": 0.03270833333333333
+   },
+   "360": {
+    "cumulative_decreasing_any": 0.0,
+    "eur_finite_fraction": 1.0,
+    "eur_over_cumulative3650_median": [
+     1.2194728499914476,
+     1.6026950353425464,
+     1.4395004924238612
+    ],
+    "gas_any_rise_after_day180": 0.14536458333333332,
+    "gas_rises_while_oil_declines_after_day180": 0.14536458333333332,
+    "interval_gas_rises_while_oil_falls_after_180": 0.02640625,
+    "interval_oil_rate_rise_after_180": 0.0,
+    "max_relative_integral_error": 0.0039038400197382982,
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.0,
+    "oil_any_rise_first_90_days": 1.0,
+    "oil_decline_rate_increases_after_day180": 0.0,
+    "peak_day_max": 24.53044242497351,
+    "water_any_rise_after_day180": 0.028697916666666667
+   },
+   "90": {
+    "cumulative_decreasing_any": 0.0,
+    "eur_finite_fraction": 1.0,
+    "eur_over_cumulative3650_median": [
+     1.221359098375221,
+     1.6068309467394644,
+     1.4467470938132652
+    ],
+    "gas_any_rise_after_day180": 0.14630208333333333,
+    "gas_rises_while_oil_declines_after_day180": 0.14630208333333333,
+    "interval_gas_rises_while_oil_falls_after_180": 0.025052083333333332,
+    "interval_oil_rate_rise_after_180": 0.0,
+    "max_relative_integral_error": 0.0037456255558980145,
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.0,
+    "oil_any_rise_first_90_days": 1.0,
+    "oil_decline_rate_increases_after_day180": 0.0,
+    "peak_day_max": 23.396872376870956,
+    "water_any_rise_after_day180": 0.030104166666666668
+   }
+  },
+  "forest": "Issues report trajectories only: no continuous latent rate, decline structure, or total-volume law.",
+  "neural": "Issues report trajectories only: no continuous latent rate, decline structure, or total-volume law.",
+  "split": "test"
+ },
+ "wells": 300
+}

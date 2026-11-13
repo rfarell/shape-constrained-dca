@@ -1,0 +1,21 @@
+# Width-diverse ensemble ("arch") of the physics-structured Bayesian model.
+# FROZEN 2026-10-05 before its validation or test scores were seen. Selected on the TRAIN-internal holdout
+# in an ensemble-diversity study (sweep 1; Vista GH200), after the v1 test opening (2026-10-03) and the v2
+# second look (2026-10-05). Its test evaluation is a DISCLOSED THIRD LOOK at the same test wells; v1 remains
+# the prespecified confirmatory result. The latent production law and every structural property are identical
+# to v1/v2; only the population (attribute-prior) network width differs between ensemble members.
+[experiment]
+status = "frozen"
+training_split = "train (7,017 records)"
+selection_split = "TRAIN-internal holdout (development sweep 1); validation (450) checked once"
+confirmation_split = "test (854 records): third look after v1 (first) and v2 (second), disclosed"
+members = "five fits, seeds 42-46, prior_width 32/64/128/256/512 respectively, equal-weight mixture (1,280 draws)"
+
+[candidate]
+model = "bayes (DepletionBayesForecaster)"
+configuration = "v2 configuration (configs/depletion_v2_protocol.toml: v1 settings plus discrepancy=ou_interval) with per-member prior_width in {32, 64, 128, 256, 512}; fitted on all TRAIN (Spark run jpf-arch-val-20261005); no post-hoc calibration"
+selection_evidence = "internal holdout: ensemble WIS 0.1176 vs 0.1201 for the same-width v2 ensemble; member disagreement 0.081 vs 0.047; rejected alternatives: bootstrap, feature bagging, randomized prior 0.3, uniform width 256 (problem_statement.md 2026-10-05)"
+
+[claims]
+accuracy = "report paired whole-group intervals against the fixed comparator mixtures; claim superiority only if the 95% lower bound exceeds zero, and state the third-look caveat"
+properties = "identical to configs/depletion_final_protocol.toml [claims.properties]"

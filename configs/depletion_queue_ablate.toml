@@ -1,0 +1,34 @@
+# Ablations of the frozen configuration (configs/depletion_final_protocol.toml), seed 42, TRAIN-internal
+# holdout only (no validation/test record). One change per job; raw (uncalibrated) forecasts.
+lanes = 1
+min_available_gb = 40
+
+[[job]]
+label = "abl_base"
+output = "abl_base"
+args = "run --models bayes --device cuda --split internal --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 42"
+
+[[job]]
+label = "abl_time_ratio"
+output = "abl_time_ratio"
+args = "run --models bayes --device cuda --split internal --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 42 --set ratio_index=time --set ratio_time_scale=730"
+
+[[job]]
+label = "abl_linear_prior"
+output = "abl_linear_prior"
+args = "run --models bayes --device cuda --split internal --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 42 --set prior_linear=true"
+
+[[job]]
+label = "abl_marginal_fit"
+output = "abl_marginal_fit"
+args = "run --models bayes --device cuda --split internal --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 42 --set objective=iwae_theta"
+
+[[job]]
+label = "abl_global_noise"
+output = "abl_global_noise"
+args = "run --models bayes --device cuda --split internal --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 42 --set noise_mode=global"
+
+[[job]]
+label = "abl_level_clock"
+output = "abl_level_clock"
+args = "run --models bayes --device cuda --split internal --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 42 --set rate_clock=false"

@@ -1,0 +1,98 @@
+{
+ "original15/oil/accelerating": {
+  "wells": 101,
+  "v1": 0.1003,
+  "basis": 0.0948,
+  "dca": 0.097,
+  "gap_vs_basis_pct": 5.8,
+  "gap_vs_dca_pct": 3.5
+ },
+ "original15/oil/decelerating": {
+  "wells": 349,
+  "v1": 0.0989,
+  "basis": 0.0933,
+  "dca": 0.094,
+  "gap_vs_basis_pct": 6.0,
+  "gap_vs_dca_pct": 5.2
+ },
+ "original15/gas/accelerating": {
+  "wells": 101,
+  "v1": 0.1496,
+  "basis": 0.1442,
+  "dca": 0.1488,
+  "gap_vs_basis_pct": 3.8,
+  "gap_vs_dca_pct": 0.5
+ },
+ "original15/gas/decelerating": {
+  "wells": 349,
+  "v1": 0.1819,
+  "basis": 0.1759,
+  "dca": 0.1799,
+  "gap_vs_basis_pct": 3.4,
+  "gap_vs_dca_pct": 1.1
+ },
+ "original15/water/accelerating": {
+  "wells": 101,
+  "v1": 0.1446,
+  "basis": 0.1416,
+  "dca": 0.1469,
+  "gap_vs_basis_pct": 2.1,
+  "gap_vs_dca_pct": -1.5
+ },
+ "original15/water/decelerating": {
+  "wells": 349,
+  "v1": 0.1301,
+  "basis": 0.128,
+  "dca": 0.1276,
+  "gap_vs_basis_pct": 1.6,
+  "gap_vs_dca_pct": 2.0
+ },
+ "all28/oil/accelerating": {
+  "wells": 101,
+  "v1": 0.1136,
+  "basis": 0.107,
+  "dca": 0.1087,
+  "gap_vs_basis_pct": 6.1,
+  "gap_vs_dca_pct": 4.5
+ },
+ "all28/oil/decelerating": {
+  "wells": 349,
+  "v1": 0.114,
+  "basis": 0.1051,
+  "dca": 0.1066,
+  "gap_vs_basis_pct": 8.5,
+  "gap_vs_dca_pct": 7.0
+ },
+ "all28/gas/accelerating": {
+  "wells": 101,
+  "v1": 0.1643,
+  "basis": 0.1556,
+  "dca": 0.1603,
+  "gap_vs_basis_pct": 5.6,
+  "gap_vs_dca_pct": 2.5
+ },
+ "all28/gas/decelerating": {
+  "wells": 349,
+  "v1": 0.2015,
+  "basis": 0.1924,
+  "dca": 0.1964,
+  "gap_vs_basis_pct": 4.7,
+  "gap_vs_dca_pct": 2.6
+ },
+ "all28/water/accelerating": {
+  "wells": 101,
+  "v1": 0.1562,
+  "basis": 0.1534,
+  "dca": 0.1565,
+  "gap_vs_basis_pct": 1.8,
+  "gap_vs_dca_pct": -0.2
+ },
+ "all28/water/decelerating": {
+  "wells": 349,
+  "v1": 0.1485,
+  "basis": 0.1417,
+  "dca": 0.143,
+  "gap_vs_basis_pct": 4.8,
+  "gap_vs_dca_pct": 3.8
+ }
+}

@@ -1,0 +1,2444 @@
+{
+ "arch": {
+  "label": "bayes_arch",
+  "mix_key": "bayes_arch_mix5",
+  "hindcast_key": "bayes_arch_mix5",
+  "inputs": [
+   "arch_hindcast",
+   "arch_test_diversity",
+   "arch_test_pairs",
+   "arch_test_scores",
+   "arch_val_diversity",
+   "arch_val_scores"
+  ]
+ },
+ "fig_taumax": {
+  "files": [
+   "outputs/figures/fig_taumax.pdf",
+   "outputs/figures/fig_taumax.png"
+  ],
+  "origin": 360,
+  "wells": 200,
+  "model": "v1 configuration, seed 42, all TRAIN; validation",
+  "tau_max_days": [
+   1825,
+   3650,
+   7300
+  ],
+  "effective_terminal_decline_pct_per_year": {
+   "1825": 18.12692469220182,
+   "3650": 9.51625819640405,
+   "7300": 4.877057549928598
+  },
+  "median_eur_ratio": {
+   "1825": [
+    0.7517205688408957,
+    0.5579774700639706,
+    0.5774889608928454
+   ],
+   "3650": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "7300": [
+    1.2461837728919665,
+    1.5655687313509217,
+    1.9098536391592709
+   ]
+  },
+  "median_cum1080_ratio": {
+   "1825": [
+    1.0055253398651103,
+    0.9978994546098896,
+    1.00582065696526
+   ],
+   "3650": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "7300": [
+    1.0004227647289106,
+    0.9977747127091621,
+    1.0027677987385735
+   ]
+  },
+  "faint_eur_ratio": {
+   "90": {
+    "1825": [
+     0.7589696269675194,
+     0.5596364946107479,
+     0.5827535749193777
+    ],
+    "3650": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "7300": [
+     1.2454650484546939,
+     1.5909590303035634,
+     1.8863474915228546
+    ]
+   },
+   "720": {
+    "1825": [
+     0.7437098558042781,
+     0.5625838685368608,
+     0.5727717860361052
+    ],
+    "3650": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "7300": [
+     1.2444169463876045,
+     1.5645945609807381,
+     1.9401573031301709
+    ]
+   }
+  },
+  "validation_wis_original15_single_fit": {
+   "1825": 0.1376860506598054,
+   "3650": 0.1382203986777002,
+   "7300": 0.13748096271662869
+  },
+  "phase_order": [
+   "oil",
+   "gas",
+   "water"
+  ],
+  "note": "width ratios (NaN reference rows) are not plotted"
+ },
+ "fig_accuracy": {
+  "files": [
+   "outputs/figures/fig_accuracy.pdf",
+   "outputs/figures/fig_accuracy.png"
+  ],
+  "split": "test",
+  "wells": 854,
+  "origins_days": [
+   0,
+   30,
+   60,
+   90,
+   180,
+   360,
+   720
+  ],
+  "wis_by_origin": {
+   "v1": [
+    0.18905723590389925,
+    0.14331082384882882,
+    0.12421587727713597,
+    0.11921065951207889,
+    0.12145836083595664,
+    0.12432690960574931,
+    0.14256912438140576
+   ],
+   "basis": [
+    0.1751446636788622,
+    0.13666234940678632,
+    0.12054611712718982,
+    0.11404250665170096,
+    0.118271292007253,
+    0.12186721123558351,
+    0.139288213942057
+   ],
+   "dca": [
+    0.1796958204601932,
+    0.13789229598983485,
+    0.1210027390677391,
+    0.11446613824948486,
+    0.11745472858297092,
+    0.12206302702206774,
+    0.14040997500267546
+   ],
+   "neural": [
+    0.19479545614846183,
+    0.14436751828737948,
+    0.12404333055199009,
+    0.1176309887179106,
+    0.1200675485503053,
+    0.11995239602038765,
+    0.1476200228784297
+   ],
+   "forest": [
+    0.16768566476889926,
+    0.1475930632774252,
+    0.13333367219481723,
+    0.12953018264260083,
+    0.126447669756571,
+    0.12650042347117857,
+    0.13568813534745458
+   ],
+   "arps": [
+    0.22353620990224177,
+    0.1799599576376563,
+    0.1538629562764644,
+    0.15311231414445767,
+    0.14702177875786002,
+    0.1438441762938489,
+    0.15280407397169285
+   ],
+   "arch": [
+    0.17669169192442188,
+    0.13635981945599707,
+    0.11903030605623904,
+    0.11561518342799078,
+    0.1189954238948725,
+    0.12232866290134119,
+    0.1360152476708023
+   ]
+  },
+  "v1_gain_by_origin_pct": {
+   "basis": [
+    -7.94347480123434,
+    -4.864891077097466,
+    -3.0442790173607515,
+    -4.5317776784423724,
+    -2.6947104192522,
+    -2.018343035199943,
+    -2.355483171543571
+   ],
+   "dca": [
+    -5.2095899725056904,
+    -3.929536324054972,
+    -2.6554260127930718,
+    -4.144912491284636,
+    -3.408659916282142,
+    -1.8546833049390754,
+    -1.5377464305432298
+   ],
+   "arps": [
+    15.424335061161266,
+    20.36516026671853,
+    19.268496925314437,
+    22.14169044587322,
+    17.387504176510802,
+    13.568339845910183,
+    6.698086853484764
+   ]
+  },
+  "arch_gain_by_origin_pct": {
+   "basis": [
+    -0.8832859723298503,
+    0.22137037165133044,
+    1.2574532528089821,
+    -1.379026840485853,
+    -0.6122634456171117,
+    -0.3786512065707681,
+    2.349779768599969
+   ],
+   "dca": [
+    1.6717854249908903,
+    1.1113576163462757,
+    1.630073027021206,
+    -1.003829775406162,
+    -1.3117354494699862,
+    -0.21762190054930297,
+    3.129925300385117
+   ],
+   "arps": [
+    20.956120710065818,
+    24.227688622513867,
+    22.63875013400709,
+    24.48995100491348,
+    19.062723291592054,
+    14.95751440680868,
+    10.987158826668908
+   ],
+   "v1": [
+    6.540635125842509,
+    4.85029965368422,
+    4.174644445272868,
+    3.0160692834048097,
+    2.0278035403512584,
+    1.6072519704259713,
+    4.59698180727427
+   ]
+  },
+  "coverage80_pct_width80_all_dates": {
+   "v1": {
+    "coverage80_pct": 79.03702464592395,
+    "width80_scaled": 0.9347668903779512
+   },
+   "v1_raw": {
+    "coverage80_pct": 76.60031225604996,
+    "width80_scaled": 0.8764925292101474
+   },
+   "basis": {
+    "coverage80_pct": 78.91853462696554,
+    "width80_scaled": 0.8705910013638243
+   },
+   "dca": {
+    "coverage80_pct": 80.41987286717965,
+    "width80_scaled": 0.8947168352473369
+   },
+   "neural": {
+    "coverage80_pct": 83.24132931861271,
+    "width80_scaled": 1.0187767805070729
+   },
+   "forest": {
+    "coverage80_pct": 82.54990520798484,
+    "width80_scaled": 1.028841569549398
+   },
+   "arps": {
+    "coverage80_pct": 81.59640905542544,
+    "width80_scaled": 1.1920874920985542
+   },
+   "duong": {
+    "coverage80_pct": 83.97178543548569,
+    "width80_scaled": 1.4727836563024992
+   },
+   "sedm": {
+    "coverage80_pct": 85.23893163822906,
+    "width80_scaled": 1.7676554686048782
+   },
+   "slab": {
+    "coverage80_pct": 71.80216348834617,
+    "width80_scaled": 1.2057465971452164
+   },
+   "arch": {
+    "coverage80_pct": 78.21874651499945,
+    "width80_scaled": 0.8744407373512985
+   }
+  },
+  "confirmatory_gain_v1_calibrated_original15_pct": {
+   "test": {
+    "basis": {
+     "point": -3.1603357595908266,
+     "lower95": -5.544208982882042,
+     "upper95": -0.930924135631201,
+     "source_key": "bayes_cal_mix5_vs_basis_mix5"
+    },
+    "dca": {
+     "point": -2.9860112510113446,
+     "lower95": -4.9621857982960105,
+     "upper95": -1.0439455924323877,
+     "source_key": "bayes_cal_mix5_vs_dca_mix5"
+    },
+    "neural": {
+     "point": -0.8187241646127275,
+     "lower95": -3.9919486630261263,
+     "upper95": 3.6965064698745618,
+     "source_key": "bayes_cal_mix5_vs_neural_mix5"
+    },
+    "forest": {
+     "point": 5.085004121903713,
+     "lower95": 2.710590349076611,
+     "upper95": 7.671361254287336,
+     "source_key": "bayes_cal_mix5_vs_forest_mix5"
+    },
+    "arps": {
+     "point": 18.10620788059163,
+     "lower95": 14.871755862798,
+     "upper95": 21.214577163787716,
+     "source_key": "bayes_cal_mix5_vs_pw_arps_bayes_seed42"
+    }
+   },
+   "validation": {
+    "basis": {
+     "point": -3.6520311444255826,
+     "lower95": -6.835645089257081,
+     "upper95": -0.6563777136396375,
+     "source_key": "bayes_cal_mix5_vs_basis_mix5"
+    },
+    "dca": {
+     "point": -2.0873369737786973,
+     "lower95": -4.9920559354326555,
+     "upper95": 0.730201792540657,
+     "source_key": "bayes_cal_mix5_vs_dca_mix5"
+    },
+    "neural": {
+     "point": -1.3793492098015836,
+     "lower95": -4.072680884886328,
+     "upper95": 1.2625473694829228,
+     "source_key": "bayes_cal_mix5_vs_neural_mix5"
+    },
+    "forest": {
+     "point": 4.218740020190371,
+     "lower95": 1.0896705090444956,
+     "upper95": 7.210181172824119,
+     "source_key": "bayes_cal_mix5_vs_forest_mix5"
+    },
+    "arps": {
+     "point": 20.53524884031831,
+     "lower95": 14.913441101590891,
+     "upper95": 26.270102735487395,
+     "source_key": "bayes_cal_mix5_vs_pw_arps_bayes_seed42"
+    }
+   }
+  },
+  "score_keys": {
+   "arps": "pw_arps_bayes_seed42",
+   "duong": "pw_duong_bayes_seed42",
+   "dca": "dca_mix5",
+   "slab": "pw_scaling_bayes_seed42",
+   "basis": "basis_mix5",
+   "neural": "neural_mix5",
+   "sedm": "pw_sedm_bayes_seed42",
+   "v1_raw": "bayes_final_mix5",
+   "forest": "forest_mix5",
+   "v1": "bayes_cal_mix5"
+  },
+  "note": "per-date values are point values (no per-date paired intervals); width and coverage over all 28 cells"
+ },
+ "fig_reliability": {
+  "files": [
+   "outputs/figures/fig_reliability.pdf",
+   "outputs/figures/fig_reliability.png"
+  ],
+  "split": "test",
+  "wells": 854,
+  "target": "reported volume from the forecast date to day 1,080",
+  "origins_days": [
+   0,
+   30,
+   60,
+   90,
+   180,
+   360,
+   720
+  ],
+  "phase_order": [
+   "oil",
+   "gas",
+   "water"
+  ],
+  "share_above_pct": {
+   "v1": {
+    "p90": [
+     [
+      83.2552693208431,
+      84.07494145199064,
+      87.82201405152225
+     ],
+     [
+      84.77751756440281,
+      86.18266978922716,
+      88.75878220140515
+     ],
+     [
+      85.36299765807962,
+      88.87587822014052,
+      88.40749414519907
+     ],
+     [
+      87.47072599531616,
+      89.81264637002342,
+      88.75878220140515
+     ],
+     [
+      86.53395784543325,
+      89.81264637002342,
+      89.46135831381733
+     ],
+     [
+      91.68618266978923,
+      92.85714285714286,
+      92.97423887587823
+     ],
+     [
+      96.72131147540983,
+      96.95550351288055,
+      96.37002341920375
+     ]
+    ],
+    "p50": [
+     [
+      43.20843091334894,
+      46.8384074941452,
+      53.161592505854806
+     ],
+     [
+      45.19906323185012,
+      45.90163934426229,
+      50.35128805620609
+     ],
+     [
+      49.88290398126464,
+      48.94613583138173,
+      49.06323185011709
+     ],
+     [
+      50.93676814988291,
+      49.64871194379391,
+      49.06323185011709
+     ],
+     [
+      48.36065573770492,
+      49.414519906323186,
+      49.531615925058546
+     ],
+     [
+      49.06323185011709,
+      50.0,
+      47.306791569086656
+     ],
+     [
+      46.604215456674474,
+      46.13583138173302,
+      35.94847775175644
+     ]
+    ],
+    "p10": [
+     [
+      10.187353629976581,
+      12.060889929742387,
+      12.060889929742387
+     ],
+     [
+      9.953161592505854,
+      9.250585480093678,
+      13.466042154566745
+     ],
+     [
+      11.7096018735363,
+      8.548009367681498,
+      12.295081967213115
+     ],
+     [
+      13.114754098360656,
+      11.592505854800937,
+      14.988290398126464
+     ],
+     [
+      13.114754098360656,
+      11.475409836065573,
+      14.988290398126464
+     ],
+     [
+      11.7096018735363,
+      10.421545667447308,
+      12.997658079625293
+     ],
+     [
+      6.0889929742388755,
+      5.152224824355972,
+      6.908665105386416
+     ]
+    ]
+   },
+   "basis": {
+    "p90": [
+     [
+      85.12880562060889,
+      84.89461358313818,
+      87.82201405152225
+     ],
+     [
+      87.70491803278688,
+      84.42622950819673,
+      88.17330210772833
+     ],
+     [
+      88.87587822014052,
+      87.11943793911007,
+      90.86651053864169
+     ],
+     [
+      90.04683840749415,
+      88.40749414519907,
+      91.33489461358315
+     ],
+     [
+      89.81264637002342,
+      89.92974238875878,
+      92.62295081967213
+     ],
+     [
+      91.33489461358315,
+      91.4519906323185,
+      94.49648711943794
+     ],
+     [
+      94.9648711943794,
+      92.85714285714286,
+      94.14519906323186
+     ]
+    ],
+    "p50": [
+     [
+      44.96487119437939,
+      48.00936768149883,
+      53.278688524590166
+     ],
+     [
+      46.72131147540984,
+      47.423887587822016,
+      48.711943793911004
+     ],
+     [
+      48.711943793911004,
+      49.76580796252927,
+      51.99063231850117
+     ],
+     [
+      50.468384074941454,
+      51.17096018735363,
+      51.52224824355972
+     ],
+     [
+      49.06323185011709,
+      50.0,
+      52.92740046838408
+     ],
+     [
+      48.82903981264637,
+      52.459016393442624,
+      53.04449648711944
+     ],
+     [
+      49.76580796252927,
+      50.23419203747073,
+      46.72131147540984
+     ]
+    ],
+    "p10": [
+     [
+      9.953161592505854,
+      11.00702576112412,
+      10.187353629976581
+     ],
+     [
+      10.304449648711945,
+      10.655737704918032,
+      10.655737704918032
+     ],
+     [
+      9.953161592505854,
+      10.772833723653395,
+      11.241217798594848
+     ],
+     [
+      10.421545667447308,
+      12.177985948477751,
+      11.592505854800937
+     ],
+     [
+      10.304449648711945,
+      11.475409836065573,
+      11.7096018735363
+     ],
+     [
+      9.01639344262295,
+      11.475409836065573,
+      10.53864168618267
+     ],
+     [
+      7.845433255269321,
+      8.665105386416862,
+      9.01639344262295
+     ]
+    ]
+   },
+   "arps": {
+    "p90": [
+     [
+      93.09133489461358,
+      94.49648711943794,
+      96.8384074941452
+     ],
+     [
+      95.31615925058547,
+      95.19906323185012,
+      97.42388758782201
+     ],
+     [
+      94.73067915690866,
+      96.60421545667447,
+      95.19906323185012
+     ],
+     [
+      94.26229508196722,
+      94.61358313817331,
+      94.49648711943794
+     ],
+     [
+      92.15456674473069,
+      92.85714285714286,
+      93.20843091334895
+     ],
+     [
+      93.55971896955504,
+      92.85714285714286,
+      94.9648711943794
+     ],
+     [
+      95.43325526932084,
+      94.02810304449649,
+      94.61358313817331
+     ]
+    ],
+    "p50": [
+     [
+      51.87353629976581,
+      54.56674473067916,
+      59.83606557377049
+     ],
+     [
+      52.69320843091335,
+      52.81030444964871,
+      53.98126463700235
+     ],
+     [
+      50.0,
+      52.459016393442624,
+      58.31381733021077
+     ],
+     [
+      48.94613583138173,
+      57.02576112412178,
+      62.64637002341921
+     ],
+     [
+      44.02810304449648,
+      53.98126463700235,
+      61.007025761124126
+     ],
+     [
+      44.02810304449648,
+      59.4847775175644,
+      60.88992974238876
+     ],
+     [
+      45.90163934426229,
+      61.94379391100703,
+      57.02576112412178
+     ]
+    ],
+    "p10": [
+     [
+      3.864168618266979,
+      4.449648711943794,
+      2.107728337236534
+     ],
+     [
+      9.953161592505854,
+      12.177985948477751,
+      9.836065573770492
+     ],
+     [
+      8.430913348946136,
+      11.475409836065573,
+      14.754098360655737
+     ],
+     [
+      12.177985948477751,
+      14.637002341920374,
+      24.121779859484775
+     ],
+     [
+      11.124121779859484,
+      16.159250585480095,
+      22.716627634660423
+     ],
+     [
+      8.782201405152225,
+      17.330210772833723,
+      21.779859484777518
+     ],
+     [
+      8.430913348946136,
+      16.159250585480095,
+      14.8711943793911
+     ]
+    ]
+   },
+   "arch": {
+    "p90": [
+     [
+      84.192037470726,
+      86.53395784543325,
+      88.17330210772833
+     ],
+     [
+      84.89461358313818,
+      85.71428571428571,
+      88.2903981264637
+     ],
+     [
+      84.77751756440281,
+      87.35362997658079,
+      87.47072599531616
+     ],
+     [
+      84.89461358313818,
+      86.65105386416862,
+      87.47072599531616
+     ],
+     [
+      83.95784543325527,
+      87.35362997658079,
+      87.93911007025761
+     ],
+     [
+      88.17330210772833,
+      87.93911007025761,
+      90.04683840749415
+     ],
+     [
+      94.37939110070258,
+      91.4519906323185,
+      90.86651053864169
+     ]
+    ],
+    "p50": [
+     [
+      44.96487119437939,
+      47.7751756440281,
+      53.39578454332553
+     ],
+     [
+      45.90163934426229,
+      47.07259953161593,
+      50.23419203747073
+     ],
+     [
+      48.82903981264637,
+      49.531615925058546,
+      48.47775175644028
+     ],
+     [
+      49.64871194379391,
+      50.35128805620609,
+      50.0
+     ],
+     [
+      44.37939110070258,
+      48.94613583138173,
+      48.711943793911004
+     ],
+     [
+      46.604215456674474,
+      48.47775175644028,
+      46.72131147540984
+     ],
+     [
+      46.72131147540984,
+      48.12646370023419,
+      38.05620608899297
+     ]
+    ],
+    "p10": [
+     [
+      10.421545667447308,
+      11.592505854800937,
+      11.00702576112412
+     ],
+     [
+      9.953161592505854,
+      9.133489461358314,
+      11.826697892271664
+     ],
+     [
+      11.358313817330211,
+      9.718969555035128,
+      12.763466042154567
+     ],
+     [
+      11.7096018735363,
+      12.763466042154567,
+      13.583138173302109
+     ],
+     [
+      12.646370023419204,
+      12.295081967213115,
+      13.114754098360656
+     ],
+     [
+      10.889929742388759,
+      12.412177985948478,
+      13.348946135831383
+     ],
+     [
+      8.665105386416862,
+      8.430913348946136,
+      9.133489461358314
+     ]
+    ]
+   }
+  },
+  "binomial_two_se_points": {
+   "0.9": 2.0531577324874646,
+   "0.5": 3.421929554145774,
+   "0.1": 2.053157732487465
+  },
+  "hindcast_keys": {
+   "v1": "bayes_cal_mix5",
+   "basis": "basis_mix5",
+   "arps": "pw_arps_bayes"
+  },
+  "note": "bands ignore clustering in 478 groups and multiplicity"
+ },
+ "fig_ensemble": {
+  "files": [
+   "outputs/figures/fig_ensemble.pdf",
+   "outputs/figures/fig_ensemble.png"
+  ],
+  "test_original15_single_vs_ensemble": {
+   "v1_raw": {
+    "single": [
+     0.12519079215152637,
+     0.12639131326156558,
+     0.12570367169909372,
+     0.12552759714886652,
+     0.12537386343169696
+    ],
+    "ensemble": 0.12337587323677329,
+    "reduction_pct": 1.8000797899707432
+   },
+   "v2": {
+    "single": [
+     0.12771358636152827,
+     0.126052388062072,
+     0.124436156008084,
+     0.12645541695518564,
+     0.12484548735728747
+    ],
+    "ensemble": 0.12379106053630821,
+    "reduction_pct": 1.6755649266890549
+   },
+   "basis": {
+    "single": [
+     0.12552165105137747,
+     0.12524458032889674,
+     0.12840078056448537,
+     0.12948566281742543,
+     0.12727198116157534
+    ],
+    "ensemble": 0.11978247497851573,
+    "reduction_pct": 5.820230539326509
+   },
+   "dca": {
+    "single": [
+     0.12534577074029882,
+     0.12546189686349016,
+     0.12783720410889032,
+     0.1280383245254427,
+     0.1286373488860656
+    ],
+    "ensemble": 0.11998523087549058,
+    "reduction_pct": 5.57110753278347
+   },
+   "neural": {
+    "single": [
+     0.1270212171724043,
+     0.12738300206080913,
+     0.12611023923971382,
+     0.12741313141943258,
+     0.12556333481414073
+    ],
+    "ensemble": 0.12256453788011425,
+    "reduction_pct": 3.262593748364273
+   },
+   "forest": {
+    "single": [
+     0.1315995722051614,
+     0.1317441113010783,
+     0.1317262553867161,
+     0.1318615588065132,
+     0.13128727293130868
+    ],
+    "ensemble": 0.13018807220693426,
+    "reduction_pct": 1.105773630419471
+   },
+   "arch": {
+    "single": [
+     0.1272653239395226,
+     0.126052388062072,
+     0.12381518956077757,
+     0.12395048139684266,
+     0.1279035758600062
+    ],
+    "ensemble": 0.11968474061008401,
+    "reduction_pct": 4.859123919862595
+   }
+  },
+  "development_points": {
+   "base": {
+    "gain_pct": 1.2661911117031854,
+    "disagreement": 0.04672046384340993,
+    "wis_original15": 0.12009853039089557,
+    "group": "reference"
+   },
+   "arch": {
+    "gain_pct": 3.8911861619438604,
+    "disagreement": 0.08062423247795837,
+    "wis_original15": 0.11762671652190906,
+    "group": "variant"
+   },
+   "boot": {
+    "gain_pct": 2.2662193146514853,
+    "disagreement": 0.06079858423544977,
+    "wis_original15": 0.12067951763543694,
+    "group": "variant"
+   },
+   "rp03": {
+    "gain_pct": 1.3456144067144238,
+    "disagreement": 0.047746272417276685,
+    "wis_original15": 0.11984993029799292,
+    "group": "variant"
+   },
+   "cap": {
+    "gain_pct": 2.075000385406711,
+    "disagreement": 0.05703913329565616,
+    "wis_original15": 0.11983871445040317,
+    "group": "variant"
+   },
+   "fb60": {
+    "gain_pct": 3.576843973589905,
+    "disagreement": 0.07994088691207207,
+    "wis_original15": 0.12191013545500885,
+    "group": "variant"
+   },
+   "combo": {
+    "gain_pct": 3.703860983752738,
+    "disagreement": 0.07843273552262264,
+    "wis_original15": 0.12233352312150002,
+    "group": "variant"
+   },
+   "basis5": {
+    "gain_pct": 5.893150600092079,
+    "disagreement": 0.10206524326776273,
+    "wis_original15": 0.12032297417606706,
+    "group": "reference"
+   },
+   "dca5": {
+    "gain_pct": 5.7027695372283365,
+    "disagreement": 0.10902416857609834,
+    "wis_original15": 0.12027469121619265,
+    "group": "reference"
+   },
+   "neural5": {
+    "gain_pct": 3.978168131625759,
+    "disagreement": 0.08421790652480879,
+    "wis_original15": 0.12025072491478624,
+    "group": "reference"
+   }
+  },
+  "development_wells_note": "TRAIN-internal holdout (1,392 wells); selection data",
+  "development_arch_gain_pct": {
+   "base": {
+    "point": 2.058154967376602,
+    "lower95": 1.3419035608464702,
+    "upper95": 2.762869369781258,
+    "source_key": "arch_vs_base"
+   },
+   "basis5": {
+    "point": 2.240850238801939,
+    "lower95": 0.06829235775704129,
+    "upper95": 4.8850499016168945,
+    "source_key": "arch_vs_basis5"
+   },
+   "dca5": {
+    "point": 2.2016058968913677,
+    "lower95": 0.4996809178590434,
+    "upper95": 4.063040627090793,
+    "source_key": "arch_vs_dca5"
+   },
+   "neural5": {
+    "point": 2.18211440699142,
+    "lower95": 0.6568623078453623,
+    "upper95": 3.7762413088875726,
+    "source_key": "arch_vs_neural5"
+   }
+  },
+  "heldout_arch_gain_pct": {
+   "validation": {
+    "bayes_v2_mix5": {
+     "point": 2.01398109081129,
+     "lower95": 0.8444794389692789,
+     "upper95": 3.1532898254528194,
+     "source_key": "arch_vs_v2ref"
+    },
+    "basis_mix5": {
+     "point": -0.5231046533365369,
+     "lower95": -3.029316646128789,
+     "upper95": 2.0629677985386863,
+     "source_key": "bayes_arch_mix5_vs_basis_mix5"
+    },
+    "dca_mix5": {
+     "point": 0.9943563566386815,
+     "lower95": -1.1128545019910518,
+     "upper95": 3.0946013580281435,
+     "source_key": "bayes_arch_mix5_vs_dca_mix5"
+    },
+    "neural_mix5": {
+     "point": 1.6809722126501114,
+     "lower95": -1.2151008937898684,
+     "upper95": 4.6310407306322725,
+     "source_key": "bayes_arch_mix5_vs_neural_mix5"
+    }
+   },
+   "test": {
+    "bayes_v2_mix5": {
+     "point": 3.317137690261396,
+     "lower95": 1.4643313146827315,
+     "upper95": 5.997797118399532,
+     "source_key": "arch_vs_v2ref"
+    },
+    "basis_mix5": {
+     "point": 0.0815932117358864,
+     "lower95": -1.892753087356865,
+     "upper95": 2.1020067492795382,
+     "source_key": "bayes_arch_mix5_vs_basis_mix5"
+    },
+    "dca_mix5": {
+     "point": 0.25043937759172685,
+     "lower95": -1.3466524824586008,
+     "upper95": 1.9407001265170598,
+     "source_key": "bayes_arch_mix5_vs_dca_mix5"
+    },
+    "neural_mix5": {
+     "point": 2.3496170424491813,
+     "lower95": -0.6421532319051004,
+     "upper95": 6.2335932302814685,
+     "source_key": "bayes_arch_mix5_vs_neural_mix5"
+    },
+    "bayes_final_mix5": {
+     "point": 2.9917783192549674,
+     "lower95": 1.6206362638194927,
+     "upper95": 4.399632778520872,
+     "source_key": "arch_vs_v1raw"
+    }
+   }
+  },
+  "arch_heldout_diversity": {
+   "validation": {
+    "arch": {
+     "gain_pct": 4.264645483740203,
+     "disagreement": 0.08733392692360838,
+     "wis_original15": 0.13183171120666587
+    },
+    "v2": {
+     "gain_pct": 1.4409348500433183,
+     "disagreement": 0.05039399483317015,
+     "wis_original15": 0.13454134852528768
+    },
+    "v1": {
+     "gain_pct": 1.664735851647936,
+     "disagreement": 0.05446163925039136,
+     "wis_original15": 0.1357170133408118
+    },
+    "basis5": {
+     "gain_pct": 5.75244254866929,
+     "disagreement": 0.10416231468281965,
+     "wis_original15": 0.13114568204125812
+    },
+    "dca5": {
+     "gain_pct": 5.626551052317918,
+     "disagreement": 0.11049634286153047,
+     "wis_original15": 0.13315575390989912
+    },
+    "neural5": {
+     "gain_pct": 3.412187158628033,
+     "disagreement": 0.07846679989247127,
+     "wis_original15": 0.13408565378799225
+    },
+    "forest5": {
+     "gain_pct": 1.1941392445242172,
+     "disagreement": 0.037671965502743834,
+     "wis_original15": 0.1419225046972956
+    },
+    "v2ref": {
+     "gain_pct": 1.4409348500433183,
+     "disagreement": 0.05039399483317015,
+     "wis_original15": 0.13454134852528768
+    }
+   },
+   "test": {
+    "arch": {
+     "gain_pct": 4.859123919862595,
+     "disagreement": 0.086843732299308,
+     "wis_original15": 0.11968474061008401
+    },
+    "v2": {
+     "gain_pct": 1.675564926689077,
+     "disagreement": 0.05069129453434906,
+     "wis_original15": 0.12379106053630819
+    },
+    "v1cal": {
+     "gain_pct": 1.5516602946189395,
+     "disagreement": 0.05131993747582238,
+     "wis_original15": 0.12356800336898467
+    },
+    "basis5": {
+     "gain_pct": 5.820230539326521,
+     "disagreement": 0.10476477378374345,
+     "wis_original15": 0.11978247497851571
+    },
+    "dca5": {
+     "gain_pct": 5.57110753278347,
+     "disagreement": 0.10881134599886089,
+     "wis_original15": 0.11998523087549058
+    },
+    "neural5": {
+     "gain_pct": 3.262593748364262,
+     "disagreement": 0.07839210733630646,
+     "wis_original15": 0.12256453788011426
+    },
+    "forest5": {
+     "gain_pct": 1.105773630419471,
+     "disagreement": 0.03753626414317445,
+     "wis_original15": 0.13018807220693426
+    },
+    "v1raw": {
+     "gain_pct": 1.8000797899707544,
+     "disagreement": 0.05489769754567365,
+     "wis_original15": 0.12337587323677328
+    }
+   }
+  },
+  "arch_test_pairs_original15_pct": {
+   "arch_vs_v2ref": {
+    "point": 3.317137690261396,
+    "lower95": 1.4643313146827315,
+    "upper95": 5.997797118399532,
+    "source_key": "arch_vs_v2ref"
+   },
+   "arch_vs_v1cal": {
+    "point": 3.1426118841662465,
+    "lower95": 1.8343667198858888,
+    "upper95": 4.647910763635965,
+    "source_key": "arch_vs_v1cal"
+   },
+   "arch_vs_pwarps": {
+    "point": 20.679811924130565,
+    "lower95": 17.53666515989006,
+    "upper95": 23.869638088982537,
+    "source_key": "arch_vs_pwarps"
+   }
+  }
+ },
+ "sources": {
+  "arch_val_scores": {
+   "path": "results/scores/arch/score_val_full/scores.json",
+   "sha256": "6c435672687dd088f4480b743bcbec60c7db7a44b1f04407b10cb4fae03fb1bc"
+  },
+  "arch_test_scores": {
+   "path": "results/scores/arch/score_test_full/scores.json",
+   "sha256": "162de86ebc5dca2e2fe00ecfeaeef59324ee11b4b95fedc2365497c7e0b94942"
+  },
+  "arch_val_diversity": {
+   "path": "results/scores/arch/val_diversity.json",
+   "sha256": "fa5328baa0ae1b70785449585f173502bf1b0b81e444f7d10d55a0567d8e3e11"
+  },
+  "arch_test_diversity": {
+   "path": "results/scores/arch/test_diversity.json",
+   "sha256": "943c0fa278cde92c4c81c846558f8e30f8ca6f8fd75243e08f84c39969f99866"
+  },
+  "arch_test_pairs": {
+   "path": "results/scores/arch/score_test_pairs/diversity.json",
+   "sha256": "f81c94fda7a35fe41566d08245d1dd25807db41cbadefa98a0e84a9558945655"
+  },
+  "arch_hindcast": {
+   "path": "results/scores/arch/hindcast_test/hindcast.json",
+   "sha256": "ee50fd1024e1e43fed300622563927a588a0e11f1e666a493e0b230e75d4ee69"
+  },
+  "taumax": {
+   "path": "results/scores/taumax/taumax.json",
+   "sha256": "8b06a46ce2cf56730dee17866316914fd088465646c78719bcb9aa5681fd39dd"
+  },
+  "taumax_wis_1825": {
+   "path": "results/scores/taumax/runs/score_val_taumax1825/scores.json",
+   "sha256": "b6f228c08d10121b3bd5fd33560e8db3176394bbfeea7e4b7e48cbf69849eb68"
+  },
+  "taumax_wis_3650": {
+   "path": "results/v1/val/score_val_bayes_s42/scores.json",
+   "sha256": "17bb1af0a259e5226a53af87d6aaca0740bb07f86419bf3f8c077ed40479a9fb"
+  },
+  "taumax_wis_7300": {
+   "path": "results/scores/taumax/runs/score_val_taumax7300/scores.json",
+   "sha256": "0d973b1584f735a1965551eaa91f5a62a9c3b05797577f23c462df481e2adf00"
+  },
+  "test_scores": {
+   "path": "results/scores/test/score_test_paper/scores.json",
+   "sha256": "8372ee8090aee2b4a73bf4c014a3d9bb61d6c09a94a7d7d0d8badf548ffb1353"
+  },
+  "val_scores_v1_calibrated": {
+   "path": "results/v1/test/score_val_final/scores.json",
+   "sha256": "11f3a983e89d651d5c9229ef915dab17bf1f355f793304564f396c02302ee9fb"
+  },
+  "hindcast": {
+   "path": "results/v1/analysis/hindcast_test/hindcast.json",
+   "sha256": "6afb56052b60ea47104631a6ed80cb51d196a6b234df45e09603dfc14fc4ab5c"
+  },
+  "diversity_dev": {
+   "path": "results/scores/diversity_dev/diversity.json",
+   "sha256": "3b048a34433cd9b41ffaf1e291886561aeedb580464aa93de20b7eff76d5d7cb"
+  }
+ },
+ "checks": [
+  {
+   "ok": true,
+   "check": "bayes_arch_mix5 present in results/scores/arch/score_val_full/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_arch_mix5 in results/scores/arch/score_val_full/scores.json: 450 wells, expected 450 (validation)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_arch_mix5 in results/scores/arch/score_val_full/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_arch_mix5 present in results/scores/arch/score_test_full/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_arch_mix5 in results/scores/arch/score_test_full/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_arch_mix5 in results/scores/arch/score_test_full/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "ARCH hindcast key present in results/scores/arch/hindcast_test/hindcast.json"
+  },
+  {
+   "ok": true,
+   "check": "ARCH hindcast origins 0..720"
+  },
+  {
+   "ok": true,
+   "check": "ARCH hindcast: 854 test wells"
+  },
+  {
+   "ok": true,
+   "check": "taumax.json: 200 wells, expected 200 validation wells"
+  },
+  {
+   "ok": true,
+   "check": "taumax EUR ratio 1825/360 phase 0"
+  },
+  {
+   "ok": true,
+   "check": "taumax cumulative ratio 1825/360 phase 0"
+  },
+  {
+   "ok": true,
+   "check": "taumax EUR ratio 1825/360 phase 1"
+  },
+  {
+   "ok": true,
+   "check": "taumax cumulative ratio 1825/360 phase 1"
+  },
+  {
+   "ok": true,
+   "check": "taumax EUR ratio 1825/360 phase 2"
+  },
+  {
+   "ok": true,
+   "check": "taumax cumulative ratio 1825/360 phase 2"
+  },
+  {
+   "ok": true,
+   "check": "taumax EUR ratio 3650/360 phase 0"
+  },
+  {
+   "ok": true,
+   "check": "taumax cumulative ratio 3650/360 phase 0"
+  },
+  {
+   "ok": true,
+   "check": "taumax EUR ratio 3650/360 phase 1"
+  },
+  {
+   "ok": true,
+   "check": "taumax cumulative ratio 3650/360 phase 1"
+  },
+  {
+   "ok": true,
+   "check": "taumax EUR ratio 3650/360 phase 2"
+  },
+  {
+   "ok": true,
+   "check": "taumax cumulative ratio 3650/360 phase 2"
+  },
+  {
+   "ok": true,
+   "check": "taumax EUR ratio 7300/360 phase 0"
+  },
+  {
+   "ok": true,
+   "check": "taumax cumulative ratio 7300/360 phase 0"
+  },
+  {
+   "ok": true,
+   "check": "taumax EUR ratio 7300/360 phase 1"
+  },
+  {
+   "ok": true,
+   "check": "taumax cumulative ratio 7300/360 phase 1"
+  },
+  {
+   "ok": true,
+   "check": "taumax EUR ratio 7300/360 phase 2"
+  },
+  {
+   "ok": true,
+   "check": "taumax cumulative ratio 7300/360 phase 2"
+  },
+  {
+   "ok": true,
+   "check": "bayes_taumax1825_seed42 present in results/scores/taumax/runs/score_val_taumax1825/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_taumax1825_seed42 in results/scores/taumax/runs/score_val_taumax1825/scores.json: 450 wells, expected 450 (validation)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_taumax1825_seed42 in results/scores/taumax/runs/score_val_taumax1825/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "taumax validation WIS 1825"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed42 present in results/v1/val/score_val_bayes_s42/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed42 in results/v1/val/score_val_bayes_s42/scores.json: 450 wells, expected 450 (validation)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed42 in results/v1/val/score_val_bayes_s42/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "taumax validation WIS 3650"
+  },
+  {
+   "ok": true,
+   "check": "bayes_taumax7300_seed42 present in results/scores/taumax/runs/score_val_taumax7300/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_taumax7300_seed42 in results/scores/taumax/runs/score_val_taumax7300/scores.json: 450 wells, expected 450 (validation)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_taumax7300_seed42 in results/scores/taumax/runs/score_val_taumax7300/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "taumax validation WIS 7300"
+  },
+  {
+   "ok": true,
+   "check": "basis_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "basis_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "basis_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_cal_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_cal_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_cal_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "dca_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "dca_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "dca_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "forest_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "forest_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "forest_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "neural_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "neural_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "neural_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "pw_arps_bayes_seed42 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "pw_arps_bayes_seed42 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "pw_arps_bayes_seed42 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "pw_duong_bayes_seed42 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "pw_duong_bayes_seed42 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "pw_duong_bayes_seed42 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "pw_scaling_bayes_seed42 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "pw_scaling_bayes_seed42 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "pw_scaling_bayes_seed42 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "pw_sedm_bayes_seed42 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "pw_sedm_bayes_seed42 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "pw_sedm_bayes_seed42 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date bayes_cal_mix5 origin 0 = 0.18906"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date bayes_cal_mix5 origin 30 = 0.14331"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date bayes_cal_mix5 origin 60 = 0.12422"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date bayes_cal_mix5 origin 90 = 0.11921"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date bayes_cal_mix5 origin 180 = 0.12146"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date bayes_cal_mix5 origin 360 = 0.12433"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date bayes_cal_mix5 origin 720 = 0.14257"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date basis_mix5 origin 0 = 0.17514"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date basis_mix5 origin 30 = 0.13666"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date basis_mix5 origin 60 = 0.12055"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date basis_mix5 origin 90 = 0.11404"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date basis_mix5 origin 180 = 0.11827"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date basis_mix5 origin 360 = 0.12187"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date basis_mix5 origin 720 = 0.13929"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date dca_mix5 origin 0 = 0.17970"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date dca_mix5 origin 30 = 0.13789"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date dca_mix5 origin 60 = 0.12100"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date dca_mix5 origin 90 = 0.11447"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date dca_mix5 origin 180 = 0.11745"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date dca_mix5 origin 360 = 0.12206"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date dca_mix5 origin 720 = 0.14041"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date neural_mix5 origin 0 = 0.19480"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date neural_mix5 origin 30 = 0.14437"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date neural_mix5 origin 60 = 0.12404"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date neural_mix5 origin 90 = 0.11763"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date neural_mix5 origin 180 = 0.12007"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date neural_mix5 origin 360 = 0.11995"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date neural_mix5 origin 720 = 0.14762"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date forest_mix5 origin 0 = 0.16769"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date forest_mix5 origin 30 = 0.14759"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date forest_mix5 origin 60 = 0.13333"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date forest_mix5 origin 90 = 0.12953"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date forest_mix5 origin 180 = 0.12645"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date forest_mix5 origin 360 = 0.12650"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date forest_mix5 origin 720 = 0.13569"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date pw_arps_bayes_seed42 origin 0 = 0.22354"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date pw_arps_bayes_seed42 origin 30 = 0.17996"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date pw_arps_bayes_seed42 origin 60 = 0.15386"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date pw_arps_bayes_seed42 origin 90 = 0.15311"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date pw_arps_bayes_seed42 origin 180 = 0.14702"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date pw_arps_bayes_seed42 origin 360 = 0.14384"
+  },
+  {
+   "ok": true,
+   "check": "test WIS by forecast date pw_arps_bayes_seed42 origin 720 = 0.15280"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs basis at origin 0 = -7.94"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs basis at origin 30 = -4.86"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs basis at origin 60 = -3.04"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs basis at origin 90 = -4.53"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs basis at origin 180 = -2.69"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs basis at origin 360 = -2.02"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs basis at origin 720 = -2.36"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs dca at origin 0 = -5.21"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs dca at origin 30 = -3.93"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs dca at origin 60 = -2.66"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs dca at origin 90 = -4.14"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs dca at origin 180 = -3.41"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs dca at origin 360 = -1.85"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs dca at origin 720 = -1.54"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs arps at origin 0 = 15.42"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs arps at origin 30 = 20.37"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs arps at origin 60 = 19.27"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs arps at origin 90 = 22.14"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs arps at origin 180 = 17.39"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs arps at origin 360 = 13.57"
+  },
+  {
+   "ok": true,
+   "check": "v1 gain vs arps at origin 720 = 6.70"
+  },
+  {
+   "ok": true,
+   "check": "test coverage/width v1 = 79.04/0.9348"
+  },
+  {
+   "ok": true,
+   "check": "test coverage/width v1_raw = 76.60/0.8765"
+  },
+  {
+   "ok": true,
+   "check": "test coverage/width basis = 78.92/0.8706"
+  },
+  {
+   "ok": true,
+   "check": "test coverage/width dca = 80.42/0.8947"
+  },
+  {
+   "ok": true,
+   "check": "test coverage/width neural = 83.24/1.0188"
+  },
+  {
+   "ok": true,
+   "check": "test coverage/width forest = 82.55/1.0288"
+  },
+  {
+   "ok": true,
+   "check": "test coverage/width arps = 81.60/1.1921"
+  },
+  {
+   "ok": true,
+   "check": "test coverage/width duong = 83.97/1.4728"
+  },
+  {
+   "ok": true,
+   "check": "test coverage/width sedm = 85.24/1.7677"
+  },
+  {
+   "ok": true,
+   "check": "test coverage/width slab = 71.80/1.2057"
+  },
+  {
+   "ok": true,
+   "check": "test paired gain v1 calibrated vs basis"
+  },
+  {
+   "ok": true,
+   "check": "test paired gain v1 calibrated vs dca"
+  },
+  {
+   "ok": true,
+   "check": "test paired gain v1 calibrated vs neural"
+  },
+  {
+   "ok": true,
+   "check": "test paired gain v1 calibrated vs forest"
+  },
+  {
+   "ok": true,
+   "check": "test paired gain v1 calibrated vs arps"
+  },
+  {
+   "ok": true,
+   "check": "bayes_cal_mix5 present in results/v1/test/score_val_final/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_cal_mix5 in results/v1/test/score_val_final/scores.json: 450 wells, expected 450 (validation)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_cal_mix5 in results/v1/test/score_val_final/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "validation paired gain v1 calibrated vs basis"
+  },
+  {
+   "ok": true,
+   "check": "validation paired gain v1 calibrated vs dca"
+  },
+  {
+   "ok": true,
+   "check": "validation paired gain v1 calibrated vs neural"
+  },
+  {
+   "ok": true,
+   "check": "validation paired gain v1 calibrated vs forest"
+  },
+  {
+   "ok": true,
+   "check": "validation paired gain v1 calibrated vs arps"
+  },
+  {
+   "ok": true,
+   "check": "hindcast origins 0..720"
+  },
+  {
+   "ok": true,
+   "check": "hindcast phase order oil, gas, water"
+  },
+  {
+   "ok": true,
+   "check": "hindcast bayes_cal_mix5: 854 test wells"
+  },
+  {
+   "ok": true,
+   "check": "hindcast basis_mix5: 854 test wells"
+  },
+  {
+   "ok": true,
+   "check": "hindcast pw_arps_bayes: 854 test wells"
+  },
+  {
+   "ok": true,
+   "check": "hindcast v1 share above P90 at origin 0"
+  },
+  {
+   "ok": true,
+   "check": "hindcast v1 share above P90 at origin 720"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed42 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed42 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed42 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed43 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed43 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed43 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed44 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed44 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed44 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed45 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed45 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed45 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed46 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed46 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_seed46 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed42 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed42 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed42 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed43 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed43 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed43 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed44 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed44 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed44 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed45 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed45 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed45 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed46 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed46 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_seed46 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed42 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed42 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed42 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed43 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed43 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed43 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed44 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed44 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed44 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed45 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed45 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed45 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed46 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed46 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "basis_seed46 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed42 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed42 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed42 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed43 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed43 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed43 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed44 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed44 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed44 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed45 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed45 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed45 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed46 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed46 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "dca_seed46 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed42 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed42 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed42 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed43 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed43 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed43 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed44 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed44 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed44 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed45 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed45 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed45 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed46 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed46 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "neural_seed46 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed42 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed42 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed42 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed43 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed43 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed43 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed44 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed44 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed44 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed45 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed45 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed45 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed46 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed46 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "forest_seed46 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_final_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "bayes_v2_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "basis_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "basis_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "basis_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "dca_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "dca_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "dca_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "neural_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "neural_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "neural_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "forest_mix5 present in results/scores/test/score_test_paper/scores.json"
+  },
+  {
+   "ok": true,
+   "check": "forest_mix5 in results/scores/test/score_test_paper/scores.json: 854 wells, expected 854 (test)"
+  },
+  {
+   "ok": true,
+   "check": "forest_mix5 in results/scores/test/score_test_paper/scores.json: 28 cells"
+  },
+  {
+   "ok": true,
+   "check": "test seed-ensemble reduction v1_raw = 1.80%"
+  },
+  {
+   "ok": true,
+   "check": "test seed-ensemble reduction v2 = 1.68%"
+  },
+  {
+   "ok": true,
+   "check": "test seed-ensemble reduction basis = 5.82%"
+  },
+  {
+   "ok": true,
+   "check": "test seed-ensemble reduction dca = 5.57%"
+  },
+  {
+   "ok": true,
+   "check": "test seed-ensemble reduction neural = 3.26%"
+  },
+  {
+   "ok": true,
+   "check": "test seed-ensemble reduction forest = 1.11%"
+  },
+  {
+   "ok": true,
+   "check": "development arch vs base"
+  },
+  {
+   "ok": true,
+   "check": "development arch vs basis5"
+  },
+  {
+   "ok": true,
+   "check": "development arch vs dca5"
+  },
+  {
+   "ok": true,
+   "check": "development arch vs neural5"
+  }
+ ],
+ "run": {
+  "created_at_utc": "2026-11-13T18:21:17.503408+00:00",
+  "command": [
+   "python",
+   "scripts/paper_summary_figures.py",
+   "--arch-val-scores",
+   "results/scores/arch/score_val_full/scores.json",
+   "--arch-test-scores",
+   "results/scores/arch/score_test_full/scores.json",
+   "--arch-hindcast",
+   "results/scores/arch/hindcast_test/hindcast.json",
+   "--arch-val-diversity",
+   "results/scores/arch/val_diversity.json",
+   "--arch-test-diversity",
+   "results/scores/arch/test_diversity.json",
+   "--arch-test-pairs",
+   "results/scores/arch/score_test_pairs/diversity.json"
+  ],
+  "script": {
+   "path": "scripts/paper_summary_figures.py",
+   "sha256": "0f1afbfd02fdfe613394a8679a520b745d5b87063bb71bc06d96e5dc0ad03f53"
+  },
+  "style": {
+   "path": "scripts/paper_figure_style.py",
+   "sha256": "fe6bc05264f8c67d2d76cff1568086b2b1649142c9e27478d32b4e4d421436f5"
+  },
+  "git_commit": null,
+  "git_dirty": true,
+  "host": "local",
+  "platform": "macOS-27.2-arm64-arm-64bit",
+  "python": "3.12.12",
+  "packages": {
+   "numpy": "2.4.2",
+   "matplotlib": "3.10.3",
+   "torch": "2.10.0"
+  },
+  "figure_target": "draft",
+  "widths_in": {
+   "full": 6.5,
+   "half": 3.15
+  },
+  "note": "Regenerated from the released score files with `make summary-figures`; every plotted value equals the record written when the manuscript figures were made on 2026-10-06."
+ }
+}

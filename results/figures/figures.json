@@ -1,0 +1,3813 @@
+{
+ "split": "validation",
+ "model_label": "arch",
+ "model_name": "Width-diverse ensemble",
+ "bayes_models": [
+  "models/ensemble/bayes_arch_seed42_model.pt",
+  "models/ensemble/bayes_arch_seed43_model.pt",
+  "models/ensemble/bayes_arch_seed44_model.pt",
+  "models/ensemble/bayes_arch_seed45_model.pt",
+  "models/ensemble/bayes_arch_seed46_model.pt"
+ ],
+ "basis_models": [
+  "models/comparators/basis_secondary_seed42_model.pt",
+  "models/comparators/basis_secondary_seed43_model.pt",
+  "models/comparators/basis_secondary_seed44_model.pt",
+  "models/comparators/basis_secondary_seed45_model.pt",
+  "models/comparators/basis_secondary_seed46_model.pt"
+ ],
+ "dca_models": [
+  "models/comparators/dca_secondary_seed42_model.pt",
+  "models/comparators/dca_secondary_seed43_model.pt",
+  "models/comparators/dca_secondary_seed44_model.pt",
+  "models/comparators/dca_secondary_seed45_model.pt",
+  "models/comparators/dca_secondary_seed46_model.pt"
+ ],
+ "calibration": {
+  "report_inflation": 1.0,
+  "prior_inflation": 1.0,
+  "source": null,
+  "overridden": {
+   "report": true,
+   "prior": true
+  }
+ },
+ "pooling": "equal samples per member; member i uses seed + i",
+ "bayes_model": "models/ensemble/bayes_arch_seed42_model.pt",
+ "basis_model": "models/comparators/basis_secondary_seed42_model.pt",
+ "dca_model": "models/comparators/dca_secondary_seed42_model.pt",
+ "checkpoints_sha256": {
+  "models/ensemble/bayes_arch_seed42_model.pt": "f209cc05a011034f9eedb54d580a1967897283c182928342870e56ea8ec3b679",
+  "models/ensemble/bayes_arch_seed43_model.pt": "466a224059bbccb7c24b24d7b217065631c5314cd89f2ed337b25ec8200796ba",
+  "models/ensemble/bayes_arch_seed44_model.pt": "ce09c250e58100a4cb9d073096d5b4b74c468c12e0c686e1f7cdd48dc522e7db",
+  "models/ensemble/bayes_arch_seed45_model.pt": "55b7369b131a3abc87054a2b897e10c415663dc287d7e98e663f73a6b5024446",
+  "models/ensemble/bayes_arch_seed46_model.pt": "85f8c02332313832a8229129d8bb5af1e2775036ac61c57af429f858941dd28e",
+  "models/comparators/basis_secondary_seed42_model.pt": "9ecf2a20993686bfc2b9823579bf92bfc277b12681fceb2a3b0a93fc1aaa8653",
+  "models/comparators/basis_secondary_seed43_model.pt": "b6c2d029f9ef0980169b8a6ed64417bdd24210d803e0419a98dd9f5660846564",
+  "models/comparators/basis_secondary_seed44_model.pt": "890277229436f74e872184657f1cbc36f2e7c6031ba4fa17c1badc4c828655a0",
+  "models/comparators/basis_secondary_seed45_model.pt": "af76c8a8a6f80651dc87896419140707584b90e4c8073eca4dbcf40f91b6d5f1",
+  "models/comparators/basis_secondary_seed46_model.pt": "0551e11916a991d0dc448d95e41903711c4d8758703d34495fd85ff3a7ff4cc6",
+  "models/comparators/dca_secondary_seed42_model.pt": "4caa2ff46167a551b24b944288173a9719181c6471189afbd8f60944cb3bb66a",
+  "models/comparators/dca_secondary_seed43_model.pt": "7f40325f6eb07afbe80615bec6078596611259476ad84fd61f47df23916f2361",
+  "models/comparators/dca_secondary_seed44_model.pt": "22d4c64ec7405bf5e6e10ba56cd45c0581bccdfeb3f97258b5bb7ee7022a131d",
+  "models/comparators/dca_secondary_seed45_model.pt": "8642ba85382a641089a18ef42c24ef0e847846b2d9ffd4075d6e8658b6320cf6",
+  "models/comparators/dca_secondary_seed46_model.pt": "97fa1ce8bcfcbc3b81f55275c7bc9efa27599905628c90184f4e391ef5468c0e"
+ },
+ "example_wells": {
+  "A": {
+   "index": 417,
+   "row_id": "ea4828539868278f1d41e404426833c73a5b86e7aecf2f6bf5b66b4d11a80368"
+  },
+  "B": {
+   "index": 349,
+   "row_id": "c34b23b7be5ad7c41c24c209084571ec411787781e4302df05a31a7f8040a588"
+  },
+  "C": {
+   "index": 288,
+   "row_id": "aa3025ca024dc986fb4e30317c55a8398fc3d7ed373c3584bff20300c830d070"
+  }
+ },
+ "well_rules": "Fixed rules on observed reports: A = median 1080-day oil among complete wells; B = the median rise of\n    interval GOR from 180-360 to 720-1080 days among wells with oil above the median and a 1.3-2.5x rise\n    (a typical rising-GOR well); C = 75th-percentile oil.",
+ "decay_times_days": [
+  10.0,
+  23.22960568094821,
+  53.96145800923414,
+  125.35033915235539,
+  291.183895048234,
+  676.4087062613087,
+  1571.270752561052,
+  3650.0
+ ],
+ "tau_max_days": 3650.0,
+ "phase_order": [
+  "oil",
+  "gas",
+  "water"
+ ],
+ "phase_scales_native": [
+  154973.9375,
+  171130.1875,
+  116347.609375
+ ],
+ "units": {
+  "rate": "bbl/D (oil, water), Mcf/D (gas)",
+  "volume": "Mbbl (oil, water), MMcf (gas)",
+  "gor": "Mcf/bbl",
+  "wor": "bbl/bbl",
+  "native": "eur_oil_* legacy fields and *_native fields are bbl/Mcf"
+ },
+ "legacy_key_map": {
+  "fig1_updating": "fig_updating",
+  "fig2_rate_cumulative": "fig_decline.rate_cumulative",
+  "fig3_gas_oil": "fig_phase_coupling.legacy_gor_at_midpoint",
+  "fig4_drainage": "fig_modes.drainage_summary",
+  "fig5_correlation": "supp_fig_correlation (alias kept)",
+  "fig6_decline": "fig_decline.diagnostics",
+  "fig7_spectrum": "fig_modes.spectrum",
+  "fig8_audit": "property_audit.results (alias kept)",
+  "fig9_attributes": "fig_attributes"
+ },
+ "worked_example": {
+  "0": {
+   "reported_cum1080_p90_p50_p10": {
+    "oil": [
+     75.76808940425855,
+     116.37551250251619,
+     174.07224578118573
+    ],
+    "gas": [
+     60.95024328393861,
+     99.69791315114466,
+     161.78697283219935
+    ],
+    "water": [
+     56.5620717493782,
+     85.87820922723014,
+     120.21114564328889
+    ]
+   },
+   "period_gor_720_1080_p90_p50_p10_mcf_per_bbl": [
+    0.6124722854753847,
+    1.0514973559938536,
+    1.9298449834807931
+   ],
+   "period_gor_undefined_share": 0.0,
+   "latent_oil_eur_p90_p50_p10_mbbl": [
+    175.90573835586892,
+    275.4985806404625,
+    425.0134673792669
+   ],
+   "observed_cum1080_percentile_rank": {
+    "oil": 85.5,
+    "gas": 78.5,
+    "water": 83.5
+   },
+   "reports_known": 0,
+   "family": "bayes",
+   "samples": 400,
+   "members": 5,
+   "samples_per_member": [
+    80,
+    80,
+    80,
+    80,
+    80
+   ],
+   "seeds": [
+    11,
+    12,
+    13,
+    14,
+    15
+   ]
+  },
+  "90": {
+   "reported_cum1080_p90_p50_p10": {
+    "oil": [
+     143.89080917772333,
+     171.7972974983816,
+     213.80155974999354
+    ],
+    "gas": [
+     119.38969197786007,
+     144.6627227620539,
+     173.95693002122047
+    ],
+    "water": [
+     74.74704109054423,
+     90.59406998182487,
+     111.3946383687515
+    ]
+   },
+   "period_gor_720_1080_p90_p50_p10_mcf_per_bbl": [
+    0.6657817938710766,
+    1.0136640924089493,
+    1.6121646010754642
+   ],
+   "period_gor_undefined_share": 0.0,
+   "latent_oil_eur_p90_p50_p10_mbbl": [
+    289.1383494254458,
+    396.26498694402585,
+    562.076573274002
+   ],
+   "observed_cum1080_percentile_rank": {
+    "oil": 32.5,
+    "gas": 38.5,
+    "water": 85.75
+   },
+   "reports_known": 3,
+   "family": "bayes",
+   "samples": 400,
+   "members": 5,
+   "samples_per_member": [
+    80,
+    80,
+    80,
+    80,
+    80
+   ],
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105
+   ]
+  },
+  "360": {
+   "reported_cum1080_p90_p50_p10": {
+    "oil": [
+     143.5810761005997,
+     161.0342105392729,
+     182.63214535294335
+    ],
+    "gas": [
+     111.04550371591573,
+     130.10655912652237,
+     149.1891453530258
+    ],
+    "water": [
+     98.51432777523233,
+     112.47849889158996,
+     130.23684192578082
+    ]
+   },
+   "period_gor_720_1080_p90_p50_p10_mcf_per_bbl": [
+    0.5844505348722,
+    1.0169902056866778,
+    1.5208160554868944
+   ],
+   "period_gor_undefined_share": 0.0,
+   "latent_oil_eur_p90_p50_p10_mbbl": [
+    294.0565057243965,
+    376.5059394901068,
+    493.73986412686924
+   ],
+   "observed_cum1080_percentile_rank": {
+    "oil": 53.0,
+    "gas": 71.0,
+    "water": 33.25
+   },
+   "reports_known": 5,
+   "family": "bayes",
+   "samples": 400,
+   "members": 5,
+   "samples_per_member": [
+    80,
+    80,
+    80,
+    80,
+    80
+   ],
+   "seeds": [
+    371,
+    372,
+    373,
+    374,
+    375
+   ]
+  },
+  "observed": {
+   "cum1080": {
+    "oil": 162.115,
+    "gas": 137.37441940000002,
+    "water": 107.64380650000001
+   },
+   "period_gor_720_1080_mcf_per_bbl": 1.2182178946782187
+  },
+  "units": {
+   "volumes": "Mbbl (oil, water), MMcf (gas)",
+   "gor": "Mcf/bbl",
+   "p_notation": "[P90, P50, P10] = 10th, 50th, 90th percentiles"
+  },
+  "well": "A",
+  "provenance": {
+   "split": "validation",
+   "model_label": "arch",
+   "model_name": "Width-diverse ensemble (v2 config.)",
+   "bayes_models": [
+    "models/ensemble/bayes_arch_seed42_model.pt",
+    "models/ensemble/bayes_arch_seed43_model.pt",
+    "models/ensemble/bayes_arch_seed44_model.pt",
+    "models/ensemble/bayes_arch_seed45_model.pt",
+    "models/ensemble/bayes_arch_seed46_model.pt"
+   ],
+   "basis_models": [
+    "models/comparators/basis_secondary_seed42_model.pt",
+    "models/comparators/basis_secondary_seed43_model.pt",
+    "models/comparators/basis_secondary_seed44_model.pt",
+    "models/comparators/basis_secondary_seed45_model.pt",
+    "models/comparators/basis_secondary_seed46_model.pt"
+   ],
+   "dca_models": [
+    "models/comparators/dca_secondary_seed42_model.pt",
+    "models/comparators/dca_secondary_seed43_model.pt",
+    "models/comparators/dca_secondary_seed44_model.pt",
+    "models/comparators/dca_secondary_seed45_model.pt",
+    "models/comparators/dca_secondary_seed46_model.pt"
+   ],
+   "calibration": {
+    "report_inflation": 1.0,
+    "prior_inflation": 1.0,
+    "source": null,
+    "overridden": {
+     "report": true,
+     "prior": true
+    }
+   },
+   "pooling": "equal samples per member; member i uses seed + i"
+  }
+ },
+ "fig_updating": {
+  "0": {
+   "eur_oil_p10_p90": [
+    175905.73835586893,
+    425013.4673792669
+   ],
+   "eur_oil_median": 275498.58064046246,
+   "eur_percentiles_10_50_90_native": {
+    "oil": [
+     175905.73835586893,
+     275498.58064046246,
+     425013.4673792669
+    ],
+    "gas": [
+     294535.6843583685,
+     532314.2305644667,
+     993206.4468670067
+    ],
+    "water": [
+     192036.91444328622,
+     310014.07170929154,
+     564344.8607943964
+    ]
+   },
+   "eur_p90_p50_p10": {
+    "oil": [
+     175.90573835586892,
+     275.4985806404625,
+     425.0134673792669
+    ],
+    "gas": [
+     294.5356843583685,
+     532.3142305644667,
+     993.2064468670067
+    ],
+    "water": [
+     192.03691444328624,
+     310.01407170929156,
+     564.3448607943964
+    ]
+   },
+   "eur_p90_p10_width": {
+    "oil": 249.10772902339798,
+    "gas": 698.6707625086382,
+    "water": 372.3079463511101
+   },
+   "reports_known": 0,
+   "family": "bayes",
+   "samples": 400,
+   "members": 5,
+   "samples_per_member": [
+    80,
+    80,
+    80,
+    80,
+    80
+   ],
+   "seeds": [
+    11,
+    12,
+    13,
+    14,
+    15
+   ]
+  },
+  "90": {
+   "eur_oil_p10_p90": [
+    289138.34942544583,
+    562076.5732740021
+   ],
+   "eur_oil_median": 396264.98694402585,
+   "eur_percentiles_10_50_90_native": {
+    "oil": [
+     289138.34942544583,
+     396264.98694402585,
+     562076.5732740021
+    ],
+    "gas": [
+     497920.37667847384,
+     879394.4957078426,
+     1631676.3909697959
+    ],
+    "water": [
+     247602.44506491517,
+     389255.0356896182,
+     688069.8696400763
+    ]
+   },
+   "eur_p90_p50_p10": {
+    "oil": [
+     289.1383494254458,
+     396.26498694402585,
+     562.076573274002
+    ],
+    "gas": [
+     497.9203766784738,
+     879.3944957078427,
+     1631.6763909697959
+    ],
+    "water": [
+     247.60244506491517,
+     389.2550356896182,
+     688.0698696400763
+    ]
+   },
+   "eur_p90_p10_width": {
+    "oil": 272.9382238485562,
+    "gas": 1133.7560142913221,
+    "water": 440.46742457516115
+   },
+   "reports_known": 3,
+   "family": "bayes",
+   "samples": 400,
+   "members": 5,
+   "samples_per_member": [
+    80,
+    80,
+    80,
+    80,
+    80
+   ],
+   "seeds": [
+    101,
+    102,
+    103,
+    104,
+    105
+   ]
+  },
+  "360": {
+   "eur_oil_p10_p90": [
+    294056.5057243965,
+    493739.86412686924
+   ],
+   "eur_oil_median": 376505.93949010683,
+   "eur_percentiles_10_50_90_native": {
+    "oil": [
+     294056.5057243965,
+     376505.93949010683,
+     493739.86412686924
+    ],
+    "gas": [
+     438648.144781509,
+     753167.53287814,
+     1245944.612899487
+    ],
+    "water": [
+     275361.1439647555,
+     429299.09828705236,
+     795090.1921567527
+    ]
+   },
+   "eur_p90_p50_p10": {
+    "oil": [
+     294.0565057243965,
+     376.5059394901068,
+     493.73986412686924
+    ],
+    "gas": [
+     438.648144781509,
+     753.16753287814,
+     1245.9446128994869
+    ],
+    "water": [
+     275.3611439647555,
+     429.29909828705235,
+     795.0901921567527
+    ]
+   },
+   "eur_p90_p10_width": {
+    "oil": 199.68335840247275,
+    "gas": 807.296468117978,
+    "water": 519.7290481919972
+   },
+   "reports_known": 5,
+   "family": "bayes",
+   "samples": 400,
+   "members": 5,
+   "samples_per_member": [
+    80,
+    80,
+    80,
+    80,
+    80
+   ],
+   "seeds": [
+    371,
+    372,
+    373,
+    374,
+    375
+   ]
+  },
+  "files": [
+   "outputs/figures/fig_updating.pdf",
+   "outputs/figures/fig_updating.png"
+  ],
+  "well": "A",
+  "tau_max_days": 3650.0,
+  "rate_floor": 10.0,
+  "note": "latent rates and cumulative oil; reports drawn as period averages over each report period",
+  "provenance": {
+   "model_label": "arch",
+   "bayes_models": [
+    "models/ensemble/bayes_arch_seed42_model.pt",
+    "models/ensemble/bayes_arch_seed43_model.pt",
+    "models/ensemble/bayes_arch_seed44_model.pt",
+    "models/ensemble/bayes_arch_seed45_model.pt",
+    "models/ensemble/bayes_arch_seed46_model.pt"
+   ],
+   "basis_models": [
+    "models/comparators/basis_secondary_seed42_model.pt",
+    "models/comparators/basis_secondary_seed43_model.pt",
+    "models/comparators/basis_secondary_seed44_model.pt",
+    "models/comparators/basis_secondary_seed45_model.pt",
+    "models/comparators/basis_secondary_seed46_model.pt"
+   ],
+   "dca_models": [
+    "models/comparators/dca_secondary_seed42_model.pt",
+    "models/comparators/dca_secondary_seed43_model.pt",
+    "models/comparators/dca_secondary_seed44_model.pt",
+    "models/comparators/dca_secondary_seed45_model.pt",
+    "models/comparators/dca_secondary_seed46_model.pt"
+   ],
+   "calibration": {
+    "report_inflation": 1.0,
+    "prior_inflation": 1.0,
+    "source": null,
+    "overridden": {
+     "report": true,
+     "prior": true
+    }
+   },
+   "run_created_at_utc": "2026-10-05T23:24:07.362321+00:00"
+  }
+ },
+ "fig_decline": {
+  "files": [
+   "outputs/figures/fig_decline.pdf",
+   "outputs/figures/fig_decline.png"
+  ],
+  "well": "A",
+  "origin": 360,
+  "rate_cumulative": {
+   "origin": 360,
+   "eur_oil_p10_p50_p90": [
+    302528.70823811035,
+    387284.98204875516,
+    513170.0864512492
+   ],
+   "basis_eur_oil_p10_p50_p90": [
+    190399.35084464352,
+    238049.89706562622,
+    286974.95025085856
+   ],
+   "eur_over_cum3650_median": {
+    "Bayes": 1.3875712180022015,
+    "basis": 1.0182033616625228
+   },
+   "thick_line_samples": {
+    "Width-diverse ensemble": {
+     "sample": 2,
+     "q1080": 74.71979045171705,
+     "Q1080": 158019.2079732405,
+     "q3650": 30.599799518131032,
+     "Q3650": 280987.44627442164
+    },
+    "Positive-basis network": {
+     "sample": 25,
+     "q1080": 62.7372977795382,
+     "Q1080": 172999.07951080447,
+     "q3650": 4.76226243155011,
+     "Q3650": 234403.00445216577
+    }
+   },
+   "family": "bayes",
+   "samples": 60,
+   "members": 5,
+   "samples_per_member": [
+    12,
+    12,
+    12,
+    12,
+    12
+   ],
+   "seeds": [
+    21,
+    22,
+    23,
+    24,
+    25
+   ]
+  },
+  "zoom": {
+   "x_mbbl": [
+    142.21728717591645,
+    528.5651890447866
+   ],
+   "y_bbl_per_day": [
+    0.0,
+    85.92775901947459
+   ]
+  },
+  "diagnostics": {
+   "Bayes": {
+    "share_with_increasing_decline": 0.0,
+    "share_with_negative_b": 0.0
+   },
+   "basis": {
+    "share_with_increasing_decline": 1.0,
+    "share_with_negative_b": 1.0
+   }
+  },
+  "diagnostics_window_days": [
+   180,
+   3650
+  ],
+  "decline_p50_per_year": {
+   "Bayes": {
+    "365": 0.5224695118682794,
+    "1080": 0.19740065547396485,
+    "3650": 0.10850862839583636,
+    "7300": 0.10197843729091915
+   },
+   "basis": {
+    "365": 0.5796021061466183,
+    "1080": 0.3270491557583232,
+    "3650": 0.41231774282180644,
+    "7300": 0.4572863610331127
+   }
+  },
+  "b_p50_peak": {
+   "day": 770.0,
+   "value": 1.716179646172293
+  },
+  "terminal_decline": {
+   "tau_max_days": 3650.0,
+   "nominal_per_year": 0.10006849315068493,
+   "effective_pct_per_year": 9.51625819640405
+  },
+  "decline_samples": {
+   "family": "bayes",
+   "samples": 200,
+   "members": 5,
+   "samples_per_member": [
+    40,
+    40,
+    40,
+    40,
+    40
+   ],
+   "seeds": [
+    81,
+    82,
+    83,
+    84,
+    85
+   ]
+  },
+  "note": "D = -d ln q/dt and b = d(1/D)/dt by finite differences on a daily grid (180-7,300 d)",
+  "provenance": {
+   "model_label": "arch",
+   "bayes_models": [
+    "models/ensemble/bayes_arch_seed42_model.pt",
+    "models/ensemble/bayes_arch_seed43_model.pt",
+    "models/ensemble/bayes_arch_seed44_model.pt",
+    "models/ensemble/bayes_arch_seed45_model.pt",
+    "models/ensemble/bayes_arch_seed46_model.pt"
+   ],
+   "basis_models": [
+    "models/comparators/basis_secondary_seed42_model.pt",
+    "models/comparators/basis_secondary_seed43_model.pt",
+    "models/comparators/basis_secondary_seed44_model.pt",
+    "models/comparators/basis_secondary_seed45_model.pt",
+    "models/comparators/basis_secondary_seed46_model.pt"
+   ],
+   "dca_models": [
+    "models/comparators/dca_secondary_seed42_model.pt",
+    "models/comparators/dca_secondary_seed43_model.pt",
+    "models/comparators/dca_secondary_seed44_model.pt",
+    "models/comparators/dca_secondary_seed45_model.pt",
+    "models/comparators/dca_secondary_seed46_model.pt"
+   ],
+   "calibration": {
+    "report_inflation": 1.0,
+    "prior_inflation": 1.0,
+    "source": null,
+    "overridden": {
+     "report": true,
+     "prior": true
+    }
+   },
+   "run_created_at_utc": "2026-10-06T00:42:15.353623+00:00"
+  },
+  "label_revision": {
+   "created_utc": "2026-10-29T02:36:40.414890+00:00",
+   "reason": "F18: a b-P50 peak does not locate the takeover by the slowest mode; label only the measured peak.",
+   "method": "Replaced two UTF-16 text strings in the retained vector PDF; all other content operators and numerical metadata unchanged. PNG rendered from PDF at600dpi. Future generator annotation aligned.",
+   "original_pdf_sha256": "783df985472cda6ac341f52535ccb375bfbf73284a889190e8c2be7f8586a043",
+   "revised_pdf_sha256": "93db880e76d30dd0c9e0e4871ba2b0fca60855c748531344ca4fca36ac872228",
+   "original_script_sha256": "71dbb2499b1b00aa498809b8bbced6b74fa690c9837c18ac009cb125cd8fee84",
+   "revised_script_sha256": "aac9d149a78343681052fd0fcf48768a7b0ff2f99cac9efb69313a6793ff6990",
+   "model_inference_rerun": false
+  }
+ },
+ "fig_modes": {
+  "files": [
+   "outputs/figures/fig_modes.pdf",
+   "outputs/figures/fig_modes.png"
+  ],
+  "origin": 360,
+  "decay_times_days": [
+   10.0,
+   23.22960568094821,
+   53.96145800923414,
+   125.35033915235539,
+   291.183895048234,
+   676.4087062613087,
+   1571.270752561052,
+   3650.0
+  ],
+  "spectrum": {
+   "A": [
+    0.0009,
+    0.0199,
+    0.0016,
+    0.0236,
+    0.0775,
+    0.0406,
+    0.0693,
+    0.7303
+   ],
+   "B": [
+    0.0002,
+    0.0041,
+    0.001,
+    0.031,
+    0.104,
+    0.0247,
+    0.0369,
+    0.7696
+   ],
+   "C": [
+    0.0031,
+    0.0152,
+    0.0099,
+    0.0502,
+    0.1115,
+    0.1115,
+    0.2312,
+    0.4452
+   ]
+  },
+  "spectrum_detail": {
+   "A": {
+    "median": [
+     0.0009,
+     0.0199,
+     0.0016,
+     0.0236,
+     0.0775,
+     0.0406,
+     0.0693,
+     0.7303
+    ],
+    "p25": [
+     0.0002,
+     0.0029,
+     0.0004,
+     0.0172,
+     0.0587,
+     0.0222,
+     0.0356,
+     0.6634
+    ],
+    "p75": [
+     0.0077,
+     0.0312,
+     0.0199,
+     0.0352,
+     0.1021,
+     0.0722,
+     0.1163,
+     0.7784
+    ],
+    "fast_mode_share_median": 0.03337143856431307
+   },
+   "B": {
+    "median": [
+     0.0002,
+     0.0041,
+     0.001,
+     0.031,
+     0.104,
+     0.0247,
+     0.0369,
+     0.7696
+    ],
+    "p25": [
+     0.0001,
+     0.0005,
+     0.0003,
+     0.0194,
+     0.0753,
+     0.0156,
+     0.0173,
+     0.7309
+    ],
+    "p75": [
+     0.0034,
+     0.007,
+     0.0044,
+     0.0497,
+     0.1327,
+     0.0444,
+     0.0774,
+     0.7998
+    ],
+    "fast_mode_share_median": 0.008854799101009867
+   },
+   "C": {
+    "median": [
+     0.0031,
+     0.0152,
+     0.0099,
+     0.0502,
+     0.1115,
+     0.1115,
+     0.2312,
+     0.4452
+    ],
+    "p25": [
+     0.0015,
+     0.0025,
+     0.0057,
+     0.0426,
+     0.0957,
+     0.089,
+     0.1862,
+     0.3972
+    ],
+    "p75": [
+     0.0048,
+     0.0204,
+     0.0297,
+     0.0627,
+     0.1313,
+     0.1352,
+     0.2836,
+     0.4996
+    ],
+    "fast_mode_share_median": 0.03194311435522999
+   }
+  },
+  "mode_example": {
+   "well": "A",
+   "sample": 264,
+   "eur_oil_bbl": 379243.85644435504,
+   "peak_day": 0.044693068611038674,
+   "mode_volume_share": [
+    0.0112,
+    0.0122,
+    0.0257,
+    0.0228,
+    0.0531,
+    0.1282,
+    0.0375,
+    0.7095
+   ]
+  },
+  "eur_timing_share_pct": {
+   "oil": {
+    "1080": {
+     "p50": 40.72132482802137,
+     "p10_p90": [
+      36.11270133267685,
+      46.672382801865695
+     ]
+    },
+    "3650": {
+     "p50": 72.48918633546785,
+     "p10_p90": [
+      69.6561678148378,
+      76.71885470080959
+     ]
+    }
+   },
+   "gas": {
+    "1080": {
+     "p50": 17.026036588144677,
+     "p10_p90": [
+      10.99251321699708,
+      27.48333891266839
+     ]
+    },
+    "3650": {
+     "p50": 44.980359825958416,
+     "p10_p90": [
+      35.57945778772831,
+      58.61508481606372
+     ]
+    }
+   },
+   "water": {
+    "1080": {
+     "p50": 23.924920561829907,
+     "p10_p90": [
+      15.04085261839241,
+      33.62713836191978
+     ]
+    },
+    "3650": {
+     "p50": 53.87291789127822,
+     "p10_p90": [
+      40.820384327404604,
+      65.58255624698182
+     ]
+    }
+   }
+  },
+  "drainage_summary": {
+   "fast_rate_per_day_median": 0.04282180324118083,
+   "slow_rate_per_day_median": 0.0008453140658866093,
+   "fast_share_of_decline_volume_median": 0.030595211708864624,
+   "fast_tau_days": 100.0,
+   "family": "bayes",
+   "samples": 40,
+   "members": 5,
+   "samples_per_member": [
+    8,
+    8,
+    8,
+    8,
+    8
+   ],
+   "seeds": [
+    51,
+    52,
+    53,
+    54,
+    55
+   ]
+  },
+  "family": "bayes",
+  "samples": 400,
+  "members": 5,
+  "samples_per_member": [
+   80,
+   80,
+   80,
+   80,
+   80
+  ],
+  "seeds": [
+   91,
+   92,
+   93,
+   94,
+   95
+  ],
+  "provenance": {
+   "model_label": "arch",
+   "bayes_models": [
+    "models/ensemble/bayes_arch_seed42_model.pt",
+    "models/ensemble/bayes_arch_seed43_model.pt",
+    "models/ensemble/bayes_arch_seed44_model.pt",
+    "models/ensemble/bayes_arch_seed45_model.pt",
+    "models/ensemble/bayes_arch_seed46_model.pt"
+   ],
+   "basis_models": [
+    "models/comparators/basis_secondary_seed42_model.pt",
+    "models/comparators/basis_secondary_seed43_model.pt",
+    "models/comparators/basis_secondary_seed44_model.pt",
+    "models/comparators/basis_secondary_seed45_model.pt",
+    "models/comparators/basis_secondary_seed46_model.pt"
+   ],
+   "dca_models": [
+    "models/comparators/dca_secondary_seed42_model.pt",
+    "models/comparators/dca_secondary_seed43_model.pt",
+    "models/comparators/dca_secondary_seed44_model.pt",
+    "models/comparators/dca_secondary_seed45_model.pt",
+    "models/comparators/dca_secondary_seed46_model.pt"
+   ],
+   "calibration": {
+    "report_inflation": 1.0,
+    "prior_inflation": 1.0,
+    "source": null,
+    "overridden": {
+     "report": true,
+     "prior": true
+    }
+   },
+   "run_created_at_utc": "2026-10-06T04:04:33.645430+00:00"
+  }
+ },
+ "fig_phase_coupling": {
+  "files": [
+   "outputs/figures/fig_phase_coupling.pdf",
+   "outputs/figures/fig_phase_coupling.png"
+  ],
+  "well": "B",
+  "x_range_mbbl": [
+   0.0,
+   1170.7921472201008
+  ],
+  "last_report_cum_oil_mbbl": 366.47775,
+  "ratio_summary": {
+   "gor": {
+    "0": {
+     "defined_to_mbbl": 653.0549162885989,
+     "p10_p50_p90_at_fraction_of_x": {
+      "0.25": [
+       0.5413738916587344,
+       0.7632137309503293,
+       1.2908566558933
+      ],
+      "0.5": [
+       0.6358725319427251,
+       1.0545351987263119,
+       2.7629282510128346
+      ],
+      "0.75": [
+       null,
+       null,
+       null
+      ],
+      "1.0": [
+       null,
+       null,
+       null
+      ]
+     }
+    },
+    "90": {
+     "defined_to_mbbl": 1064.8913499841117,
+     "p10_p50_p90_at_fraction_of_x": {
+      "0.25": [
+       0.5549745640679253,
+       0.704940219583944,
+       1.018206614213255
+      ],
+      "0.5": [
+       0.6567545441879196,
+       0.9544846342612319,
+       1.8053139374450247
+      ],
+      "0.75": [
+       0.7048204972987322,
+       1.415220847003295,
+       3.877017028827935
+      ],
+      "1.0": [
+       null,
+       null,
+       null
+      ]
+     }
+    },
+    "360": {
+     "defined_to_mbbl": 1023.7077066145605,
+     "p10_p50_p90_at_fraction_of_x": {
+      "0.25": [
+       0.5646542385568564,
+       0.7142845472487414,
+       0.9829458703696318
+      ],
+      "0.5": [
+       0.6727166460549353,
+       1.057133079093156,
+       1.8657153547618819
+      ],
+      "0.75": [
+       0.7156964116968818,
+       1.6115735667829423,
+       4.0098378294338675
+      ],
+      "1.0": [
+       null,
+       null,
+       null
+      ]
+     }
+    },
+    "reported_periods": [
+     0.8857781236526923,
+     0.6686299831037165,
+     0.6704243215685745,
+     0.5476310433017,
+     0.5730019329769819,
+     0.6054630013490023,
+     0.873260963985307
+    ]
+   },
+   "wor": {
+    "0": {
+     "defined_to_mbbl": 653.0549162885989,
+     "p10_p50_p90_at_fraction_of_x": {
+      "0.25": [
+       0.04035892241741781,
+       0.08249276076056467,
+       0.23719287729487035
+      ],
+      "0.5": [
+       0.05590388037570205,
+       0.13553804030119176,
+       0.5387745643741193
+      ],
+      "0.75": [
+       null,
+       null,
+       null
+      ],
+      "1.0": [
+       null,
+       null,
+       null
+      ]
+     }
+    },
+    "90": {
+     "defined_to_mbbl": 1064.8913499841117,
+     "p10_p50_p90_at_fraction_of_x": {
+      "0.25": [
+       0.02830265542424651,
+       0.043819277218371804,
+       0.06981270762017122
+      ],
+      "0.5": [
+       0.03832906606310647,
+       0.0689228563279374,
+       0.1507730503614569
+      ],
+      "0.75": [
+       0.052013363846570425,
+       0.11375794009586765,
+       0.36004729301908106
+      ],
+      "1.0": [
+       null,
+       null,
+       null
+      ]
+     }
+    },
+    "360": {
+     "defined_to_mbbl": 1023.7077066145605,
+     "p10_p50_p90_at_fraction_of_x": {
+      "0.25": [
+       0.032819229631719904,
+       0.046795364856819455,
+       0.0729072705579622
+      ],
+      "0.5": [
+       0.046389743102869495,
+       0.07980275015666916,
+       0.17264707281737335
+      ],
+      "0.75": [
+       0.06063933415192292,
+       0.14366456022802027,
+       0.41452289889366256
+      ],
+      "1.0": [
+       null,
+       null,
+       null
+      ]
+     }
+    },
+    "reported_periods": [
+     0.15296468731612214,
+     0.04012495904685178,
+     0.03748528091662717,
+     0.025695111990924287,
+     0.04558275311150122,
+     0.25325252579514823,
+     0.3415286962991673
+    ]
+   }
+  },
+  "min_defined_share": 0.8,
+  "joint_1080": {
+   "origin": 90,
+   "spearman_oil_gas": 0.17508505650062778,
+   "samples": 300,
+   "oil_p90_p50_p10_mbbl": [
+    416.38033712212314,
+    502.48942145940293,
+    616.6291271362708
+   ],
+   "gas_p90_p50_p10_mmcf": [
+    314.2475708037673,
+    373.267272197921,
+    471.93185733042395
+   ],
+   "observed_oil_mbbl": 366.47775,
+   "observed_gas_mmcf": 239.9485,
+   "observed_rank_pct": {
+    "oil": 3.6666666666666665,
+    "gas": 0.6666666666666667
+   }
+  },
+  "joint_1080_by_origin": {
+   "90": {
+    "origin": 90,
+    "spearman_oil_gas": 0.17508505650062778,
+    "samples": 300,
+    "oil_p90_p50_p10_mbbl": [
+     416.38033712212314,
+     502.48942145940293,
+     616.6291271362708
+    ],
+    "gas_p90_p50_p10_mmcf": [
+     314.2475708037673,
+     373.267272197921,
+     471.93185733042395
+    ],
+    "observed_oil_mbbl": 366.47775,
+    "observed_gas_mmcf": 239.9485,
+    "observed_rank_pct": {
+     "oil": 3.6666666666666665,
+     "gas": 0.6666666666666667
+    }
+   },
+   "360": {
+    "origin": 360,
+    "spearman_oil_gas": 0.13709130101445569,
+    "samples": 300,
+    "oil_p90_p50_p10_mbbl": [
+     418.6960295731732,
+     462.08590757417187,
+     517.1505034845014
+    ],
+    "gas_p90_p50_p10_mmcf": [
+     278.2226511383977,
+     312.7260735858259,
+     369.2826495742248
+    ],
+    "observed_oil_mbbl": 366.47775,
+    "observed_gas_mmcf": 239.9485,
+    "observed_rank_pct": {
+     "oil": 0.33333333333333337,
+     "gas": 0.6666666666666667
+    }
+   }
+  },
+  "eur_over_reported_cum1080_median": {
+   "oil": 3.1947154969711002,
+   "gas": 6.606432986874909,
+   "water": 2.8838770508445593
+  },
+  "legacy_gor_at_midpoint": {
+   "0": {
+    "gor_at_median_eur_p10_p50_p90": [
+     0.652012447077978,
+     1.3253226822609139,
+     4.771058449785907
+    ]
+   },
+   "90": {
+    "gor_at_median_eur_p10_p50_p90": [
+     0.7052634709532429,
+     1.4227111253032008,
+     4.175383848813943
+    ]
+   },
+   "360": {
+    "gor_at_median_eur_p10_p50_p90": [
+     0.7046851071131729,
+     1.3057796430245525,
+     2.7981604102121564
+    ]
+   }
+  },
+  "samples_per_origin": 300,
+  "seeds_by_origin": {
+   "0": 31,
+   "90": 121,
+   "360": 391
+  },
+  "members": 5,
+  "provenance": {
+   "model_label": "arch",
+   "bayes_models": [
+    "models/ensemble/bayes_arch_seed42_model.pt",
+    "models/ensemble/bayes_arch_seed43_model.pt",
+    "models/ensemble/bayes_arch_seed44_model.pt",
+    "models/ensemble/bayes_arch_seed45_model.pt",
+    "models/ensemble/bayes_arch_seed46_model.pt"
+   ],
+   "basis_models": [
+    "models/comparators/basis_secondary_seed42_model.pt",
+    "models/comparators/basis_secondary_seed43_model.pt",
+    "models/comparators/basis_secondary_seed44_model.pt",
+    "models/comparators/basis_secondary_seed45_model.pt",
+    "models/comparators/basis_secondary_seed46_model.pt"
+   ],
+   "dca_models": [
+    "models/comparators/dca_secondary_seed42_model.pt",
+    "models/comparators/dca_secondary_seed43_model.pt",
+    "models/comparators/dca_secondary_seed44_model.pt",
+    "models/comparators/dca_secondary_seed45_model.pt",
+    "models/comparators/dca_secondary_seed46_model.pt"
+   ],
+   "calibration": {
+    "report_inflation": 1.0,
+    "prior_inflation": 1.0,
+    "source": null,
+    "overridden": {
+     "report": true,
+     "prior": true
+    }
+   },
+   "run_created_at_utc": "2026-10-06T04:04:33.645430+00:00"
+  }
+ },
+ "fig_attributes": {
+  "LateralLength_FT": {
+   "raw_grid": [
+    4531.8,
+    4900.375,
+    5268.950000000001,
+    5637.525,
+    6006.1,
+    6374.675000000001,
+    6743.25,
+    7111.825000000001,
+    7480.400000000001,
+    7848.975,
+    8217.550000000001,
+    8586.125,
+    8954.7,
+    9323.275,
+    9691.85,
+    10060.425000000001,
+    10429.0
+   ],
+   "legacy_grid_index": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16
+   ],
+   "cum1080_median": [
+    106.114,
+    110.661,
+    115.271,
+    119.854,
+    124.558,
+    129.335,
+    133.763,
+    138.367,
+    142.942,
+    147.395,
+    151.682,
+    155.535,
+    159.648,
+    163.366,
+    167.025,
+    170.441,
+    173.465
+   ],
+   "cum1080_iqr": [
+    [
+     79.49,
+     82.943,
+     86.505,
+     90.058,
+     93.512,
+     97.286,
+     101.028,
+     104.767,
+     108.549,
+     112.135,
+     115.819,
+     119.205,
+     122.564,
+     125.765,
+     128.693,
+     131.413,
+     134.102
+    ],
+    [
+     141.215,
+     146.904,
+     152.904,
+     158.848,
+     164.481,
+     170.126,
+     175.585,
+     181.442,
+     187.208,
+     193.084,
+     197.887,
+     202.436,
+     207.358,
+     211.605,
+     215.764,
+     219.825,
+     223.419
+    ]
+   ],
+   "eur_median": [
+    212.531,
+    221.928,
+    231.327,
+    241.12,
+    251.24,
+    261.23,
+    270.895,
+    280.58,
+    289.113,
+    298.0,
+    307.262,
+    315.347,
+    323.161,
+    330.612,
+    337.248,
+    343.383,
+    349.928
+   ],
+   "eur_iqr": [
+    [
+     155.828,
+     163.17,
+     170.976,
+     178.915,
+     186.26,
+     194.089,
+     201.805,
+     209.651,
+     217.363,
+     225.294,
+     232.411,
+     239.003,
+     245.433,
+     251.819,
+     257.221,
+     262.404,
+     266.836
+    ],
+    [
+     289.266,
+     300.813,
+     313.252,
+     326.543,
+     339.837,
+     353.688,
+     366.033,
+     378.569,
+     391.026,
+     403.186,
+     414.377,
+     425.435,
+     435.381,
+     444.746,
+     453.651,
+     459.662,
+     466.543
+    ]
+   ],
+   "gor0_median": [
+    0.716,
+    0.728,
+    0.739,
+    0.748,
+    0.758,
+    0.769,
+    0.776,
+    0.784,
+    0.792,
+    0.797,
+    0.803,
+    0.808,
+    0.814,
+    0.818,
+    0.823,
+    0.827,
+    0.83
+   ],
+   "gor0_iqr": [
+    [
+     0.519,
+     0.529,
+     0.539,
+     0.548,
+     0.557,
+     0.566,
+     0.574,
+     0.581,
+     0.588,
+     0.594,
+     0.6,
+     0.608,
+     0.612,
+     0.617,
+     0.619,
+     0.622,
+     0.626
+    ],
+    [
+     0.97,
+     0.985,
+     0.998,
+     1.01,
+     1.023,
+     1.037,
+     1.047,
+     1.056,
+     1.064,
+     1.071,
+     1.077,
+     1.081,
+     1.084,
+     1.085,
+     1.088,
+     1.091,
+     1.091
+    ]
+   ],
+   "eur_median_mbbl": [
+    212.531,
+    221.928,
+    231.327,
+    241.12,
+    251.24,
+    261.23,
+    270.895,
+    280.58,
+    289.113,
+    298.0,
+    307.262,
+    315.347,
+    323.161,
+    330.612,
+    337.248,
+    343.383,
+    349.928
+   ],
+   "cum1080_median_mbbl": [
+    106.114,
+    110.661,
+    115.271,
+    119.854,
+    124.558,
+    129.335,
+    133.763,
+    138.367,
+    142.942,
+    147.395,
+    151.682,
+    155.535,
+    159.648,
+    163.366,
+    167.025,
+    170.441,
+    173.465
+   ],
+   "training_binned_cum1080": [
+    {
+     "x": 5670.5,
+     "oil_mbbl": 128.36760325,
+     "model_p50_mbbl": 129.67691847369457,
+     "wells": 632
+    },
+    {
+     "x": 8678.0,
+     "oil_mbbl": 156.5574333,
+     "model_p50_mbbl": 154.98462970294634,
+     "wells": 635
+    },
+    {
+     "x": 9087.0,
+     "oil_mbbl": 152.45748,
+     "model_p50_mbbl": 156.5139216368176,
+     "wells": 633
+    },
+    {
+     "x": 9264.0,
+     "oil_mbbl": 152.4094,
+     "model_p50_mbbl": 153.0533054431288,
+     "wells": 631
+    },
+    {
+     "x": 9400.5,
+     "oil_mbbl": 154.25445000000002,
+     "model_p50_mbbl": 150.67606015444085,
+     "wells": 636
+    },
+    {
+     "x": 9518.0,
+     "oil_mbbl": 154.70330644999999,
+     "model_p50_mbbl": 151.5512473233259,
+     "wells": 636
+    },
+    {
+     "x": 9625.0,
+     "oil_mbbl": 152.8763667,
+     "model_p50_mbbl": 153.25623009125462,
+     "wells": 639
+    },
+    {
+     "x": 9773.0,
+     "oil_mbbl": 167.72062904999999,
+     "model_p50_mbbl": 169.82340154325624,
+     "wells": 636
+    },
+    {
+     "x": 9969.0,
+     "oil_mbbl": 168.1453774,
+     "model_p50_mbbl": 165.3932936392686,
+     "wells": 636
+    },
+    {
+     "x": 10181.0,
+     "oil_mbbl": 161.6144932,
+     "model_p50_mbbl": 158.1902349665134,
+     "wells": 632
+    }
+   ],
+   "cum1080_slope_mbbl_per_unit": 0.011631925977575988,
+   "training_wells_present": 7017,
+   "cum1080_slope_mbbl_per_1000_ft": 11.631925977575989
+  },
+  "ProppantIntensity_LBSPerFT": {
+   "raw_grid": [
+    145.85285342,
+    188.76196005624993,
+    231.6710666924999,
+    274.5801733287498,
+    317.48927996499975,
+    360.3983866012497,
+    403.30749323749967,
+    446.2165998737496,
+    489.12570650999953,
+    532.0348131462495,
+    574.9439197824994,
+    617.8530264187494,
+    660.7621330549994,
+    703.6712396912494,
+    746.5803463274992,
+    789.4894529637493,
+    832.3985595999991
+   ],
+   "legacy_grid_index": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16
+   ],
+   "cum1080_median": [
+    140.878,
+    145.634,
+    150.02,
+    154.109,
+    158.185,
+    161.698,
+    164.919,
+    168.122,
+    171.075,
+    173.575,
+    175.649,
+    177.94,
+    179.557,
+    180.613,
+    181.45,
+    182.411,
+    183.02
+   ],
+   "cum1080_iqr": [
+    [
+     107.142,
+     111.303,
+     115.017,
+     118.988,
+     122.455,
+     125.763,
+     128.666,
+     131.224,
+     133.582,
+     135.428,
+     136.816,
+     138.125,
+     139.121,
+     139.734,
+     140.091,
+     140.051,
+     140.466
+    ],
+    [
+     184.537,
+     189.365,
+     194.091,
+     198.747,
+     203.436,
+     207.545,
+     212.061,
+     215.606,
+     218.8,
+     221.428,
+     224.168,
+     226.916,
+     229.287,
+     231.507,
+     233.231,
+     235.018,
+     236.867
+    ]
+   ],
+   "eur_median": [
+    290.807,
+    299.683,
+    307.642,
+    314.867,
+    321.981,
+    327.756,
+    332.655,
+    336.933,
+    340.631,
+    343.866,
+    345.854,
+    348.826,
+    350.027,
+    350.835,
+    350.83,
+    350.098,
+    349.407
+   ],
+   "eur_iqr": [
+    [
+     215.334,
+     223.158,
+     231.023,
+     237.727,
+     243.388,
+     249.08,
+     252.859,
+     256.228,
+     258.704,
+     260.463,
+     261.728,
+     262.482,
+     262.657,
+     262.455,
+     261.619,
+     260.844,
+     259.267
+    ],
+    [
+     395.378,
+     405.888,
+     415.436,
+     423.326,
+     431.285,
+     438.778,
+     445.13,
+     450.225,
+     454.983,
+     458.991,
+     462.179,
+     464.121,
+     464.909,
+     465.658,
+     466.137,
+     465.997,
+     466.629
+    ]
+   ],
+   "gor0_median": [
+    0.847,
+    0.84,
+    0.832,
+    0.824,
+    0.817,
+    0.809,
+    0.802,
+    0.795,
+    0.789,
+    0.781,
+    0.776,
+    0.769,
+    0.762,
+    0.755,
+    0.747,
+    0.74,
+    0.732
+   ],
+   "gor0_iqr": [
+    [
+     0.639,
+     0.632,
+     0.628,
+     0.624,
+     0.618,
+     0.612,
+     0.605,
+     0.599,
+     0.592,
+     0.587,
+     0.581,
+     0.574,
+     0.568,
+     0.563,
+     0.556,
+     0.55,
+     0.544
+    ],
+    [
+     1.111,
+     1.099,
+     1.092,
+     1.085,
+     1.077,
+     1.071,
+     1.064,
+     1.058,
+     1.051,
+     1.044,
+     1.037,
+     1.027,
+     1.018,
+     1.01,
+     1.001,
+     0.993,
+     0.982
+    ]
+   ],
+   "eur_median_mbbl": [
+    290.807,
+    299.683,
+    307.642,
+    314.867,
+    321.981,
+    327.756,
+    332.655,
+    336.933,
+    340.631,
+    343.866,
+    345.854,
+    348.826,
+    350.027,
+    350.835,
+    350.83,
+    350.098,
+    349.407
+   ],
+   "cum1080_median_mbbl": [
+    140.878,
+    145.634,
+    150.02,
+    154.109,
+    158.185,
+    161.698,
+    164.919,
+    168.122,
+    171.075,
+    173.575,
+    175.649,
+    177.94,
+    179.557,
+    180.613,
+    181.45,
+    182.411,
+    183.02
+   ],
+   "training_binned_cum1080": [
+    {
+     "x": 189.2280197,
+     "oil_mbbl": 127.70135,
+     "model_p50_mbbl": 127.80411474864641,
+     "wells": 632
+    },
+    {
+     "x": 231.5505981,
+     "oil_mbbl": 146.7453226,
+     "model_p50_mbbl": 139.65481932333634,
+     "wells": 631
+    },
+    {
+     "x": 265.9377289,
+     "oil_mbbl": 144.3329377,
+     "model_p50_mbbl": 148.12549400594827,
+     "wells": 632
+    },
+    {
+     "x": 293.7802734,
+     "oil_mbbl": 147.37066670000002,
+     "model_p50_mbbl": 143.7022826088292,
+     "wells": 631
+    },
+    {
+     "x": 323.16423035,
+     "oil_mbbl": 144.1116452,
+     "model_p50_mbbl": 143.8559792252738,
+     "wells": 632
+    },
+    {
+     "x": 355.9404907,
+     "oil_mbbl": 166.2103812,
+     "model_p50_mbbl": 167.67412340255075,
+     "wells": 632
+    },
+    {
+     "x": 383.8069763,
+     "oil_mbbl": 165.3364839,
+     "model_p50_mbbl": 164.07928059484368,
+     "wells": 631
+    },
+    {
+     "x": 406.84651184999996,
+     "oil_mbbl": 159.57565325000002,
+     "model_p50_mbbl": 159.56608645749714,
+     "wells": 632
+    },
+    {
+     "x": 446.8599243,
+     "oil_mbbl": 162.05857139999998,
+     "model_p50_mbbl": 162.59768124688455,
+     "wells": 631
+    },
+    {
+     "x": 584.3710022,
+     "oil_mbbl": 184.0351521,
+     "model_p50_mbbl": 187.87078809024368,
+     "wells": 632
+    }
+   ],
+   "cum1080_slope_mbbl_per_unit": 0.0615077253493961,
+   "training_wells_present": 7017
+  },
+  "FluidIntensity_BBLPerFT": {
+   "raw_grid": [
+    2.5906743048000003,
+    3.7607665952500002,
+    4.930858885700001,
+    6.100951176150001,
+    7.271043466600001,
+    8.44113575705,
+    9.611228047500001,
+    10.781320337950001,
+    11.9514126284,
+    13.12150491885,
+    14.2915972093,
+    15.461689499750001,
+    16.6317817902,
+    17.80187408065,
+    18.971966371100006,
+    20.142058661550003,
+    21.312150952
+   ],
+   "legacy_grid_index": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16
+   ],
+   "cum1080_median": [
+    145.647,
+    148.611,
+    151.842,
+    155.806,
+    159.889,
+    163.985,
+    167.966,
+    171.885,
+    175.315,
+    178.278,
+    181.05,
+    183.476,
+    185.811,
+    187.787,
+    189.428,
+    191.224,
+    192.326
+   ],
+   "cum1080_iqr": [
+    [
+     111.813,
+     114.649,
+     117.627,
+     121.148,
+     124.393,
+     127.44,
+     130.309,
+     132.936,
+     135.141,
+     137.266,
+     139.02,
+     140.512,
+     141.6,
+     142.561,
+     143.032,
+     143.261,
+     143.643
+    ],
+    [
+     187.238,
+     189.807,
+     194.298,
+     199.101,
+     204.805,
+     210.453,
+     215.784,
+     220.865,
+     225.894,
+     230.139,
+     234.578,
+     238.159,
+     241.769,
+     244.815,
+     247.415,
+     250.213,
+     252.237
+    ]
+   ],
+   "eur_median": [
+    303.377,
+    307.627,
+    311.542,
+    316.531,
+    322.328,
+    328.075,
+    334.768,
+    339.924,
+    344.418,
+    349.076,
+    352.342,
+    355.939,
+    358.45,
+    361.73,
+    364.579,
+    367.431,
+    369.695
+   ],
+   "eur_iqr": [
+    [
+     225.673,
+     230.942,
+     235.263,
+     240.781,
+     245.315,
+     250.587,
+     254.74,
+     258.56,
+     261.55,
+     264.718,
+     266.893,
+     267.673,
+     268.431,
+     268.921,
+     269.668,
+     270.262,
+     270.273
+    ],
+    [
+     410.218,
+     410.161,
+     415.253,
+     421.396,
+     427.257,
+     435.157,
+     443.073,
+     450.436,
+     457.55,
+     462.256,
+     466.993,
+     472.959,
+     477.314,
+     482.717,
+     487.87,
+     491.592,
+     496.099
+    ]
+   ],
+   "gor0_median": [
+    0.756,
+    0.777,
+    0.796,
+    0.813,
+    0.828,
+    0.844,
+    0.857,
+    0.866,
+    0.873,
+    0.877,
+    0.879,
+    0.879,
+    0.877,
+    0.874,
+    0.867,
+    0.86,
+    0.851
+   ],
+   "gor0_iqr": [
+    [
+     0.567,
+     0.585,
+     0.6,
+     0.615,
+     0.628,
+     0.639,
+     0.647,
+     0.655,
+     0.66,
+     0.665,
+     0.667,
+     0.669,
+     0.671,
+     0.67,
+     0.666,
+     0.664,
+     0.659
+    ],
+    [
+     1.004,
+     1.028,
+     1.053,
+     1.074,
+     1.09,
+     1.107,
+     1.12,
+     1.131,
+     1.138,
+     1.142,
+     1.142,
+     1.14,
+     1.134,
+     1.124,
+     1.113,
+     1.1,
+     1.086
+    ]
+   ],
+   "eur_median_mbbl": [
+    303.377,
+    307.627,
+    311.542,
+    316.531,
+    322.328,
+    328.075,
+    334.768,
+    339.924,
+    344.418,
+    349.076,
+    352.342,
+    355.939,
+    358.45,
+    361.73,
+    364.579,
+    367.431,
+    369.695
+   ],
+   "cum1080_median_mbbl": [
+    145.647,
+    148.611,
+    151.842,
+    155.806,
+    159.889,
+    163.985,
+    167.966,
+    171.885,
+    175.315,
+    178.278,
+    181.05,
+    183.476,
+    185.811,
+    187.787,
+    189.428,
+    191.224,
+    192.326
+   ],
+   "training_binned_cum1080": [
+    {
+     "x": 3.1700525280000003,
+     "oil_mbbl": 145.27183335,
+     "model_p50_mbbl": 134.605998080976,
+     "wells": 632
+    },
+    {
+     "x": 4.08631897,
+     "oil_mbbl": 130.839,
+     "model_p50_mbbl": 135.23901021494734,
+     "wells": 631
+    },
+    {
+     "x": 4.7907574175,
+     "oil_mbbl": 137.01264010000003,
+     "model_p50_mbbl": 133.29581271574355,
+     "wells": 632
+    },
+    {
+     "x": 5.359163284,
+     "oil_mbbl": 145.2713333,
+     "model_p50_mbbl": 143.7574888954769,
+     "wells": 631
+    },
+    {
+     "x": 5.9107477665,
+     "oil_mbbl": 147.8061686,
+     "model_p50_mbbl": 146.4946952600937,
+     "wells": 632
+    },
+    {
+     "x": 6.572990656,
+     "oil_mbbl": 150.57123729999998,
+     "model_p50_mbbl": 148.68861266670226,
+     "wells": 632
+    },
+    {
+     "x": 7.495647907,
+     "oil_mbbl": 162.5238571,
+     "model_p50_mbbl": 157.7520704867312,
+     "wells": 631
+    },
+    {
+     "x": 8.321396351,
+     "oil_mbbl": 163.6342229,
+     "model_p50_mbbl": 163.15621402995598,
+     "wells": 632
+    },
+    {
+     "x": 9.806019783,
+     "oil_mbbl": 170.6671613,
+     "model_p50_mbbl": 175.09796993166924,
+     "wells": 631
+    },
+    {
+     "x": 14.115618229999999,
+     "oil_mbbl": 200.96129375,
+     "model_p50_mbbl": 199.705091540777,
+     "wells": 632
+    }
+   ],
+   "cum1080_slope_mbbl_per_unit": 2.622281857657837,
+   "training_wells_present": 7017
+  },
+  "TrueVerticalDepth_FT": {
+   "raw_grid": [
+    8599.8,
+    8763.7,
+    8927.6,
+    9091.5,
+    9255.4,
+    9419.3,
+    9583.2,
+    9747.1,
+    9911.0,
+    10074.9,
+    10238.8,
+    10402.7,
+    10566.6,
+    10730.5,
+    10894.4,
+    11058.3,
+    11222.2
+   ],
+   "legacy_grid_index": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16
+   ],
+   "cum1080_median": [
+    151.498,
+    153.336,
+    155.325,
+    157.101,
+    158.791,
+    160.174,
+    161.19,
+    161.983,
+    162.216,
+    162.167,
+    161.615,
+    161.258,
+    160.569,
+    159.369,
+    158.114,
+    156.419,
+    154.906
+   ],
+   "cum1080_iqr": [
+    [
+     113.994,
+     115.587,
+     116.894,
+     118.29,
+     119.452,
+     120.459,
+     121.72,
+     122.152,
+     122.841,
+     123.164,
+     123.34,
+     123.52,
+     122.967,
+     122.219,
+     121.465,
+     120.301,
+     118.829
+    ],
+    [
+     202.89,
+     205.948,
+     208.315,
+     210.227,
+     212.063,
+     213.6,
+     214.127,
+     214.052,
+     213.641,
+     212.694,
+     211.239,
+     209.297,
+     207.423,
+     205.525,
+     203.176,
+     200.397,
+     197.964
+    ]
+   ],
+   "eur_median": [
+    320.014,
+    324.667,
+    329.916,
+    334.082,
+    337.465,
+    339.885,
+    341.859,
+    342.806,
+    342.254,
+    340.311,
+    336.873,
+    332.594,
+    328.37,
+    323.313,
+    316.504,
+    310.319,
+    303.615
+   ],
+   "eur_iqr": [
+    [
+     229.625,
+     234.208,
+     238.285,
+     241.685,
+     245.108,
+     247.647,
+     250.011,
+     252.28,
+     253.474,
+     252.878,
+     251.479,
+     249.643,
+     247.32,
+     244.417,
+     240.389,
+     236.291,
+     231.598
+    ],
+    [
+     445.836,
+     452.35,
+     457.046,
+     462.094,
+     467.291,
+     469.847,
+     470.106,
+     468.283,
+     465.353,
+     459.901,
+     454.462,
+     446.417,
+     437.391,
+     428.507,
+     418.992,
+     408.728,
+     398.025
+    ]
+   ],
+   "gor0_median": [
+    0.588,
+    0.596,
+    0.606,
+    0.617,
+    0.631,
+    0.645,
+    0.663,
+    0.683,
+    0.706,
+    0.729,
+    0.754,
+    0.784,
+    0.818,
+    0.853,
+    0.889,
+    0.929,
+    0.969
+   ],
+   "gor0_iqr": [
+    [
+     0.445,
+     0.453,
+     0.462,
+     0.473,
+     0.484,
+     0.497,
+     0.511,
+     0.527,
+     0.544,
+     0.564,
+     0.584,
+     0.607,
+     0.632,
+     0.658,
+     0.685,
+     0.714,
+     0.744
+    ],
+    [
+     0.748,
+     0.755,
+     0.766,
+     0.779,
+     0.794,
+     0.813,
+     0.835,
+     0.861,
+     0.889,
+     0.923,
+     0.964,
+     1.006,
+     1.05,
+     1.094,
+     1.141,
+     1.191,
+     1.243
+    ]
+   ],
+   "eur_median_mbbl": [
+    320.014,
+    324.667,
+    329.916,
+    334.082,
+    337.465,
+    339.885,
+    341.859,
+    342.806,
+    342.254,
+    340.311,
+    336.873,
+    332.594,
+    328.37,
+    323.313,
+    316.504,
+    310.319,
+    303.615
+   ],
+   "cum1080_median_mbbl": [
+    151.498,
+    153.336,
+    155.325,
+    157.101,
+    158.791,
+    160.174,
+    161.19,
+    161.983,
+    162.216,
+    162.167,
+    161.615,
+    161.258,
+    160.569,
+    159.369,
+    158.114,
+    156.419,
+    154.906
+   ],
+   "training_binned_cum1080": [
+    {
+     "x": 9145.0,
+     "oil_mbbl": 114.4998065,
+     "model_p50_mbbl": 112.2421969897402,
+     "wells": 633
+    },
+    {
+     "x": 9767.0,
+     "oil_mbbl": 147.4754,
+     "model_p50_mbbl": 141.75352161173004,
+     "wells": 633
+    },
+    {
+     "x": 10154.0,
+     "oil_mbbl": 152.3856129,
+     "model_p50_mbbl": 149.05773778298038,
+     "wells": 639
+    },
+    {
+     "x": 10346.0,
+     "oil_mbbl": 149.31626775,
+     "model_p50_mbbl": 146.29455448568834,
+     "wells": 636
+    },
+    {
+     "x": 10504.0,
+     "oil_mbbl": 152.7308613,
+     "model_p50_mbbl": 155.81801602318708,
+     "wells": 636
+    },
+    {
+     "x": 10636.0,
+     "oil_mbbl": 168.469871,
+     "model_p50_mbbl": 163.13656489862518,
+     "wells": 639
+    },
+    {
+     "x": 10751.0,
+     "oil_mbbl": 171.7373871,
+     "model_p50_mbbl": 174.0226793247974,
+     "wells": 637
+    },
+    {
+     "x": 10869.0,
+     "oil_mbbl": 178.74088335000002,
+     "model_p50_mbbl": 175.0263940610283,
+     "wells": 638
+    },
+    {
+     "x": 11000.0,
+     "oil_mbbl": 175.8262738,
+     "model_p50_mbbl": 175.371551595642,
+     "wells": 636
+    },
+    {
+     "x": 11139.0,
+     "oil_mbbl": 165.88394575,
+     "model_p50_mbbl": 169.02621595563494,
+     "wells": 634
+    }
+   ],
+   "cum1080_slope_mbbl_per_unit": 0.0013207372117663473,
+   "training_wells_present": 7017
+  },
+  "files": [
+   "outputs/figures/fig_attributes.pdf",
+   "outputs/figures/fig_attributes.png"
+  ],
+  "origin": 0,
+  "grid_points": 17,
+  "partial_dependence_wells": 200,
+  "partial_dependence_seed": 2026,
+  "other_attributes": "each of the partial-dependence training wells keeps its own values and missing flags; samples pooled over wells",
+  "rug": "every 2nd percentile of the training wells with the attribute present, inside the grid range",
+  "family": "bayes",
+  "samples": 50,
+  "members": 5,
+  "samples_per_member": [
+   10,
+   10,
+   10,
+   10,
+   10
+  ],
+  "seeds": [
+   101,
+   102,
+   103,
+   104,
+   105
+  ],
+  "note": "per well; fresh generators per grid value (common random numbers)",
+  "provenance": {
+   "model_label": "arch",
+   "bayes_models": [
+    "models/ensemble/bayes_arch_seed42_model.pt",
+    "models/ensemble/bayes_arch_seed43_model.pt",
+    "models/ensemble/bayes_arch_seed44_model.pt",
+    "models/ensemble/bayes_arch_seed45_model.pt",
+    "models/ensemble/bayes_arch_seed46_model.pt"
+   ],
+   "basis_models": [
+    "models/comparators/basis_secondary_seed42_model.pt",
+    "models/comparators/basis_secondary_seed43_model.pt",
+    "models/comparators/basis_secondary_seed44_model.pt",
+    "models/comparators/basis_secondary_seed45_model.pt",
+    "models/comparators/basis_secondary_seed46_model.pt"
+   ],
+   "dca_models": [
+    "models/comparators/dca_secondary_seed42_model.pt",
+    "models/comparators/dca_secondary_seed43_model.pt",
+    "models/comparators/dca_secondary_seed44_model.pt",
+    "models/comparators/dca_secondary_seed45_model.pt",
+    "models/comparators/dca_secondary_seed46_model.pt"
+   ],
+   "calibration": {
+    "report_inflation": 1.0,
+    "prior_inflation": 1.0,
+    "source": null,
+    "overridden": {
+     "report": true,
+     "prior": true
+    }
+   },
+   "run_created_at_utc": "2026-10-05T23:24:07.362321+00:00"
+  }
+ },
+ "supp_fig_correlation": {
+  "files": [
+   "outputs/figures/supp_fig_correlation.pdf",
+   "outputs/figures/supp_fig_correlation.png"
+  ],
+  "wells": 200,
+  "origin": 90,
+  "times": [
+   30.0,
+   34.0,
+   38.0,
+   43.0,
+   49.0,
+   56.0,
+   63.0,
+   71.0,
+   80.0,
+   91.0,
+   103.0,
+   116.0,
+   131.0,
+   149.0,
+   168.0,
+   190.0,
+   215.0,
+   243.0,
+   275.0,
+   311.0,
+   352.0,
+   398.0,
+   450.0,
+   509.0,
+   576.0,
+   651.0,
+   737.0,
+   833.0,
+   942.0,
+   1066.0,
+   1205.0,
+   1363.0,
+   1542.0,
+   1744.0,
+   1972.0,
+   2231.0,
+   2523.0,
+   2853.0,
+   3227.0,
+   3650.0
+  ],
+  "median_by_time": {
+   "oil-gas": [
+    0.587,
+    0.578,
+    0.573,
+    0.564,
+    0.555,
+    0.542,
+    0.537,
+    0.535,
+    0.529,
+    0.519,
+    0.512,
+    0.508,
+    0.499,
+    0.497,
+    0.491,
+    0.484,
+    0.481,
+    0.48,
+    0.476,
+    0.472,
+    0.469,
+    0.466,
+    0.466,
+    0.46,
+    0.46,
+    0.445,
+    0.442,
+    0.449,
+    0.448,
+    0.46,
+    0.467,
+    0.478,
+    0.476,
+    0.458,
+    0.472,
+    0.475,
+    0.481,
+    0.488,
+    0.493,
+    0.509
+   ],
+   "oil-water": [
+    0.042,
+    0.005,
+    -0.035,
+    -0.063,
+    -0.08,
+    -0.094,
+    -0.112,
+    -0.132,
+    -0.145,
+    -0.147,
+    -0.148,
+    -0.158,
+    -0.162,
+    -0.146,
+    -0.134,
+    -0.123,
+    -0.1,
+    -0.092,
+    -0.069,
+    -0.042,
+    -0.018,
+    -0.003,
+    0.017,
+    0.055,
+    0.098,
+    0.136,
+    0.166,
+    0.202,
+    0.237,
+    0.272,
+    0.307,
+    0.335,
+    0.366,
+    0.395,
+    0.424,
+    0.445,
+    0.466,
+    0.482,
+    0.498,
+    0.518
+   ],
+   "gas-water": [
+    0.094,
+    0.059,
+    0.032,
+    0.003,
+    -0.04,
+    -0.075,
+    -0.099,
+    -0.128,
+    -0.152,
+    -0.18,
+    -0.201,
+    -0.23,
+    -0.253,
+    -0.268,
+    -0.284,
+    -0.289,
+    -0.286,
+    -0.289,
+    -0.291,
+    -0.286,
+    -0.27,
+    -0.261,
+    -0.248,
+    -0.236,
+    -0.214,
+    -0.198,
+    -0.17,
+    -0.126,
+    -0.074,
+    -0.044,
+    0.002,
+    0.053,
+    0.097,
+    0.132,
+    0.159,
+    0.19,
+    0.227,
+    0.254,
+    0.291,
+    0.323
+   ]
+  },
+  "iqr_by_time": {
+   "oil-gas": [
+    [
+     0.521,
+     0.506,
+     0.486,
+     0.472,
+     0.46,
+     0.449,
+     0.439,
+     0.432,
+     0.432,
+     0.434,
+     0.428,
+     0.424,
+     0.416,
+     0.407,
+     0.394,
+     0.379,
+     0.373,
+     0.362,
+     0.345,
+     0.335,
+     0.33,
+     0.324,
+     0.316,
+     0.312,
+     0.316,
+     0.322,
+     0.321,
+     0.322,
+     0.329,
+     0.328,
+     0.331,
+     0.33,
+     0.324,
+     0.311,
+     0.321,
+     0.327,
+     0.322,
+     0.326,
+     0.349,
+     0.362
+    ],
+    [
+     0.667,
+     0.652,
+     0.64,
+     0.627,
+     0.621,
+     0.612,
+     0.611,
+     0.614,
+     0.614,
+     0.601,
+     0.597,
+     0.595,
+     0.587,
+     0.579,
+     0.578,
+     0.574,
+     0.575,
+     0.576,
+     0.578,
+     0.576,
+     0.578,
+     0.569,
+     0.564,
+     0.57,
+     0.579,
+     0.581,
+     0.587,
+     0.584,
+     0.582,
+     0.582,
+     0.577,
+     0.58,
+     0.584,
+     0.585,
+     0.595,
+     0.596,
+     0.607,
+     0.619,
+     0.63,
+     0.648
+    ]
+   ],
+   "oil-water": [
+    [
+     -0.062,
+     -0.093,
+     -0.119,
+     -0.155,
+     -0.188,
+     -0.212,
+     -0.223,
+     -0.235,
+     -0.245,
+     -0.254,
+     -0.261,
+     -0.265,
+     -0.273,
+     -0.269,
+     -0.255,
+     -0.239,
+     -0.229,
+     -0.209,
+     -0.189,
+     -0.169,
+     -0.145,
+     -0.113,
+     -0.089,
+     -0.057,
+     -0.033,
+     -0.005,
+     0.04,
+     0.076,
+     0.114,
+     0.153,
+     0.192,
+     0.226,
+     0.256,
+     0.28,
+     0.306,
+     0.326,
+     0.346,
+     0.365,
+     0.385,
+     0.405
+    ],
+    [
+     0.158,
+     0.127,
+     0.08,
+     0.046,
+     0.03,
+     0.014,
+     0.002,
+     -0.005,
+     -0.011,
+     -0.015,
+     -0.008,
+     -0.011,
+     -0.007,
+     -0.005,
+     0.002,
+     0.026,
+     0.039,
+     0.052,
+     0.075,
+     0.098,
+     0.119,
+     0.138,
+     0.152,
+     0.177,
+     0.208,
+     0.243,
+     0.273,
+     0.303,
+     0.332,
+     0.363,
+     0.393,
+     0.416,
+     0.446,
+     0.479,
+     0.502,
+     0.519,
+     0.543,
+     0.567,
+     0.59,
+     0.612
+    ]
+   ],
+   "gas-water": [
+    [
+     -0.001,
+     -0.036,
+     -0.059,
+     -0.099,
+     -0.126,
+     -0.164,
+     -0.191,
+     -0.218,
+     -0.255,
+     -0.28,
+     -0.3,
+     -0.315,
+     -0.339,
+     -0.353,
+     -0.36,
+     -0.376,
+     -0.387,
+     -0.383,
+     -0.38,
+     -0.388,
+     -0.38,
+     -0.376,
+     -0.37,
+     -0.353,
+     -0.337,
+     -0.305,
+     -0.284,
+     -0.251,
+     -0.217,
+     -0.162,
+     -0.129,
+     -0.095,
+     -0.055,
+     -0.012,
+     0.035,
+     0.072,
+     0.115,
+     0.149,
+     0.182,
+     0.217
+    ],
+    [
+     0.202,
+     0.162,
+     0.139,
+     0.101,
+     0.062,
+     0.033,
+     0.01,
+     -0.011,
+     -0.031,
+     -0.07,
+     -0.105,
+     -0.131,
+     -0.144,
+     -0.159,
+     -0.164,
+     -0.178,
+     -0.177,
+     -0.177,
+     -0.177,
+     -0.169,
+     -0.164,
+     -0.157,
+     -0.147,
+     -0.128,
+     -0.101,
+     -0.07,
+     -0.037,
+     0.007,
+     0.048,
+     0.093,
+     0.131,
+     0.18,
+     0.229,
+     0.266,
+     0.322,
+     0.363,
+     0.394,
+     0.432,
+     0.479,
+     0.504
+    ]
+   ]
+  },
+  "well_A": {
+   "180": [
+    [
+     1.0,
+     0.536,
+     -0.025
+    ],
+    [
+     0.536,
+     1.0,
+     -0.295
+    ],
+    [
+     -0.025,
+     -0.295,
+     1.0
+    ]
+   ],
+   "720": [
+    [
+     1.0,
+     0.531,
+     0.266
+    ],
+    [
+     0.531,
+     1.0,
+     -0.167
+    ],
+    [
+     0.266,
+     -0.167,
+     1.0
+    ]
+   ],
+   "1800": [
+    [
+     1.0,
+     0.532,
+     0.443
+    ],
+    [
+     0.532,
+     1.0,
+     0.186
+    ],
+    [
+     0.443,
+     0.186,
+     1.0
+    ]
+   ]
+  },
+  "samples": {
+   "family": "bayes",
+   "samples": 256,
+   "members": 5,
+   "samples_per_member": [
+    52,
+    51,
+    51,
+    51,
+    51
+   ],
+   "seeds": [
+    61,
+    62,
+    63,
+    64,
+    65
+   ]
+  },
+  "well_A_samples": {
+   "family": "bayes",
+   "samples": 1000,
+   "members": 5,
+   "samples_per_member": [
+    200,
+    200,
+    200,
+    200,
+    200
+   ],
+   "seeds": [
+    71,
+    72,
+    73,
+    74,
+    75
+   ]
+  },
+  "provenance": {
+   "model_label": "arch",
+   "bayes_models": [
+    "models/ensemble/bayes_arch_seed42_model.pt",
+    "models/ensemble/bayes_arch_seed43_model.pt",
+    "models/ensemble/bayes_arch_seed44_model.pt",
+    "models/ensemble/bayes_arch_seed45_model.pt",
+    "models/ensemble/bayes_arch_seed46_model.pt"
+   ],
+   "basis_models": [
+    "models/comparators/basis_secondary_seed42_model.pt",
+    "models/comparators/basis_secondary_seed43_model.pt",
+    "models/comparators/basis_secondary_seed44_model.pt",
+    "models/comparators/basis_secondary_seed45_model.pt",
+    "models/comparators/basis_secondary_seed46_model.pt"
+   ],
+   "dca_models": [
+    "models/comparators/dca_secondary_seed42_model.pt",
+    "models/comparators/dca_secondary_seed43_model.pt",
+    "models/comparators/dca_secondary_seed44_model.pt",
+    "models/comparators/dca_secondary_seed45_model.pt",
+    "models/comparators/dca_secondary_seed46_model.pt"
+   ],
+   "calibration": {
+    "report_inflation": 1.0,
+    "prior_inflation": 1.0,
+    "source": null,
+    "overridden": {
+     "report": true,
+     "prior": true
+    }
+   },
+   "run_created_at_utc": "2026-10-05T23:24:07.362321+00:00"
+  }
+ },
+ "property_audit": {
+  "results": {
+   "Bayes": {
+    "0": {
+     "negative_rate_any_phase": 0.0,
+     "oil_any_rise_after_day180": 0.0,
+     "gas_any_rise_after_day180": 0.13704427083333331,
+     "water_any_rise_after_day180": 0.09586588541666667,
+     "oil_any_rise_first_90_days": 1.0,
+     "gas_rises_while_oil_declines_after_day180": 0.13704427083333331,
+     "oil_decline_rate_increases_after_day180": 0.0,
+     "max_relative_integral_error": 0.00348470964868708,
+     "cumulative_decreasing_any": 0.0,
+     "interval_oil_rate_rise_after_180": 0.0,
+     "interval_gas_rises_while_oil_falls_after_180": 0.0087890625
+    },
+    "90": {
+     "negative_rate_any_phase": 0.0,
+     "oil_any_rise_after_day180": 0.0,
+     "gas_any_rise_after_day180": 0.14697265625,
+     "water_any_rise_after_day180": 0.08691406249999999,
+     "oil_any_rise_first_90_days": 1.0,
+     "gas_rises_while_oil_declines_after_day180": 0.14697265625,
+     "oil_decline_rate_increases_after_day180": 0.0,
+     "max_relative_integral_error": 0.003368938733869974,
+     "cumulative_decreasing_any": 0.0,
+     "interval_oil_rate_rise_after_180": 0.0,
+     "interval_gas_rises_while_oil_falls_after_180": 0.01171875
+    },
+    "360": {
+     "negative_rate_any_phase": 0.0,
+     "oil_any_rise_after_day180": 0.0,
+     "gas_any_rise_after_day180": 0.14274088541666666,
+     "water_any_rise_after_day180": 0.08707682291666667,
+     "oil_any_rise_first_90_days": 1.0,
+     "gas_rises_while_oil_declines_after_day180": 0.14274088541666666,
+     "oil_decline_rate_increases_after_day180": 0.0,
+     "max_relative_integral_error": 0.0038349228250762384,
+     "cumulative_decreasing_any": 0.0,
+     "interval_oil_rate_rise_after_180": 0.0,
+     "interval_gas_rises_while_oil_falls_after_180": 0.013509114583333334
+    }
+   },
+   "basis": {
+    "0": {
+     "negative_rate_any_phase": 0.0,
+     "oil_any_rise_after_day180": 0.015625,
+     "gas_any_rise_after_day180": 0.08707682291666667,
+     "water_any_rise_after_day180": 0.08089192708333333,
+     "oil_any_rise_first_90_days": 0.005696614583333334,
+     "gas_rises_while_oil_declines_after_day180": 0.08528645833333333,
+     "oil_decline_rate_increases_after_day180": 0.9573567708333334,
+     "max_relative_integral_error": 5.155659031529521e-05,
+     "cumulative_decreasing_any": 0.0,
+     "interval_oil_rate_rise_after_180": 0.00146484375,
+     "interval_gas_rises_while_oil_falls_after_180": 0.010579427083333334
+    },
+    "90": {
+     "negative_rate_any_phase": 0.0,
+     "oil_any_rise_after_day180": 0.013509114583333334,
+     "gas_any_rise_after_day180": 0.07454427083333334,
+     "water_any_rise_after_day180": 0.05224609375,
+     "oil_any_rise_first_90_days": 0.009602864583333332,
+     "gas_rises_while_oil_declines_after_day180": 0.0732421875,
+     "oil_decline_rate_increases_after_day180": 0.9778645833333333,
+     "max_relative_integral_error": 6.145980190465811e-05,
+     "cumulative_decreasing_any": 0.0,
+     "interval_oil_rate_rise_after_180": 0.0011393229166666667,
+     "interval_gas_rises_while_oil_falls_after_180": 0.026692708333333332
+    },
+    "360": {
+     "negative_rate_any_phase": 0.0,
+     "oil_any_rise_after_day180": 0.005533854166666667,
+     "gas_any_rise_after_day180": 0.07063802083333333,
+     "water_any_rise_after_day180": 0.042317708333333336,
+     "oil_any_rise_first_90_days": 0.00146484375,
+     "gas_rises_while_oil_declines_after_day180": 0.07014973958333334,
+     "oil_decline_rate_increases_after_day180": 0.9864908854166666,
+     "max_relative_integral_error": 5.3162715092686715e-05,
+     "cumulative_decreasing_any": 0.0,
+     "interval_oil_rate_rise_after_180": 0.0016276041666666667,
+     "interval_gas_rises_while_oil_falls_after_180": 0.0283203125
+    }
+   },
+   "DCA": {
+    "0": {
+     "negative_rate_any_phase": 0.0,
+     "oil_any_rise_after_day180": 0.0,
+     "gas_any_rise_after_day180": 0.0,
+     "water_any_rise_after_day180": 0.0,
+     "oil_any_rise_first_90_days": 0.0,
+     "gas_rises_while_oil_declines_after_day180": 0.0,
+     "oil_decline_rate_increases_after_day180": 0.0,
+     "max_relative_integral_error": 0.003657176318846119,
+     "cumulative_decreasing_any": 0.0,
+     "interval_oil_rate_rise_after_180": 0.0,
+     "interval_gas_rises_while_oil_falls_after_180": 0.0
+    },
+    "90": {
+     "negative_rate_any_phase": 0.0,
+     "oil_any_rise_after_day180": 0.0,
+     "gas_any_rise_after_day180": 0.0,
+     "water_any_rise_after_day180": 0.0,
+     "oil_any_rise_first_90_days": 0.0,
+     "gas_rises_while_oil_declines_after_day180": 0.0,
+     "oil_decline_rate_increases_after_day180": 0.0,
+     "max_relative_integral_error": 0.0019285054498425604,
+     "cumulative_decreasing_any": 0.0,
+     "interval_oil_rate_rise_after_180": 0.0,
+     "interval_gas_rises_while_oil_falls_after_180": 0.0
+    },
+    "360": {
+     "negative_rate_any_phase": 0.0,
+     "oil_any_rise_after_day180": 0.0,
+     "gas_any_rise_after_day180": 0.0,
+     "water_any_rise_after_day180": 0.0,
+     "oil_any_rise_first_90_days": 0.0,
+     "gas_rises_while_oil_declines_after_day180": 0.0,
+     "oil_decline_rate_increases_after_day180": 0.0,
+     "max_relative_integral_error": 0.0013406874702961325,
+     "cumulative_decreasing_any": 0.0,
+     "interval_oil_rate_rise_after_180": 0.0,
+     "interval_gas_rises_while_oil_falls_after_180": 0.0
+    }
+   }
+  },
+  "wells": 96,
+  "samples": 64,
+  "seeds_by_origin": {
+   "0": 99,
+   "90": 189,
+   "360": 459
+  },
+  "members": {
+   "Bayes": 5,
+   "basis": 5,
+   "DCA": 5
+  },
+  "grid_days": [
+   0,
+   3650
+  ],
+  "provenance": {
+   "model_label": "arch",
+   "bayes_models": [
+    "models/ensemble/bayes_arch_seed42_model.pt",
+    "models/ensemble/bayes_arch_seed43_model.pt",
+    "models/ensemble/bayes_arch_seed44_model.pt",
+    "models/ensemble/bayes_arch_seed45_model.pt",
+    "models/ensemble/bayes_arch_seed46_model.pt"
+   ],
+   "basis_models": [
+    "models/comparators/basis_secondary_seed42_model.pt",
+    "models/comparators/basis_secondary_seed43_model.pt",
+    "models/comparators/basis_secondary_seed44_model.pt",
+    "models/comparators/basis_secondary_seed45_model.pt",
+    "models/comparators/basis_secondary_seed46_model.pt"
+   ],
+   "dca_models": [
+    "models/comparators/dca_secondary_seed42_model.pt",
+    "models/comparators/dca_secondary_seed43_model.pt",
+    "models/comparators/dca_secondary_seed44_model.pt",
+    "models/comparators/dca_secondary_seed45_model.pt",
+    "models/comparators/dca_secondary_seed46_model.pt"
+   ],
+   "calibration": {
+    "report_inflation": 1.0,
+    "prior_inflation": 1.0,
+    "source": null,
+    "overridden": {
+     "report": true,
+     "prior": true
+    }
+   },
+   "run_created_at_utc": "2026-10-05T23:24:07.362321+00:00"
+  }
+ },
+ "fig8_audit": {
+  "Bayes": {
+   "0": {
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.0,
+    "gas_any_rise_after_day180": 0.13704427083333331,
+    "water_any_rise_after_day180": 0.09586588541666667,
+    "oil_any_rise_first_90_days": 1.0,
+    "gas_rises_while_oil_declines_after_day180": 0.13704427083333331,
+    "oil_decline_rate_increases_after_day180": 0.0,
+    "max_relative_integral_error": 0.00348470964868708,
+    "cumulative_decreasing_any": 0.0,
+    "interval_oil_rate_rise_after_180": 0.0,
+    "interval_gas_rises_while_oil_falls_after_180": 0.0087890625
+   },
+   "90": {
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.0,
+    "gas_any_rise_after_day180": 0.14697265625,
+    "water_any_rise_after_day180": 0.08691406249999999,
+    "oil_any_rise_first_90_days": 1.0,
+    "gas_rises_while_oil_declines_after_day180": 0.14697265625,
+    "oil_decline_rate_increases_after_day180": 0.0,
+    "max_relative_integral_error": 0.003368938733869974,
+    "cumulative_decreasing_any": 0.0,
+    "interval_oil_rate_rise_after_180": 0.0,
+    "interval_gas_rises_while_oil_falls_after_180": 0.01171875
+   },
+   "360": {
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.0,
+    "gas_any_rise_after_day180": 0.14274088541666666,
+    "water_any_rise_after_day180": 0.08707682291666667,
+    "oil_any_rise_first_90_days": 1.0,
+    "gas_rises_while_oil_declines_after_day180": 0.14274088541666666,
+    "oil_decline_rate_increases_after_day180": 0.0,
+    "max_relative_integral_error": 0.0038349228250762384,
+    "cumulative_decreasing_any": 0.0,
+    "interval_oil_rate_rise_after_180": 0.0,
+    "interval_gas_rises_while_oil_falls_after_180": 0.013509114583333334
+   }
+  },
+  "basis": {
+   "0": {
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.015625,
+    "gas_any_rise_after_day180": 0.08707682291666667,
+    "water_any_rise_after_day180": 0.08089192708333333,
+    "oil_any_rise_first_90_days": 0.005696614583333334,
+    "gas_rises_while_oil_declines_after_day180": 0.08528645833333333,
+    "oil_decline_rate_increases_after_day180": 0.9573567708333334,
+    "max_relative_integral_error": 5.155659031529521e-05,
+    "cumulative_decreasing_any": 0.0,
+    "interval_oil_rate_rise_after_180": 0.00146484375,
+    "interval_gas_rises_while_oil_falls_after_180": 0.010579427083333334
+   },
+   "90": {
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.013509114583333334,
+    "gas_any_rise_after_day180": 0.07454427083333334,
+    "water_any_rise_after_day180": 0.05224609375,
+    "oil_any_rise_first_90_days": 0.009602864583333332,
+    "gas_rises_while_oil_declines_after_day180": 0.0732421875,
+    "oil_decline_rate_increases_after_day180": 0.9778645833333333,
+    "max_relative_integral_error": 6.145980190465811e-05,
+    "cumulative_decreasing_any": 0.0,
+    "interval_oil_rate_rise_after_180": 0.0011393229166666667,
+    "interval_gas_rises_while_oil_falls_after_180": 0.026692708333333332
+   },
+   "360": {
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.005533854166666667,
+    "gas_any_rise_after_day180": 0.07063802083333333,
+    "water_any_rise_after_day180": 0.042317708333333336,
+    "oil_any_rise_first_90_days": 0.00146484375,
+    "gas_rises_while_oil_declines_after_day180": 0.07014973958333334,
+    "oil_decline_rate_increases_after_day180": 0.9864908854166666,
+    "max_relative_integral_error": 5.3162715092686715e-05,
+    "cumulative_decreasing_any": 0.0,
+    "interval_oil_rate_rise_after_180": 0.0016276041666666667,
+    "interval_gas_rises_while_oil_falls_after_180": 0.0283203125
+   }
+  },
+  "DCA": {
+   "0": {
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.0,
+    "gas_any_rise_after_day180": 0.0,
+    "water_any_rise_after_day180": 0.0,
+    "oil_any_rise_first_90_days": 0.0,
+    "gas_rises_while_oil_declines_after_day180": 0.0,
+    "oil_decline_rate_increases_after_day180": 0.0,
+    "max_relative_integral_error": 0.003657176318846119,
+    "cumulative_decreasing_any": 0.0,
+    "interval_oil_rate_rise_after_180": 0.0,
+    "interval_gas_rises_while_oil_falls_after_180": 0.0
+   },
+   "90": {
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.0,
+    "gas_any_rise_after_day180": 0.0,
+    "water_any_rise_after_day180": 0.0,
+    "oil_any_rise_first_90_days": 0.0,
+    "gas_rises_while_oil_declines_after_day180": 0.0,
+    "oil_decline_rate_increases_after_day180": 0.0,
+    "max_relative_integral_error": 0.0019285054498425604,
+    "cumulative_decreasing_any": 0.0,
+    "interval_oil_rate_rise_after_180": 0.0,
+    "interval_gas_rises_while_oil_falls_after_180": 0.0
+   },
+   "360": {
+    "negative_rate_any_phase": 0.0,
+    "oil_any_rise_after_day180": 0.0,
+    "gas_any_rise_after_day180": 0.0,
+    "water_any_rise_after_day180": 0.0,
+    "oil_any_rise_first_90_days": 0.0,
+    "gas_rises_while_oil_declines_after_day180": 0.0,
+    "oil_decline_rate_increases_after_day180": 0.0,
+    "max_relative_integral_error": 0.0013406874702961325,
+    "cumulative_decreasing_any": 0.0,
+    "interval_oil_rate_rise_after_180": 0.0,
+    "interval_gas_rises_while_oil_falls_after_180": 0.0
+   }
+  }
+ },
+ "fig5_correlation": {
+  "wells": 200,
+  "median_by_time": {
+   "oil-gas": [
+    0.587,
+    0.578,
+    0.573,
+    0.564,
+    0.555,
+    0.542,
+    0.537,
+    0.535,
+    0.529,
+    0.519,
+    0.512,
+    0.508,
+    0.499,
+    0.497,
+    0.491,
+    0.484,
+    0.481,
+    0.48,
+    0.476,
+    0.472,
+    0.469,
+    0.466,
+    0.466,
+    0.46,
+    0.46,
+    0.445,
+    0.442,
+    0.449,
+    0.448,
+    0.46,
+    0.467,
+    0.478,
+    0.476,
+    0.458,
+    0.472,
+    0.475,
+    0.481,
+    0.488,
+    0.493,
+    0.509
+   ],
+   "oil-water": [
+    0.042,
+    0.005,
+    -0.035,
+    -0.063,
+    -0.08,
+    -0.094,
+    -0.112,
+    -0.132,
+    -0.145,
+    -0.147,
+    -0.148,
+    -0.158,
+    -0.162,
+    -0.146,
+    -0.134,
+    -0.123,
+    -0.1,
+    -0.092,
+    -0.069,
+    -0.042,
+    -0.018,
+    -0.003,
+    0.017,
+    0.055,
+    0.098,
+    0.136,
+    0.166,
+    0.202,
+    0.237,
+    0.272,
+    0.307,
+    0.335,
+    0.366,
+    0.395,
+    0.424,
+    0.445,
+    0.466,
+    0.482,
+    0.498,
+    0.518
+   ],
+   "gas-water": [
+    0.094,
+    0.059,
+    0.032,
+    0.003,
+    -0.04,
+    -0.075,
+    -0.099,
+    -0.128,
+    -0.152,
+    -0.18,
+    -0.201,
+    -0.23,
+    -0.253,
+    -0.268,
+    -0.284,
+    -0.289,
+    -0.286,
+    -0.289,
+    -0.291,
+    -0.286,
+    -0.27,
+    -0.261,
+    -0.248,
+    -0.236,
+    -0.214,
+    -0.198,
+    -0.17,
+    -0.126,
+    -0.074,
+    -0.044,
+    0.002,
+    0.053,
+    0.097,
+    0.132,
+    0.159,
+    0.19,
+    0.227,
+    0.254,
+    0.291,
+    0.323
+   ]
+  },
+  "times": [
+   30.0,
+   34.0,
+   38.0,
+   43.0,
+   49.0,
+   56.0,
+   63.0,
+   71.0,
+   80.0,
+   91.0,
+   103.0,
+   116.0,
+   131.0,
+   149.0,
+   168.0,
+   190.0,
+   215.0,
+   243.0,
+   275.0,
+   311.0,
+   352.0,
+   398.0,
+   450.0,
+   509.0,
+   576.0,
+   651.0,
+   737.0,
+   833.0,
+   942.0,
+   1066.0,
+   1205.0,
+   1363.0,
+   1542.0,
+   1744.0,
+   1972.0,
+   2231.0,
+   2523.0,
+   2853.0,
+   3227.0,
+   3650.0
+  ],
+  "well_A": {
+   "180": [
+    [
+     1.0,
+     0.536,
+     -0.025
+    ],
+    [
+     0.536,
+     1.0,
+     -0.295
+    ],
+    [
+     -0.025,
+     -0.295,
+     1.0
+    ]
+   ],
+   "720": [
+    [
+     1.0,
+     0.531,
+     0.266
+    ],
+    [
+     0.531,
+     1.0,
+     -0.167
+    ],
+    [
+     0.266,
+     -0.167,
+     1.0
+    ]
+   ],
+   "1800": [
+    [
+     1.0,
+     0.532,
+     0.443
+    ],
+    [
+     0.532,
+     1.0,
+     0.186
+    ],
+    [
+     0.443,
+     0.186,
+     1.0
+    ]
+   ]
+  }
+ },
+ "run": {
+  "created_at_utc": "2026-10-06T04:04:33.645430+00:00",
+  "command": [
+   "python",
+   "scripts/paper_figures.py",
+   "--bayes",
+   "models/ensemble/bayes_arch_seed42_model.pt",
+   "--bayes",
+   "models/ensemble/bayes_arch_seed43_model.pt",
+   "--bayes",
+   "models/ensemble/bayes_arch_seed44_model.pt",
+   "--bayes",
+   "models/ensemble/bayes_arch_seed45_model.pt",
+   "--bayes",
+   "models/ensemble/bayes_arch_seed46_model.pt",
+   "--basis",
+   "models/comparators/basis_secondary_seed42_model.pt",
+   "--dca",
+   "models/comparators/dca_secondary_seed42_model.pt",
+   "--basis",
+   "models/comparators/basis_secondary_seed43_model.pt",
+   "--dca",
+   "models/comparators/dca_secondary_seed43_model.pt",
+   "--basis",
+   "models/comparators/basis_secondary_seed44_model.pt",
+   "--dca",
+   "models/comparators/dca_secondary_seed44_model.pt",
+   "--basis",
+   "models/comparators/basis_secondary_seed45_model.pt",
+   "--dca",
+   "models/comparators/dca_secondary_seed45_model.pt",
+   "--basis",
+   "models/comparators/basis_secondary_seed46_model.pt",
+   "--dca",
+   "models/comparators/dca_secondary_seed46_model.pt",
+   "--model-label",
+   "arch",
+   "--report-inflation",
+   "1.0",
+   "--prior-inflation",
+   "1.0",
+   "--device",
+   "cuda",
+   "--output",
+   "outputs/figures",
+   "--only",
+   "fig_modes,fig_phase_coupling"
+  ],
+  "script": {
+   "path": "scripts/paper_figures.py",
+   "sha256": "71dbb2499b1b00aa498809b8bbced6b74fa690c9837c18ac009cb125cd8fee84"
+  },
+  "style": {
+   "path": "scripts/paper_figure_style.py",
+   "sha256": "4de9374822e43271627ad75002064f91fec1bf5bf06403295824c020f33083c3"
+  },
+  "git_commit": null,
+  "git_dirty": true,
+  "host": "gpu-workstation",
+  "platform": "Linux-6.17.0-1014-nvidia-aarch64-with-glibc2.39",
+  "python": "3.11.14",
+  "packages": {
+   "numpy": "2.3.5",
+   "matplotlib": "3.10.7",
+   "torch": "2.10.0+cu130"
+  },
+  "figure_target": "draft",
+  "widths_in": {
+   "full": 6.5,
+   "half": 3.15
+  },
+  "rendered": [
+   "fig_modes",
+   "fig_phase_coupling"
+  ]
+ }
+}

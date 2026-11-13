@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shape-constrained-dca"
+version = "1.0.0"
+description = "Shape-constrained Bayesian decline curves for joint oil, gas, and water forecasting"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26", "scipy>=1.11", "scikit-learn>=1.4", "torch>=2.2", "matplotlib>=3.8"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

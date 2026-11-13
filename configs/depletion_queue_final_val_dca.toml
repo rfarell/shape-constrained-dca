@@ -1,0 +1,33 @@
+# Final validation: per-well industry DCA benchmarks on all TRAIN (CPU).
+lanes = 2
+min_available_gb = 40
+
+[[job]]
+label = "pw_arps_bayes"
+output = "val_pw_arps_bayes"
+args = "run --models pw_arps_bayes --seeds 42 --device cpu --split validation"
+
+[[job]]
+label = "pw_arps_map"
+output = "val_pw_arps_map"
+args = "run --models pw_arps_map --seeds 42 --device cpu --split validation"
+
+[[job]]
+label = "pw_duong_bayes"
+output = "val_pw_duong_bayes"
+args = "run --models pw_duong_bayes --seeds 42 --device cpu --split validation"
+
+[[job]]
+label = "pw_duong_map"
+output = "val_pw_duong_map"
+args = "run --models pw_duong_map --seeds 42 --device cpu --split validation"
+
+[[job]]
+label = "pw_sedm_bayes"
+output = "val_pw_sedm_bayes"
+args = "run --models pw_sedm_bayes --seeds 42 --device cpu --split validation"
+
+[[job]]
+label = "pw_sedm_map"
+output = "val_pw_sedm_map"
+args = "run --models pw_sedm_map --seeds 42 --device cpu --split validation"

@@ -1,0 +1,136 @@
+# Frozen before secondary-feature outcomes: matched eight-fit seed-42 pilot.
+# Both arms use34 static input positions: actual TRAIN-encoded values/masks or allzeros.
+# New origins0and30 are explicit training tasks; older study numbers remain separate.
+[experiment]
+status = "development_only"
+seeds = [42]
+prediction_seed = 2026
+evaluation_bootstrap_seed = 42
+origins_days = [0, 30, 60, 90, 180, 360, 720]
+samples = 256
+bootstrap_replicates = 200
+static_features = "nonspatial_17"
+static_availability_assumption = "Retrospective assumption: initial completion and preproduction geological attributes were available before first production; original measurement and revision timestamps remain unverified."
+full_curve_evaluation = true
+calibration = "identity"
+selection_scope = "Original60/90/180/360/720incrementcells; secondary-only and day30 are separately reported tasks."
+feature_support_rule = "Positive paired95percent group-bootstrap lower bound for WIS improvement over matchedzero arm; confirm promising findings with additional trainingseeds before claiming repeatability."
+feature_replication_decision = "Prespecified basis_secondary versus basis_zero on original15incrementcells; other model/task comparisons are descriptive pairwise evidence, not an omnibus selection claim."
+
+[[models]]
+name = "basis_zero"
+feature_variant = "zero"
+covariate_preprocessing = "external"
+kind = "conditional_rate"
+rate_family = "basis"
+basis_dictionary = "fast"
+history_rate_features = "last_interval"
+epochs = 60
+hidden_width = 128
+batch_size = 256
+train_samples = 16
+learning_rate = 0.001
+history_dropout = 0.1
+phase_dropout = 0.1
+log_every = 10
+device = "cpu"
+
+[[models]]
+name = "basis_secondary"
+feature_variant = "actual"
+covariate_preprocessing = "external"
+kind = "conditional_rate"
+rate_family = "basis"
+basis_dictionary = "fast"
+history_rate_features = "last_interval"
+epochs = 60
+hidden_width = 128
+batch_size = 256
+train_samples = 16
+learning_rate = 0.001
+history_dropout = 0.1
+phase_dropout = 0.1
+log_every = 10
+device = "cpu"
+
+[[models]]
+name = "dca_zero"
+feature_variant = "zero"
+covariate_preprocessing = "external"
+kind = "conditional_rate"
+rate_family = "dca"
+basis_dictionary = "fast"
+history_rate_features = "last_interval"
+epochs = 60
+hidden_width = 128
+batch_size = 256
+train_samples = 16
+learning_rate = 0.001
+history_dropout = 0.1
+phase_dropout = 0.1
+log_every = 10
+device = "cpu"
+
+[[models]]
+name = "dca_secondary"
+feature_variant = "actual"
+covariate_preprocessing = "external"
+kind = "conditional_rate"
+rate_family = "dca"
+basis_dictionary = "fast"
+history_rate_features = "last_interval"
+epochs = 60
+hidden_width = 128
+batch_size = 256
+train_samples = 16
+learning_rate = 0.001
+history_dropout = 0.1
+phase_dropout = 0.1
+log_every = 10
+device = "cpu"
+
+[[models]]
+name = "neural_zero"
+feature_variant = "zero"
+covariate_preprocessing = "external"
+kind = "neural"
+history_rate_features = "last_interval"
+epochs = 300
+batch_size = 1024
+rank = 4
+hidden_width = 128
+learning_rate = 0.001
+log_every = 50
+device = "cpu"
+
+[[models]]
+name = "neural_secondary"
+feature_variant = "actual"
+covariate_preprocessing = "external"
+kind = "neural"
+history_rate_features = "last_interval"
+epochs = 300
+batch_size = 1024
+rank = 4
+hidden_width = 128
+learning_rate = 0.001
+log_every = 50
+device = "cpu"
+
+[[models]]
+name = "forest_zero"
+feature_variant = "zero"
+covariate_preprocessing = "external"
+kind = "forest"
+min_samples_leaf = 4
+n_estimators = 200
+n_jobs = 2
+
+[[models]]
+name = "forest_secondary"
+feature_variant = "actual"
+covariate_preprocessing = "external"
+kind = "forest"
+min_samples_leaf = 4
+n_estimators = 200
+n_jobs = 2

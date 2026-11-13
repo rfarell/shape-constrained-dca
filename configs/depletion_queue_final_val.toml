@@ -1,0 +1,28 @@
+# Final validation fits: frozen configuration, five seeds on all TRAIN, validation forecasts.
+lanes = 2
+min_available_gb = 40
+
+[[job]]
+label = "bayes_final"
+output = "val_bayes_s42"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 42"
+
+[[job]]
+label = "bayes_final"
+output = "val_bayes_s43"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 43"
+
+[[job]]
+label = "bayes_final"
+output = "val_bayes_s44"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 44"
+
+[[job]]
+label = "bayes_final"
+output = "val_bayes_s45"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 45"
+
+[[job]]
+label = "bayes_final"
+output = "val_bayes_s46"
+args = "run --models bayes --device cuda --split validation --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=50 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 46"
