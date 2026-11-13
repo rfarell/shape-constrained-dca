@@ -1,4 +1,4 @@
-"""Differentiable conventional DCA for the shared probabilistic hierarchy.
+"""Differentiable conventional DCA rate law for the conditional DCA comparator.
 
 Phase-major latents are log A, log tau, log p for oil, gas, water. A is in
 the caller's phase-normalized volume/day, tau and query times are in days,
@@ -6,9 +6,9 @@ and p is dimensionless. There is no internal time conversion. Multiplying
 cumulative volumes, rates, or totals by the caller's native phase-volume
 scale recovers BBL, MCF, BBL and their per-day rates.
 
-The mathematical law matches ``dca.DCATrajectorySamples``. This module adds
-no observation model or inference approximation: those belong to the common
-hierarchy. Queries are deterministic functions of a fixed latent sample.
+This module adds no observation model or inference approximation: those
+belong to the conditional forecaster (``conditional_rates``). Queries are
+deterministic functions of a fixed latent sample.
 """
 
 from __future__ import annotations
@@ -103,9 +103,6 @@ class DCARate(nn.Module):
         unit_volume = tau * math.expm1((1 - p) * logarithm) / (1 - p)
         phase = (-math.log(unit_volume), math.log(tau), math.log(p))
         return torch.tensor(phase * 3, device=device, dtype=dtype)
-
-    def forward(self, z: Tensor, times: Tensor | Sequence[float]) -> Tensor:
-        return self.cumulative(z, times)
 
     def cumulative(self, z: Tensor, times: Tensor | Sequence[float]) -> Tensor:
         """Return [..., time, phase] integrated normalized volumes."""

@@ -116,8 +116,8 @@ class TrajectoryForestTests(unittest.TestCase):
         self.assertLess(np.mean((predicted - expected) ** 2),
                         0.05 * np.mean((unconditional - expected) ** 2))
 
-    def test_covariates_and_missing_covariates_are_supported_and_required_consistently(self):
-        cov = np.column_stack([np.arange(80), np.full(80, np.nan)])
+    def test_covariates_are_supported_and_required_consistently(self):
+        cov = np.column_stack([np.arange(80), np.ones(80)])
         model = ProbabilisticTrajectoryForest(n_estimators=8, min_samples_leaf=3).fit(
             self.reports, self.days, cov, origins=[60]
         )
@@ -125,10 +125,6 @@ class TrajectoryForestTests(unittest.TestCase):
         self.assertTrue(np.isfinite(prediction).all())
         with self.assertRaises(ValueError):
             model.predict_samples(self.reports[:2], 60, 12, 1)
-        # Historical pickles predate the optional preprocessing-mode field.
-        del model.covariate_preprocessing
-        np.testing.assert_array_equal(
-            model.predict_samples(self.reports[:2], 60, 12, 1, covariates=cov[:2]), prediction)
 
     def test_incomplete_training_donors_are_counted_and_never_imputed(self):
         reports = self.reports.copy()
@@ -144,9 +140,7 @@ class TrajectoryForestTests(unittest.TestCase):
 
     def test_external_covariates_are_not_transformed_or_given_another_mask(self):
         cov = np.arange(80 * 34, dtype=float).reshape(80, 34) / 9 - 11
-        model = ProbabilisticTrajectoryForest(
-            n_estimators=4, covariate_preprocessing="external", mask_augmentation=0,
-        ).fit(self.reports, self.days, cov, origins=[0])
+        model = ProbabilisticTrajectoryForest(n_estimators=4, mask_augmentation=0).fit(self.reports, self.days, cov, origins=[0])
         self.assertEqual(model.n_covariates_, 34)
         np.testing.assert_array_equal(model._covariate_features(cov[:2], 2), cov[:2])
         history_width = model._history_features(self.reports, 0, model.origin_models_[0].feature_scale).shape[1]
@@ -156,12 +150,12 @@ class TrajectoryForestTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             model.predict_samples(self.reports[:2], 0, 3, 2, covariates=np.full((2, 34), np.nan))
         with self.assertRaises(ValueError):
-            ProbabilisticTrajectoryForest(covariate_preprocessing="unknown")
+            ProbabilisticTrajectoryForest(covariate_preprocessing="internal")
         reports = self.reports.copy()
         reports[0, -1, 0] = np.nan
         cov[0, 0] = np.nan
         with self.assertRaises(ValueError):
-            ProbabilisticTrajectoryForest(covariate_preprocessing="external").fit(reports, self.days, cov)
+            ProbabilisticTrajectoryForest().fit(reports, self.days, cov)
 
     def test_origin_zero_conditions_on_secondary_features_with_joint_donor_and_no_future_leakage(self):
         amplitude = np.linspace(1, 30, 160)
@@ -171,7 +165,7 @@ class TrajectoryForestTests(unittest.TestCase):
         cov[:, 0] = amplitude
         cov[:, 17] = 1
         options = dict(n_estimators=20, min_samples_leaf=2, mask_augmentation=0,
-                       scale_adjustment=0, covariate_preprocessing="external", random_state=42)
+                       scale_adjustment=0, random_state=42)
         informed = ProbabilisticTrajectoryForest(**options).fit(training, self.days, cov, origins=[0])
         control = ProbabilisticTrajectoryForest(**options).fit(training, self.days, np.zeros_like(cov), origins=[0])
         indices = [8, 145]

@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 import torch
 from torch.distributions import MultivariateNormal
-from joint_production.observation import gaussian_endpoint_log_likelihood, sample_gaussian_reports
+from observation_reference import gaussian_endpoint_log_likelihood, sample_gaussian_reports
 
 
 @pytest.mark.parametrize('law', ['independent', 'accumulated'])

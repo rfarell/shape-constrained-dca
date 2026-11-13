@@ -1,17 +1,19 @@
-"""Fast TRAIN-internal development runs for the physics-structured Bayesian model.
+"""Fit, forecast and score every model in the paper on one accepted split.
 
-The accepted TRAIN split is partitioned by the existing whole-group identity
-rule (seed 314159, 20% of groups held out: 5,625 fitting and 1,392 holdout
-wells in 813 groups). This holdout informed earlier development and is not
-independent confirmation. No validation, calibration or test record is decoded.
+    python scripts/depletion_dev.py run --models bayes --split validation --set key=value ... --output <run>
+    python scripts/depletion_dev.py repredict --model <run>/<label>_seed42_model.pt --split test \
+        --protocol configs/depletion_arch_protocol.toml --label <label> --output <dir>
+    python scripts/depletion_dev.py score --runs <run> [<run> ...] --mixtures --output <score>
 
-    python scripts/depletion_dev.py run --models bayes,basis --seeds 42 --output build/<run>
-    python scripts/depletion_dev.py score --runs build/<run> [build/<other>] --output build/<score>
-
-Every model receives the same 34 TRAIN-fit-encoded static inputs, the same
-cutoff-masked holdout histories, origins and 256 draws per context. Saved draws
-are complete future report endpoints after each origin; scores use the frozen
-``joint_production.metrics`` conventions plus 90% coverage by history regime.
+``run`` fits on accepted TRAIN and forecasts the named split: ``validation``,
+``calibration``, ``test`` (which requires a frozen protocol file), or ``internal``, the
+TRAIN-internal development holdout (20% of TRAIN groups, seed 314159: 5,625 fitting and
+1,392 holdout wells in 813 groups). Models are ``bayes`` (the shape-constrained model;
+``--set`` overrides its settings), the comparators ``basis``, ``dca``, ``neural`` and
+``forest``, and per-well decline curves ``pw_<arps|duong|sedm|scaling>_<bayes|map>``.
+Every model receives the same 34 TRAIN-fitted static inputs, the same cutoff-masked
+histories and forecast dates, and 256 draws per forecast. Saved draws are complete future
+report endpoints after each forecast date; ``score`` uses ``joint_production.metrics``.
 """
 from __future__ import annotations
 
@@ -20,6 +22,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import pickle
 import sys
 import time
 
@@ -46,22 +49,19 @@ COMPETITORS = {
     "basis": dict(kind="conditional_rate", rate_family="basis", basis_dictionary="fast",
                   history_rate_features="last_interval", epochs=60, hidden_width=128, batch_size=256,
                   train_samples=16, learning_rate=0.001, history_dropout=0.1, phase_dropout=0.1,
-                  log_every=10, covariate_preprocessing="external"),
+                  log_every=10),
     "dca": dict(kind="conditional_rate", rate_family="dca", basis_dictionary="fast",
                 history_rate_features="last_interval", epochs=60, hidden_width=128, batch_size=256,
                 train_samples=16, learning_rate=0.001, history_dropout=0.1, phase_dropout=0.1,
-                log_every=10, covariate_preprocessing="external"),
+                log_every=10),
     "neural": dict(kind="neural", history_rate_features="last_interval", epochs=300, batch_size=1024,
-                   rank=4, hidden_width=128, learning_rate=0.001, log_every=50, covariate_preprocessing="external"),
-    "forest": dict(kind="forest", min_samples_leaf=4, n_estimators=200, n_jobs=8, covariate_preprocessing="external"),
-    "depl_score": dict(kind="depletion_conditional", history_rate_features="last_interval", epochs=60,
-                       hidden_width=128, batch_size=256, train_samples=16, learning_rate=0.001,
-                       history_dropout=0.1, phase_dropout=0.1, log_every=10, covariate_preprocessing="external"),
+                   rank=4, hidden_width=128, learning_rate=0.001, log_every=50),
+    "forest": dict(kind="forest", min_samples_leaf=4, n_estimators=200, n_jobs=8),
 }
 
 
 def partition(records):
-    """Existing whole-group rule from scripts/diagnose_earlier_history.py."""
+    """Hold out 20% of TRAIN groups, ordered by a salted hash of the group identifier."""
     groups = sorted({row["group_id"] for row in records}, key=lambda group: (
         hashlib.sha256(("earlier-history-v1|314159|" + group).encode("utf8")).digest(), group))
     held = set(groups[:len(groups) // 5])
@@ -153,19 +153,15 @@ def build(kind, seed, device, overrides):
         return PerWellDCAForecaster(**settings), settings
     settings = dict(COMPETITORS[kind], **overrides)
     model_kind = settings.pop("kind")
-    settings.pop("covariate_preprocessing", None)
     if model_kind == "conditional_rate":
         from joint_production.conditional_rates import ConditionalRateForecaster
-        model = ConditionalRateForecaster(seed=seed, device=device, covariate_preprocessing="external", **settings)
-    elif model_kind == "depletion_conditional":
-        from joint_production.depletion_conditional import DepletionConditionalRateForecaster
-        model = DepletionConditionalRateForecaster(seed=seed, device=device, covariate_preprocessing="external", **settings)
+        model = ConditionalRateForecaster(seed=seed, device=device, **settings)
     elif model_kind == "neural":
         from joint_production.neural import ContextualGaussianNeuralBaseline
-        model = ContextualGaussianNeuralBaseline(seed=seed, device=device, covariate_preprocessing="external", **settings)
+        model = ContextualGaussianNeuralBaseline(seed=seed, device=device, **settings)
     else:
         from joint_production.baselines import ProbabilisticTrajectoryForest
-        model = ProbabilisticTrajectoryForest(random_state=seed, covariate_preprocessing="external", **settings)
+        model = ProbabilisticTrajectoryForest(random_state=seed, **settings)
     return model, dict(settings, kind=model_kind)
 
 
@@ -197,6 +193,9 @@ def run(args):
             fit_seconds = time.monotonic() - start
             if hasattr(model, "save"):
                 model.save(output / f"{label}_model.pt")
+            else:  # the forest has no torch state; keep it for later forecasts
+                with open(output / f"{label}_model.pkl", "wb") as handle:
+                    pickle.dump(model, handle, protocol=5)
             arrays, diagnostics = {}, {}
             for origin in ORIGINS:
                 history = data["holdout_reports"].copy()
@@ -219,7 +218,7 @@ def run(args):
             write_json(output / f"{label}_fit.json", _json_ready(dict(
                 model=label, kind=kind, seed=seed, settings=settings, fit_seconds=fit_seconds,
                 total_seconds=time.monotonic() - start, prediction_diagnostics=diagnostics,
-                fit_diagnostics=getattr(model, "fit_diagnostics_", getattr(model, "training_diagnostics_", None)))),
+                fit_diagnostics=getattr(model, "fit_diagnostics_", None))),
                 exclusive=False)
             print(json.dumps(dict(event="done", model=label, seconds=round(time.monotonic() - start, 1))), flush=True)
 
@@ -382,26 +381,6 @@ def summarize(targets, draws, scales, groups):
     return out
 
 
-def table(args):
-    """Markdown summary of one or more scores.json files."""
-    rows = []
-    for path in args.scores:
-        results = json.loads(Path(path).read_text())["results"]
-        for label, r in results.items():
-            if args.filter and not any(f in label for f in args.filter.split(",")):
-                continue
-            cov = [r["coverage"][level]["macro_all28"] for level in ("0.8", "0.9", "0.95")]
-            ph = r["original15"]["per_phase"]
-            rows.append((r["wis_original15"], f"| {label} | {r['wis_original15']:.4f} | {r['r2_original15']:.3f} | "
-                         f"{r['wis_origin0']:.4f} | {r['r2_origin0']:.3f} | "
-                         + " / ".join(f"{100 * c:.1f}" for c in cov) + " | "
-                         + " / ".join(f"{ph[k]['scaled_wis']:.3f}" for k in ("oil", "gas", "water")) + " |"))
-    print("| Model | WIS15 | R2 15 | WIS0 | R2 0 | Cov 80/90/95 (all28) | Phase WIS15 o/g/w |")
-    print("|---|---:|---:|---:|---:|---:|---:|")
-    for _, line in sorted(rows):
-        print(line)
-
-
 def _cap_gpu_memory(device):
     """On unified-memory GPUs (GB10) CUDA allocations consume system RAM; cap each process."""
     if str(device).startswith("cuda"):
@@ -438,12 +417,9 @@ def main(argv=None):
     score_parser.add_argument("--output", required=True)
     score_parser.add_argument("--reference", default="")
     score_parser.add_argument("--mixtures", action="store_true")
-    table_parser = sub.add_parser("table")
-    table_parser.add_argument("scores", nargs="+")
-    table_parser.add_argument("--filter", default="")
     args = parser.parse_args(argv)
     _cap_gpu_memory(getattr(args, "device", "cpu"))
-    {"run": run, "score": score, "repredict": repredict, "table": table}[args.command](args)
+    {"run": run, "score": score, "repredict": repredict}[args.command](args)
 
 
 if __name__ == "__main__":

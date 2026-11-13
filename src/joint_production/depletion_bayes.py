@@ -27,9 +27,10 @@ finite. F is strictly increasing in time, so this is a reparameterization that
 imposes no sign or monotonicity on GOR or WOR. Native GOR is R_g * S_g / S_o.
 
 The well parameters z (LATENT_DIM) have an attribute-conditioned Gaussian
-population prior. Reports follow the accumulated Gaussian law of
-``joint_production.observation``: Y = Q + B(V), V = a^2 t/360 + r^2 Q^2 per
-phase, independent across phases given z. The well posterior given permitted
+population prior. Under the Brownian law, reports follow the accumulated
+Gaussian law Y = Q + B(V), V = a^2 t/360 + r^2 Q^2 per phase, independent
+across phases given z; the interval-OU laws add a persistent deviation
+(``interval_ou_covariance``). The well posterior given permitted
 reports is approximated by prior x Gaussian pseudo-likelihood from a history
 encoder, so empty history returns the prior exactly and posterior precision
 is never below prior precision. Prediction reweights the approximation by
@@ -63,7 +64,6 @@ WATER = slice(N_MODES + 2 + N_RATIO, FLOWBACK_BASE)
 FLOWBACK_VOLUME, FLOWBACK_TIME = FLOWBACK_BASE, FLOWBACK_BASE + 1
 FLOWBACK_TAU_DAYS = (5.0, 120.0)
 NOISE = slice(RATE_DIM, LATENT_DIM)
-PENALTY = LATENT_DIM  # optional extra coordinate: log A of the depletion-penalized oil law
 LOG_2PI = math.log(2 * math.pi)
 
 
@@ -109,15 +109,8 @@ class DepletionRate:
     """
 
     def __init__(self, decay_times=DECAY_TIMES_DAYS, peak_max=PEAK_MAX_DAYS, ratio_degree=RATIO_DEGREE,
-                 ratio_index: str = "depletion", ratio_time_scale: float = 730.0, oil_penalty: bool = False):
+                 ratio_index: str = "depletion", ratio_time_scale: float = 730.0):
         self.decay_times = tuple(float(v) for v in decay_times)
-        # oil_penalty: d(t) (ramp then completely monotone) is total deliverability with cumulative
-        # D(t); oil's share decays exponentially in cumulative oil, q_o = d exp(-Q_o/A), so
-        # Q_o = A log(1 + D/A) and q_o = d / (1 + D/A): still nonincreasing after the ramp with
-        # finite EUR_o = A log(1 + D_inf/A), but the oil decline may steepen with depletion.
-        self.oil_penalty = bool(oil_penalty)
-        if self.oil_penalty and ratio_index != "depletion":
-            raise ValueError("oil_penalty requires depletion-indexed ratios")
         self.peak_max = float(peak_max)
         self.degree = int(ratio_degree)
         if len(self.decay_times) != N_MODES or self.degree != RATIO_DEGREE:
@@ -134,10 +127,8 @@ class DepletionRate:
         self._to_power = torch.as_tensor(convert)
 
     def unpack(self, z: Tensor) -> dict[str, Tensor]:
-        if z.shape[-1] not in (RATE_DIM, LATENT_DIM, LATENT_DIM + 1):
-            raise ValueError(f"z must end with dimension {RATE_DIM}, {LATENT_DIM} or {LATENT_DIM + 1}")
-        if self.oil_penalty and z.shape[-1] != LATENT_DIM + 1:
-            raise ValueError("oil_penalty needs the extra latent coordinate")
+        if z.shape[-1] not in (RATE_DIM, LATENT_DIM):
+            raise ValueError(f"z must end with dimension {RATE_DIM} or {LATENT_DIM}")
         lam = z.new_tensor([1.0 / tau for tau in self.decay_times])
         weights = z[..., MODES].exp()
         peak = (self.peak_max * torch.sigmoid(z[..., PEAK])).clamp_min(1e-4)
@@ -145,12 +136,7 @@ class DepletionRate:
         q_peak = (weights * lam).sum(-1)
         eur = q_peak * peak * (1 + rho0) / 2 + weights.sum(-1)
         low, high = FLOWBACK_TAU_DAYS
-        extra = {}
-        if self.oil_penalty:
-            scale = z[..., PENALTY].exp()
-            extra = dict(penalty=scale, eur_total=eur)
-            eur = scale * torch.log1p(eur / scale)
-        return dict(lam=lam, weights=weights, peak=peak, rho0=rho0, q_peak=q_peak, eur_oil=eur, **extra,
+        return dict(lam=lam, weights=weights, peak=peak, rho0=rho0, q_peak=q_peak, eur_oil=eur,
                     gas=z[..., GAS].exp(), water=z[..., WATER].exp(),
                     flowback=z[..., FLOWBACK_VOLUME].exp(),
                     flowback_tau=low + (high - low) * torch.sigmoid(z[..., FLOWBACK_TIME]))
@@ -166,9 +152,6 @@ class DepletionRate:
         ramp = q_peak * ramp_time * (rho0 + (1 - rho0) * torch.clamp(t / peak, max=1.0) / 2)
         after = (t - peak).clamp_min(0)
         decline = (p["weights"][..., None, :] * -torch.expm1(-p["lam"] * after[..., None])).sum(-1)
-        if self.oil_penalty:
-            scale = p["penalty"][..., None]
-            return scale * torch.log1p((ramp + decline) / scale)
         return ramp + decline
 
     def oil_rate(self, p: dict[str, Tensor], t) -> Tensor:
@@ -177,12 +160,7 @@ class DepletionRate:
         ramp = q_peak * (rho0 + (1 - rho0) * torch.clamp(t / peak, max=1.0))
         after = (t - peak).clamp_min(0)
         decline = (p["weights"][..., None, :] * p["lam"] * torch.exp(-p["lam"] * after[..., None])).sum(-1)
-        deliverability = torch.where(t < peak, ramp, decline)
-        if self.oil_penalty:
-            ramp_c = q_peak * torch.minimum(t, peak) * (rho0 + (1 - rho0) * torch.clamp(t / peak, max=1.0) / 2)
-            decline_c = (p["weights"][..., None, :] * -torch.expm1(-p["lam"] * after[..., None])).sum(-1)
-            return deliverability / (1 + (ramp_c + decline_c) / p["penalty"][..., None])
-        return deliverability
+        return torch.where(t < peak, ramp, decline)
 
     def _ratio_cumulative(self, coefficients: Tensor, fraction: Tensor) -> Tensor:
         """Gamma(F) = int_0^F sum_m c_m B_m(f) df, via degree-(K+1) Bernstein."""
@@ -255,11 +233,6 @@ class DepletionRate:
         return torch.stack((oil, self._ratio(p["gas"], fraction) * oil,
                             self._ratio(p["water"], fraction) * oil + self._flowback_rate(p, t)), dim=-1)
 
-    def ratios(self, z: Tensor, t) -> Tensor:
-        """Normalized instantaneous gas/oil and water/oil ratios [..., T, 2] (WOR includes flowback)."""
-        rates = self.rate(z, t)
-        return torch.stack((rates[..., 1] / rates[..., 0], rates[..., 2] / rates[..., 0]), dim=-1)
-
     def total_volume(self, z: Tensor) -> Tensor:
         """Finite normalized EUR [..., 3]."""
         p = self.unpack(z)
@@ -270,42 +243,6 @@ class DepletionRate:
             water = self._time_ratio_cumulative(p, p["water"], inf)[..., 0] + p["flowback"]
             return torch.stack((eur, gas, water), dim=-1)
         return torch.stack((eur, eur * p["gas"].mean(-1), eur * p["water"].mean(-1) + p["flowback"]), dim=-1)
-
-
-def accumulated_log_likelihood(reports: Tensor, cumulative: Tensor, noise_abs: Tensor,
-                               noise_rel: Tensor, mask: Tensor, days: Tensor) -> Tensor:
-    """Exact masked accumulated-Gaussian log likelihood [N, S].
-
-    reports [N,T,3] and mask [N,T,3] (positive-day observed endpoints only);
-    cumulative [N,S,T,3]; noise [3] or [N,3]; all in the same volume units.
-    Successive OBSERVED endpoints of each phase factor the law, as in
-    ``observation.gaussian_endpoint_log_likelihood``.
-    """
-    n, s, t, _ = cumulative.shape
-    if noise_abs.ndim == 2:
-        a2, r = noise_abs.square()[:, None, :], noise_rel[:, None, :]
-    else:  # [3] global or [N,S,3] per sampled well-noise multiplier
-        a2, r = noise_abs.square(), noise_rel
-    safe_reports = torch.where(mask, reports, torch.zeros_like(reports))
-    prev_q = cumulative.new_zeros((n, s, 3))
-    prev_err = cumulative.new_zeros((n, s, 3))
-    prev_t = cumulative.new_zeros((n, 1, 3))
-    total = cumulative.new_zeros((n, s, 3))
-    for j in range(t):
-        if float(days[j]) <= 0:
-            continue
-        q = cumulative[:, :, j]
-        err = safe_reports[:, None, j] - q
-        include = mask[:, None, j]
-        var = a2 * ((days[j] - prev_t) / 360) + (r * (q - prev_q)) * (r * q + r * prev_q)
-        safe_var = torch.where(include, var.clamp_min(1e-30), torch.ones_like(var))
-        innovation = torch.where(include, err - prev_err, torch.zeros_like(err))
-        log_p = -0.5 * (LOG_2PI + safe_var.log() + innovation.square() / safe_var)
-        total = total + torch.where(include, log_p, torch.zeros_like(log_p))
-        prev_q = torch.where(include, q, prev_q)
-        prev_err = torch.where(include, err, prev_err)
-        prev_t = torch.where(include, days[j].expand_as(prev_t), prev_t)
-    return total.sum(-1)
 
 
 def sample_bridge_reports(cumulative: Tensor, history: Tensor, days: Tensor, noise_abs: Tensor, noise_rel: Tensor,
@@ -363,8 +300,7 @@ def sample_bridge_reports(cumulative: Tensor, history: Tensor, days: Tensor, noi
     return result
 
 
-OU_BIN_DAYS = 30.0
-OU_LAWS = ("ou", "ou_interval", "lognormal_ou")  # laws with a persistent operational-deviation term
+OU_LAWS = ("ou_interval", "lognormal_ou")  # laws with a persistent operational-deviation term
 LOGNORMAL = "lognormal_ou"
 
 
@@ -511,34 +447,6 @@ def weighted_sample_crps(points: Tensor, weights: Tensor, target: Tensor) -> Ten
     xs, ws = points.gather(-1, order), weights.gather(-1, order)
     below = torch.cumsum(ws, -1) - ws
     return first - (ws * xs * (2 * below + ws - 1)).sum(-1)
-
-
-def discrepancy_covariance(cumulative_fn, z: Tensor, days: Tensor, a: Tensor, r: Tensor, sigma: Tensor,
-                           tau: Tensor, *, fast: bool = False) -> Tensor:
-    """Covariance [N,S,3,T',T'] of report discrepancies at positive report days.
-
-    e_k(t) = int_0^t q_k(s) u_k(s) ds + B_k(a_k^2 t/360 + r_k^2 Q_k(t)^2), with u_k a
-    stationary OU process (SD sigma_k, time constant tau_k days) held constant on
-    OU_BIN_DAYS bins. The first term is a persistent relative deviation of actual
-    production from deliverability (operations); the second is the original
-    accumulated reporting noise. a, r, sigma are per draw [N,S,3]; tau is [3].
-    """
-    positive = days[days > 0]
-    edges = torch.arange(0.0, float(positive[-1]) + OU_BIN_DAYS / 2, OU_BIN_DAYS, dtype=z.dtype, device=z.device)
-    q_edges = cumulative_fn(z, edges)  # [N,S,B+1,3]
-    dq = torch.diff(q_edges, dim=-2).clamp_min(0).transpose(-1, -2)  # [N,S,3,B]
-    mid = 0.5 * (edges[1:] + edges[:-1])
-    kernel = torch.exp(-(mid[:, None] - mid[None, :]).abs()[None] / tau[:, None, None])  # [3,B,B]
-    include = (edges[1:][None, :] <= positive[:, None] + 1e-9).to(z.dtype)  # [T',B]
-    if fast:  # float32 matmuls during training (low-FP64 GPUs)
-        dq, kernel, include = dq.float(), kernel.float(), include.float()
-    weights = include[None, None, None] * dq[..., None, :]  # [N,S,3,T',B]
-    persistent = (weights @ kernel[None, None] @ weights.transpose(-1, -2)).to(z.dtype)  # [N,S,3,T',T']
-    q_days = cumulative_fn(z, positive).transpose(-1, -2)  # [N,S,3,T']
-    v = a[..., None].square() * (positive / 360) + (r[..., None] * q_days).square()
-    index = torch.arange(len(positive), device=z.device)
-    v_min = v[..., torch.minimum(index[:, None], index[None, :])]
-    return sigma[..., None, None].square() * persistent + v_min
 
 
 def small_cholesky(a: Tensor) -> Tensor:
@@ -819,87 +727,73 @@ def gaussian_log_prob_precision(z: Tensor, mean: Tensor, precision_tril: Tensor)
 
 
 class DepletionBayesModel(nn.Module):
-    """Attribute mixture prior, history pseudo-likelihood encoder and report law.
+    """Attribute-conditioned prior, history pseudo-likelihood encoder and report law.
 
-    The population prior is a K-component Gaussian mixture whose weights,
-    means and scales depend on the (clipped) attributes. The encoder returns
-    one Gaussian pseudo-likelihood exp(h'z - z'Lz/2) of the permitted history;
-    multiplying each prior component by it gives a Gaussian-mixture posterior
-    approximation with closed-form component weights. Empty history gives
-    h = 0, L = 0 and therefore exactly the prior. K = 1 is a single Gaussian.
+    The population prior is a Gaussian whose mean and scales depend on the
+    (clipped) attributes. The encoder returns a Gaussian pseudo-likelihood
+    exp(h'z - z'Lz/2) of the permitted history; multiplying the prior by it gives
+    the Gaussian posterior approximation. Empty history gives h = 0, L = 0 and
+    therefore exactly the prior. Prior and posterior tensors carry a singleton
+    component axis [N,1,...], which the importance-sampling code treats as a
+    one-component mixture.
     """
 
     def __init__(self, covariate_dim: int, report_days, phase_scales, *, width: int = 128, rank: int = 4,
-                 prior_scale: str = "contextual", initial_prior_std: float = 0.7,
+                 initial_prior_std: float = 0.7,
                  initial_noise_abs: float = 0.02, initial_noise_rel: float = 0.08, noise_floor: float = 1e-4,
                  noise_mode: str = "well", covariate_clip: float = 4.0, prior_width: int | None = None,
-                 components: int = 1, component_seed: int = 0, discrepancy: str = "brownian",
-                 initial_ou_sigma: float = 0.1, initial_ou_tau: float = 180.0, learn_temperature: bool = False,
+                 component_seed: int = 0, discrepancy: str = "brownian",
+                 initial_ou_sigma: float = 0.1, initial_ou_tau: float = 180.0,
                  rate_clock: bool = False, initial_rate_noise: float = 0.1, ratio_index: str = "depletion",
-                 ratio_time_scale: float = 730.0, prior_linear: bool = False, oil_penalty: bool = False,
+                 ratio_time_scale: float = 730.0, prior_linear: bool = False,
                  decay_max_days: float = DECAY_TIMES_DAYS[-1], random_prior_scale: float = 0.0):
         super().__init__()
-        if discrepancy not in {"brownian", *OU_LAWS}:  # includes the positive log-normal law
-            raise ValueError("discrepancy must be brownian or ou")
+        if discrepancy not in {"brownian", *OU_LAWS}:
+            raise ValueError("discrepancy must be brownian, ou_interval or lognormal_ou")
         self.discrepancy = discrepancy
-        if prior_scale not in {"global", "contextual"}:
-            raise ValueError("prior_scale must be global or contextual")
         if noise_mode not in {"global", "well"}:
             raise ValueError("noise_mode must be global or well")
         self.noise_mode = noise_mode
         self.covariate_clip = float(covariate_clip)
         # Decay-time grid: 8 log-spaced times from 10 d to decay_max_days (default 3,650 d; sensitivity option).
         grid = tuple(10.0 * (float(decay_max_days) / 10.0) ** (j / (N_MODES - 1)) for j in range(N_MODES))
-        self.rate = DepletionRate(decay_times=grid, ratio_index=ratio_index, ratio_time_scale=ratio_time_scale,
-                                  oil_penalty=oil_penalty)
-        self.latent_dim = LATENT_DIM + (1 if oil_penalty else 0)
+        self.rate = DepletionRate(decay_times=grid, ratio_index=ratio_index, ratio_time_scale=ratio_time_scale)
+        self.latent_dim = LATENT_DIM
         self.covariate_dim, self.width, self.rank = int(covariate_dim), int(width), int(rank)
-        self.components = int(components)
-        self.prior_scale, self.noise_floor = prior_scale, float(noise_floor)
+        self.noise_floor = float(noise_floor)
         self.register_buffer("report_days", torch.as_tensor(np.asarray(report_days, dtype=np.float64)).float())
         self.register_buffer("phase_scales", torch.as_tensor(np.asarray(phase_scales, dtype=np.float64)).float())
         positive_days = int((np.asarray(report_days, dtype=np.float64) > 0).sum())
         self.register_buffer("zero_prob", torch.full((positive_days, 3), 1e-3))  # set from TRAIN in fit
-        d, k = self.latent_dim, self.components
+        d = self.latent_dim
         inputs = max(self.covariate_dim, 1)
         prior_width = int(prior_width or width)
-        self.prior_mean = _mlp(inputs, prior_width, k * d, prior_linear)
+        self.prior_mean = _mlp(inputs, prior_width, d, prior_linear)
         initial = torch.zeros(d)
         initial[MODES] = math.log(0.15)
         initial[PEAK] = math.log(30.0 / (PEAK_MAX_DAYS - 30.0))
         initial[FLOWBACK_VOLUME] = math.log(0.05)
-        if oil_penalty:
-            initial[PENALTY] = math.log(3.0)  # weak initial penalty (A of a few normalized volumes)
-        offsets = torch.zeros(k, d)
-        if k > 1:
-            offsets = 0.3 * torch.randn((k, d), generator=torch.Generator().manual_seed(component_seed))
         with torch.no_grad():
             self.prior_mean[-1].weight.mul_(0.1)
-            self.prior_mean[-1].bias.copy_((initial[None] + offsets).flatten())
+            self.prior_mean[-1].bias.copy_(initial)
         # Randomized prior function (Osband et al. 2018): a fixed, untrained random network added to the
         # attribute -> prior-mean map, different for every ensemble member (seeded by component_seed).
         self.random_prior_scale = float(random_prior_scale)
         if self.random_prior_scale > 0:
             state = torch.random.get_rng_state()
             torch.manual_seed(int(component_seed) + 7919)
-            self.random_prior = _mlp(inputs, prior_width, k * d, prior_linear)
+            self.random_prior = _mlp(inputs, prior_width, d, prior_linear)
             torch.random.set_rng_state(state)
             for param in self.random_prior.parameters():
                 param.requires_grad_(False)
-        if k > 1:
-            self.prior_logits = _mlp(inputs, prior_width, k, prior_linear)
-            with torch.no_grad():
-                self.prior_logits[-1].weight.mul_(0.1)
-                self.prior_logits[-1].bias.zero_()
-        self.prior_tril_raw = nn.Parameter(torch.zeros(k, d, d))
+        self.prior_tril_raw = nn.Parameter(torch.zeros(1, d, d))
         diag0 = torch.full((d,), math.log(math.expm1(initial_prior_std)))
         diag0[NOISE] = math.log(math.expm1(0.5))
-        self.prior_diag_raw = nn.Parameter(diag0.expand(k, d).clone())
-        if prior_scale == "contextual":
-            self.prior_log_scale = _mlp(inputs, prior_width, k * d, prior_linear)
-            with torch.no_grad():
-                self.prior_log_scale[-1].weight.zero_()
-                self.prior_log_scale[-1].bias.zero_()
+        self.prior_diag_raw = nn.Parameter(diag0.expand(1, d).clone())
+        self.prior_log_scale = _mlp(inputs, prior_width, d, prior_linear)
+        with torch.no_grad():
+            self.prior_log_scale[-1].weight.zero_()
+            self.prior_log_scale[-1].bias.zero_()
         self.context_dim = 2 * 21 + 1 + 6 + self.covariate_dim
         self.encoder = _mlp(self.context_dim, width, 2 * d + d * self.rank)
         with torch.no_grad():
@@ -911,8 +805,6 @@ class DepletionBayesModel(nn.Module):
         # Optional rate-based variance clock: V += g^2 * int q(u)^2 du (relative daily-rate fluctuations).
         self.rate_clock = bool(rate_clock)
         self.log_noise_rate = nn.Parameter(torch.full((3,), math.log(initial_rate_noise)), requires_grad=self.rate_clock)
-        # Generalized-Bayes learning rate eta (posterior ∝ prior x likelihood^eta); fixed at 1 unless learned.
-        self.log_eta = nn.Parameter(torch.zeros(()), requires_grad=bool(learn_temperature))
         if discrepancy in OU_LAWS:
             self.log_ou_sigma = nn.Parameter(torch.full((3,), math.log(initial_ou_sigma)))
             self.log_ou_tau = nn.Parameter(torch.full((3,), math.log(initial_ou_tau)))
@@ -920,10 +812,6 @@ class DepletionBayesModel(nn.Module):
     # ----- law components -------------------------------------------------
     def noise(self) -> tuple[Tensor, Tensor]:
         return self.noise_floor + self.log_noise_abs.exp(), self.noise_floor + self.log_noise_rel.exp()
-
-    def eta(self) -> Tensor:
-        """Generalized-Bayes learning rate in [0.05, 2]; exactly 1 when not learned."""
-        return self.log_eta.exp().clamp(0.05, 2.0)
 
     def noise_for(self, z: Tensor) -> tuple[Tensor, Tensor]:
         """Report-noise a, r for each draw [..., 3] (normalized a; r dimensionless).
@@ -968,25 +856,17 @@ class DepletionBayesModel(nn.Module):
         return covariates.clamp(-self.covariate_clip, self.covariate_clip) if self.covariate_clip > 0 else covariates
 
     def prior(self, covariates: Tensor) -> tuple[Tensor, Tensor, Tensor]:
-        """Float64 mixture prior: log weights [N,K], means [N,K,D], scale_trils [N,K,D,D]."""
+        """Float64 prior: log weights [N,1] (zero), means [N,1,D], scale_trils [N,1,D,D]."""
         covariates = self._clip(covariates)
         x = covariates if self.covariate_dim else covariates.new_zeros((len(covariates), 1))
-        n, d, k = len(x), self.latent_dim, self.components
-        mean = self.prior_mean(x).double().reshape(n, k, d)
+        n, d = len(x), self.latent_dim
+        mean = self.prior_mean(x).double().reshape(n, 1, d)
         if self.random_prior_scale > 0:
-            mean = mean + self.random_prior_scale * self.random_prior(x).double().reshape(n, k, d)
+            mean = mean + self.random_prior_scale * self.random_prior(x).double().reshape(n, 1, d)
         diag = nn.functional.softplus(self.prior_diag_raw.double()) + 1e-3
         base = torch.tril(self.prior_tril_raw.double(), -1) + torch.diag_embed(diag)
-        if self.prior_scale == "contextual":
-            log_scale = math.log(3.0) * torch.tanh(self.prior_log_scale(x).double().reshape(n, k, d) / math.log(3.0))
-            tril = log_scale.exp()[..., :, None] * base
-        else:
-            tril = base.expand(n, k, d, d)
-        if k > 1:
-            log_pi = torch.log_softmax(self.prior_logits(x).double(), dim=-1)
-        else:
-            log_pi = mean.new_zeros((n, 1))
-        return log_pi, mean, tril
+        log_scale = math.log(3.0) * torch.tanh(self.prior_log_scale(x).double().reshape(n, 1, d) / math.log(3.0))
+        return mean.new_zeros((n, 1)), mean, log_scale.exp()[..., :, None] * base
 
     def context(self, reports_native: Tensor, observed: Tensor, origin: Tensor, covariates: Tensor) -> Tensor:
         """Encoder input from permitted reports only; float64 native reports required."""
@@ -1059,7 +939,7 @@ class DepletionBayesModel(nn.Module):
         z = self.sample_posterior(post["mean_q"], post["tril_q"], per_component, generator)  # [N,K,S,D]
         n, k, s, d = z.shape
         flat = z.reshape(n, k * s, d)
-        log_lik = self.eta().to(flat.dtype) * self.log_likelihood(flat, reports_normalized, observed)
+        log_lik = self.log_likelihood(flat, reports_normalized, observed)
         log_f = (log_lik + self.log_prior_mix(flat, post) - self.log_q_mix(flat, post)).reshape(n, k, s)
         weights = post["log_w"].exp()
         elbo = (weights * log_f.mean(-1)).sum(-1)
@@ -1083,8 +963,7 @@ class DepletionBayesModel(nn.Module):
         z = z.reshape(n, k * s, d)
         components = gaussian_log_prob_precision(z[:, None], post["mean_q"], post["tril_q"])
         log_prop = torch.logsumexp(components, dim=1) - math.log(k)
-        log_w = (self.log_prior_mix(z, post) + self.eta().to(z.dtype) * self.log_likelihood(z, reports_normalized, observed)
-                 - log_prop)
+        log_w = self.log_prior_mix(z, post) + self.log_likelihood(z, reports_normalized, observed) - log_prop
         weights = torch.softmax(log_w, dim=-1)
         q = self.cumulative(z)
         days = self.report_days.to(z.dtype)
@@ -1152,22 +1031,19 @@ class DepletionBayesModel(nn.Module):
     def covariance(self, z: Tensor) -> Tensor:
         """Report-discrepancy covariance [..., 3, T', T'] at positive report days.
 
-        Brownian part V(min(s, t)) from ``clock``; the OU law adds the persistent term.
+        Brownian part V(min(s, t)) from ``clock``; the interval OU law adds the persistent term.
         """
         days = self.report_days.to(z.dtype)
         positive = days > 0
         v = self.clock(z)[..., positive, :].transpose(-1, -2)
         index = torch.arange(int(positive.sum()), device=z.device)
         v_min = v[..., torch.minimum(index[:, None], index[None, :])]
-        if self.discrepancy not in OU_LAWS:
+        if self.discrepancy == "brownian":
             return v_min
+        if self.discrepancy != "ou_interval":
+            raise ValueError("The log-normal report law has no Gaussian report covariance")
         sigma, tau = self.ou_parameters(z)
-        if self.discrepancy == "ou_interval":
-            persistent = interval_ou_covariance(self.rate.cumulative(z, days), days, sigma, tau)
-            return persistent + v_min
-        zero = torch.zeros_like(sigma)
-        persistent = discrepancy_covariance(self.rate.cumulative, z, days, zero, zero, sigma, tau, fast=self.training)
-        return persistent + v_min
+        return interval_ou_covariance(self.rate.cumulative(z, days), days, sigma, tau) + v_min
 
     def log_interval_moments(self, z: Tensor, inflation: float = 1.0) -> tuple[Tensor, Tensor]:
         """Log-normal report-law moments [..., 3, T'] / [..., 3, T', T'] for draws z."""
@@ -1206,40 +1082,38 @@ def phase_volume_scales(train_reports: np.ndarray) -> np.ndarray:
 
 
 class DepletionBayesForecaster:
-    """Fit by amortized ELBO over random permitted histories; predict by IS."""
+    """Fit over random permitted histories (encoder by ELBO; law by importance-weighted bound or
+    predictive CRPS); predict by importance sampling."""
 
     def __init__(self, *, seed: int = 42, epochs: int = 200, batch_size: int = 512, learning_rate: float = 2e-3,
-                 train_samples: int = 8, width: int = 128, rank: int = 4, prior_scale: str = "contextual",
+                 train_samples: int = 8, width: int = 128, rank: int = 4,
                  history_dropout: float = 0.1, phase_dropout: float = 0.1, proposals: int = 2048,
                  defensive_weight: float = 0.25, defensive_scale: float = 2.0, device: str = "cpu",
-                 log_every: int = 25, weight_decay: float = 0.0, importance: bool = True,
+                 log_every: int = 25, weight_decay: float = 0.0,
                  noise_mode: str = "well", covariate_clip: float = 4.0, objective: str = "iwae_theta",
                  noise_warmup: float = 0.25, initial_noise_abs: float = 0.01, initial_noise_rel: float = 0.03,
                  adaptive_rounds: int = 2, prior_width: int = 64, prior_weight_decay: float = 1e-3,
-                 components: int = 1, discrepancy: str = "brownian", predictive_samples: int = 32,
-                 predictive_bound_weight: float = 0.0, likelihood_temperature: float = 1.0,
-                 report_inflation: float = 1.0, learn_temperature: bool = False, rate_clock: bool = False,
+                 discrepancy: str = "brownian", predictive_samples: int = 32,
+                 report_inflation: float = 1.0, rate_clock: bool = False,
                  prior_inflation: float = 1.0, bootstrap: bool = False, ratio_index: str = "depletion",
-                 ratio_time_scale: float = 730.0, prior_linear: bool = False, oil_penalty: bool = False,
+                 ratio_time_scale: float = 730.0, prior_linear: bool = False,
                  decay_max_days: float = DECAY_TIMES_DAYS[-1], random_prior_scale: float = 0.0,
                  feature_keep: float = 1.0, feature_mask: list | None = None):
-        if objective not in {"elbo", "iwae_theta", "predictive"}:
-            raise ValueError("objective must be elbo, iwae_theta or predictive")
+        if objective not in {"iwae_theta", "predictive"}:
+            raise ValueError("objective must be iwae_theta or predictive")
         self.config = dict(seed=seed, epochs=epochs, batch_size=batch_size, learning_rate=learning_rate,
-                           train_samples=train_samples, width=width, rank=rank, prior_scale=prior_scale,
+                           train_samples=train_samples, width=width, rank=rank,
                            history_dropout=history_dropout, phase_dropout=phase_dropout, proposals=proposals,
                            defensive_weight=defensive_weight, defensive_scale=defensive_scale, device=device,
-                           log_every=log_every, weight_decay=weight_decay, importance=importance,
+                           log_every=log_every, weight_decay=weight_decay,
                            noise_mode=noise_mode, covariate_clip=covariate_clip, objective=objective,
                            noise_warmup=noise_warmup, initial_noise_abs=initial_noise_abs,
                            initial_noise_rel=initial_noise_rel, adaptive_rounds=adaptive_rounds,
-                           prior_width=prior_width, prior_weight_decay=prior_weight_decay, components=components,
+                           prior_width=prior_width, prior_weight_decay=prior_weight_decay,
                            discrepancy=discrepancy, predictive_samples=predictive_samples,
-                           predictive_bound_weight=predictive_bound_weight,
-                           likelihood_temperature=likelihood_temperature, report_inflation=report_inflation,
-                           learn_temperature=learn_temperature, rate_clock=rate_clock,
+                           report_inflation=report_inflation, rate_clock=rate_clock,
                            prior_inflation=prior_inflation, bootstrap=bootstrap, ratio_index=ratio_index,
-                           ratio_time_scale=ratio_time_scale, prior_linear=prior_linear, oil_penalty=oil_penalty,
+                           ratio_time_scale=ratio_time_scale, prior_linear=prior_linear,
                            decay_max_days=decay_max_days, random_prior_scale=random_prior_scale,
                            feature_keep=feature_keep, feature_mask=feature_mask)
         self.device = torch.device(device)
@@ -1254,21 +1128,10 @@ class DepletionBayesForecaster:
 
     @staticmethod
     def _model_kwargs(cfg) -> dict[str, Any]:
-        return dict(width=cfg["width"], rank=cfg["rank"], prior_scale=cfg["prior_scale"],
-                    prior_width=cfg.get("prior_width", cfg["width"]),
-                    components=cfg.get("components", 1), component_seed=cfg.get("seed", 0),
-                    discrepancy=cfg.get("discrepancy", "brownian"),
-                    learn_temperature=cfg.get("learn_temperature", False),
-                    rate_clock=cfg.get("rate_clock", False),
-                    ratio_index=cfg.get("ratio_index", "depletion"),
-                    ratio_time_scale=cfg.get("ratio_time_scale", 730.0),
-                    prior_linear=cfg.get("prior_linear", False),
-                    oil_penalty=cfg.get("oil_penalty", False),
-                    decay_max_days=cfg.get("decay_max_days", DECAY_TIMES_DAYS[-1]),
-                    random_prior_scale=cfg.get("random_prior_scale", 0.0),
-                    noise_mode=cfg.get("noise_mode", "global"), covariate_clip=cfg.get("covariate_clip", 0.0),
-                    initial_noise_abs=cfg.get("initial_noise_abs", 0.02),
-                    initial_noise_rel=cfg.get("initial_noise_rel", 0.08))
+        names = ("width", "rank", "prior_width", "discrepancy", "rate_clock", "ratio_index", "ratio_time_scale",
+                 "prior_linear", "decay_max_days", "random_prior_scale", "noise_mode", "covariate_clip",
+                 "initial_noise_abs", "initial_noise_rel")
+        return dict({name: cfg[name] for name in names}, component_seed=cfg["seed"])
 
     def _observed(self, reports: Tensor, cutoff: Tensor) -> Tensor:
         days = self.model.report_days.to(reports.dtype)
@@ -1333,7 +1196,7 @@ class DepletionBayesForecaster:
         y = torch.as_tensor(reports, device=self.device)
         xt = torch.as_tensor(x, dtype=torch.float32, device=self.device)
         prior_nets = [v for name, v in model.named_parameters()
-                      if name.startswith(("prior_mean.", "prior_log_scale.", "prior_logits.")) and v.ndim == 2]
+                      if name.startswith(("prior_mean.", "prior_log_scale.")) and v.ndim == 2]
         prior_ids = {id(v) for v in prior_nets}
         others = [v for v in model.parameters() if id(v) not in prior_ids]
         optimizer = torch.optim.AdamW([dict(params=others, weight_decay=cfg["weight_decay"]),
@@ -1372,13 +1235,11 @@ class DepletionBayesForecaster:
                 observed = self._observed(batch, cutoff) & keep[idx]
                 context, has_data, normalized = self._batch_terms(batch, observed, cutoff, xt[idx])
                 post = model.posterior(xt[idx], context, has_data)
-                per_component = max(2, cfg["train_samples"] // model.components)
+                per_component = max(2, cfg["train_samples"])
                 elbo, bound = model.stratified_terms(post, per_component, normalized, observed, generator)
                 bw = boot[idx]
                 optimizer.zero_grad(set_to_none=True)
-                if cfg["objective"] == "elbo":
-                    (-(elbo * bw).sum() / bw.sum()).backward()
-                elif cfg["objective"] == "predictive":
+                if cfg["objective"] == "predictive":
                     # Empirical Bayes by prediction: population parameters minimize the CRPS of
                     # the importance-weighted posterior predictive of later reports; the encoder
                     # (proposal) follows the ELBO. Each well's forecast remains Bayes under theta.
@@ -1387,11 +1248,10 @@ class DepletionBayesForecaster:
                     rows = torch.as_tensor([day_index[float(c)] for c in cut[order[start:start + cfg["batch_size"]]]],
                                            device=self.device)
                     cell_scale = cell_table_t[rows]
-                    per_pred = max(2, cfg["predictive_samples"] // model.components)
+                    per_pred = max(2, cfg["predictive_samples"])
                     crps = model.predictive_crps(post, per_pred, normalized, observed, future, future_mask,
                                                  cell_scale, generator, well_weight=bw)
-                    theta_loss = crps - cfg["predictive_bound_weight"] * (bound * bw).sum() / bw.sum()
-                    theta_grads = torch.autograd.grad(theta_loss, theta, retain_graph=True, allow_unused=True)
+                    theta_grads = torch.autograd.grad(crps, theta, retain_graph=True, allow_unused=True)
                     phi_grads = torch.autograd.grad(-(elbo * bw).sum() / bw.sum(), phi, allow_unused=True)
                     for param, grad in zip(theta + phi, theta_grads + phi_grads):
                         param.grad = grad
@@ -1421,7 +1281,7 @@ class DepletionBayesForecaster:
                     extra = dict(ou_sigma=model.log_ou_sigma.exp().detach().cpu().numpy().round(4).tolist(),
                                  ou_tau=model.log_ou_tau.exp().detach().cpu().numpy().round(1).tolist())
                 print(dict(record, noise_abs=a.detach().cpu().numpy().round(4).tolist(),
-                           noise_rel=r.detach().cpu().numpy().round(4).tolist(), eta=round(float(model.eta()), 4),
+                           noise_rel=r.detach().cpu().numpy().round(4).tolist(),
                            noise_rate=model.log_noise_rate.exp().detach().cpu().numpy().round(4).tolist(),
                            **extra), flush=True)
         model.eval()  # exact float64 likelihood for prediction-time importance weights
@@ -1447,7 +1307,7 @@ class DepletionBayesForecaster:
         deterministic mixture of q, that Gaussian and a widened copy. The full
         proposal density enters the weights, so every round targets the exact
         unnormalized posterior p(z|x) p(H|z). Rows without positive-day
-        history return iid draws from the mixture prior.
+        history return iid draws from the prior.
         """
         model = self.model
         cfg = self.config
@@ -1464,7 +1324,6 @@ class DepletionBayesForecaster:
         if inflation != 1.0:
             # Calibration knob: widen the prior covariance (prior tempering) in the target and prior draws.
             post = dict(post, tril_p=post["tril_p"] * math.sqrt(inflation))
-        k = model.components
         eye = torch.eye(d, dtype=dtype, device=self.device)
         cov_q = torch.cholesky_inverse(post["tril_q"])
         chol_q = torch.linalg.cholesky(0.5 * (cov_q + cov_q.transpose(-1, -2)))  # [N,K,D,D]
@@ -1494,19 +1353,13 @@ class DepletionBayesForecaster:
                 terms.append(math.log(weight / weight_sum) + log_sub)
             return z, torch.logsumexp(torch.stack(terms), dim=0)
 
-        temperature = float(cfg.get("likelihood_temperature", 1.0))
-
         def log_target(z):
-            # Generalized (tempered) Bayes for temperature < 1; exact Bayes at 1.
-            eta = temperature * float(model.eta())
-            return model.log_prior_mix(z, post) + eta * model.log_likelihood(z, normalized, observed)
+            return model.log_prior_mix(z, post) + model.log_likelihood(z, normalized, observed)
 
         wide = cfg["defensive_scale"]
         mean_q = post["mean_q"]
         components = [(1 - cfg["defensive_weight"], mean_q, chol_q), (cfg["defensive_weight"], mean_q, wide * chol_q)]
         z, log_prop = propose(components, cfg["proposals"])
-        if not cfg.get("importance", True):
-            raise ValueError("importance=False ablation is unsupported for mixture posteriors")
         log_w = log_target(z) - log_prop
         for _ in range(int(cfg.get("adaptive_rounds", 2))):
             w = torch.softmax(log_w, dim=-1)
@@ -1549,8 +1402,8 @@ class DepletionBayesForecaster:
         if chunk is None and os.environ.get("JPF_PREDICT_CHUNK"):
             chunk = int(os.environ["JPF_PREDICT_CHUNK"])  # memory-bounded forecasts when fits share one GPU
         if chunk is None:
-            # Bound the largest per-chunk tensor (OU covariance weights are wells x proposals x 3 x 7 x bins).
-            per_well = self.config["proposals"] * (3 * 7 * 72 if model.discrepancy == "ou" else 3 * 8 * 8 * (2 if model.discrepancy == "ou_interval" else 1))
+            # Bound the largest per-chunk tensor (wells x proposals x 3 x 8 x 8, doubled for the interval OU law).
+            per_well = self.config["proposals"] * 3 * 8 * 8 * (2 if model.discrepancy == "ou_interval" else 1)
             chunk = int(max(1, min(256, 1.2e8 // per_well)))
         outputs = {"report_cumulative": [], "latent_cumulative": [], "latent_parameters": []}
         ess, max_weight, unique = [], [], []
@@ -1620,17 +1473,23 @@ class DepletionBayesForecaster:
                         phase_scales=self.model.phase_scales.cpu().numpy(),
                         fit_diagnostics=self.fit_diagnostics_), path)
 
+    # Options of the development code that every released checkpoint holds at these values.
+    FIXED_OPTIONS = dict(prior_scale="contextual", importance=True, components=1, predictive_bound_weight=0.0,
+                         likelihood_temperature=1.0, learn_temperature=False, oil_penalty=False)
+
     @classmethod
     def load(cls, path, *, device: str = "cpu") -> "DepletionBayesForecaster":
         payload = torch.load(path, map_location=device, weights_only=False)
         config = dict(payload["config"], device=device)
+        state = dict(payload["state"])
+        for name, value in cls.FIXED_OPTIONS.items():
+            if config.pop(name, value) != value:
+                raise ValueError(f"Checkpoint uses the unsupported option {name}")
+        if float(state.pop("log_eta", 0.0)) != 0.0:
+            raise ValueError("Checkpoint uses a learned likelihood temperature")
         forecaster = cls(**config)
         forecaster.model = DepletionBayesModel(payload["covariate_dim"], payload["report_days"], payload["phase_scales"],
                                                **cls._model_kwargs(config)).to(device)
-        state = dict(payload["state"])
-        state.setdefault("log_eta", torch.zeros(()))
-        state.setdefault("log_noise_rate", torch.full((3,), math.log(0.1)))
-        state.setdefault("zero_prob", torch.full((int((np.asarray(payload["report_days"]) > 0).sum()), 3), 1e-3))
         forecaster.model.load_state_dict(state)
         forecaster.model.eval()
         forecaster.fit_diagnostics_ = payload.get("fit_diagnostics", {})

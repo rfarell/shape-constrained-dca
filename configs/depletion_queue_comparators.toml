@@ -1,0 +1,26 @@
+# Comparator fits: positive-basis and conditional DCA networks, contextual neural model and
+# probabilistic forest, each fitted on all TRAIN wells for seeds 42-46 with the settings in
+# scripts/depletion_dev.py (COMPETITORS); validation forecasts. Calibration and test forecasts
+# come from these fits through scripts/depletion_competitor_forecasts.py.
+lanes = 2
+min_available_gb = 40
+
+[[job]]
+label = "basis"
+output = "comp_basis"
+args = "run --models basis --device cuda --split validation --seeds 42,43,44,45,46"
+
+[[job]]
+label = "dca"
+output = "comp_dca"
+args = "run --models dca --device cuda --split validation --seeds 42,43,44,45,46"
+
+[[job]]
+label = "neural"
+output = "comp_neural"
+args = "run --models neural --device cuda --split validation --seeds 42,43,44,45,46"
+
+[[job]]
+label = "forest"
+output = "comp_forest"
+args = "run --models forest --split validation --seeds 42,43,44,45,46"

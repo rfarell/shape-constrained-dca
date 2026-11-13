@@ -2,16 +2,13 @@
 
 import json
 import unittest
-from unittest.mock import patch
 
 import numpy as np
 
 from joint_production.metrics import (
-    conditional_increments,
     energy_score,
     evaluate_forecasts,
     fit_increment_scales,
-    group_bootstrap_wis,
     interval_score,
     safe_ratio,
     sample_derived_quantities,
@@ -31,24 +28,6 @@ class MetricTests(unittest.TestCase):
         deterministic = np.full((2, 1, 1, 3), 2.)
         np.testing.assert_allclose(weighted_interval_score(targets, deterministic), np.abs(targets - 2))
         self.assertEqual(float(interval_score(4., 0., 2., 0.2)), 22.)
-
-    def test_fixed_observed_origin_is_not_resampled_origin_noise(self):
-        # Actual noisy origin is 12, latent origin 10; future report draws 19/21.
-        observed_origin = np.full((1, 3), 12.)
-        endpoint = np.full((1, 1, 3), 20.)
-        draws = np.broadcast_to(np.array([19., 21.])[None, :, None, None], (1, 2, 1, 3))
-        target, forecast = conditional_increments(observed_origin, endpoint, draws)
-        np.testing.assert_array_equal(target, np.full((1, 1, 3), 8.))
-        np.testing.assert_array_equal(forecast[0, :, 0, 0], [7., 9.])
-        resampled_origin = np.array([8., 12.])
-        self.assertFalse(np.array_equal(draws[0, :, 0, 0] - resampled_origin, forecast[0, :, 0, 0]))
-        # Common observed anchor translation preserves report-endpoint WIS.
-        np.testing.assert_allclose(weighted_interval_score(target, forecast), weighted_interval_score(endpoint, draws))
-        missing_origin = observed_origin.copy()
-        missing_origin[0, 1] = np.nan
-        target, forecast = conditional_increments(missing_origin, endpoint, draws)
-        self.assertTrue(np.isnan(target[..., 1]).all())
-        self.assertTrue(np.isnan(forecast[..., 1]).all())
 
     def test_missing_targets_and_invalid_predictions_are_distinct(self):
         targets = np.array([[[1., np.nan, 2.]]])
@@ -157,31 +136,6 @@ class MetricTests(unittest.TestCase):
         self.assertAlmostEqual(result["macro_increment_r2"], -8.)
         self.assertAlmostEqual(result["per_phase"]["oil"]["rmse"], 3.)
         self.assertEqual(result["per_phase"]["oil"]["mae"], 0.)
-
-    def test_group_bootstrap_keeps_whole_group_multiplicities(self):
-        values = np.array([0., 0., 9., 99.])[:, None, None]
-        groups = ["A", "A", "B", "C"]
-
-        class FixedDraws:
-            def integers(self, high, size):
-                return np.array([0, 0, 1])  # A,A,B gives 0,0,0,0,9.
-
-        with patch("joint_production.metrics.np.random.default_rng", return_value=FixedDraws()):
-            result = group_bootstrap_wis(values, groups, replicates=2)
-        self.assertEqual(result["estimate"], 27.)
-        self.assertEqual(result["lower"], 1.8)
-        self.assertEqual(result["upper"], 1.8)
-        self.assertEqual(result["groups"], 3)
-        with self.assertRaisesRegex(ValueError, "two unique groups"):
-            group_bootstrap_wis(values, ["A"] * 4)
-
-    def test_group_bootstrap_does_not_drop_required_cells(self):
-        values = np.array([[[1.], [np.nan]], [[np.nan], [3.]]])
-        result = group_bootstrap_wis(values, ["A", "B"], replicates=100, seed=42)
-        self.assertGreater(result["invalid_replicates_missing_required_cell"], 0)
-        self.assertEqual(result["lower"], 2.)
-        self.assertEqual(result["upper"], 2.)
-        self.assertEqual(result, group_bootstrap_wis(values, ["A", "B"], replicates=100, seed=42))
 
     def test_ratio_is_samplewise_and_zero_denominator_stays_undefined(self):
         volumes = np.array([[1., 2., 1.], [2., 8., 0.], [0., 3., 0.], [-1., 3., 2.]])

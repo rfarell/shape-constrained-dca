@@ -91,31 +91,6 @@ def _json_ready(value):
 
 
 @_reject_numerical_failure
-def conditional_increments(observed_origin, target_endpoints, sampled_endpoints):
-    """Subtract the SAME fixed, observed cutoff report from targets and samples.
-
-    Inputs are ``[well,phase]``, ``[well,cell,phase]``, and
-    ``[well,sample,cell,phase]``. Sampled endpoints must be future REPORT samples
-    from the conditional observation law. Subtracting a sampled origin report
-    would add new origin noise and score a different predictive distribution.
-    Missing observed origins make the corresponding phase targets unavailable.
-    Negative reported increments remain negative: no cleaning is performed here.
-    """
-    origin = np.asarray(observed_origin, dtype=float)
-    targets = np.asarray(target_endpoints, dtype=float)
-    samples = np.asarray(sampled_endpoints, dtype=float)
-    if targets.ndim != 3 or origin.shape != (targets.shape[0], targets.shape[2]):
-        raise ValueError("Observed origin must have shape [well,phase]")
-    if samples.ndim != 4 or (samples.shape[0], *samples.shape[2:]) != targets.shape:
-        raise ValueError("Endpoint sample axes do not match targets")
-    origin = np.where(np.isfinite(origin), origin, np.nan)
-    increments = targets - origin[:, None, :]
-    draws = samples - origin[:, None, None, :]
-    increments, draws, _ = _arrays(increments, draws)
-    return increments, draws
-
-
-@_reject_numerical_failure
 def fit_increment_scales(training_targets, phase_fallback=None, return_details=False):
     """Fit a scale for each cell/phase from TRAINING increments only.
 
@@ -291,58 +266,7 @@ def sample_derived_quantities(phase_volumes):
 
 
 @_reject_numerical_failure
-def group_bootstrap_wis(per_well_scaled_wis, groups, replicates=1000, confidence=0.95, seed=42):
-    """Percentile uncertainty for macro WIS by resampling WHOLE spatial groups.
-
-    Each bootstrap draws G group labels uniformly with replacement, retaining
-    all wells (and all their cells/phases) each time a group is drawn. It then
-    recomputes within-cell well means and equal-cell/equal-phase aggregation.
-    Thus larger groups retain their original well weight; groups are sampling
-    units, not equal-weight scoring units. Requires at least two unique groups.
-    """
-    values = np.asarray(per_well_scaled_wis, dtype=float)
-    groups = np.asarray(groups)
-    if values.ndim != 3 or groups.shape != (values.shape[0],) or not all(values.shape):
-        raise ValueError("Expected scores [well,cell,phase] and one group per well")
-    if np.isinf(values).any() or np.any(values[np.isfinite(values)] < 0):
-        raise ValueError("WIS values must be nonnegative finite values or NaN")
-    if not isinstance(replicates, (int, np.integer)) or replicates < 2 or not 0 < confidence < 1:
-        raise ValueError("At least two replicates and confidence in (0,1) are required")
-    labels, inverse = np.unique(groups, return_inverse=True)
-    if len(labels) < 2:
-        raise ValueError("Group bootstrap requires at least two unique groups")
-    finite = np.isfinite(values)
-    required_cells = finite.any(axis=0)
-    totals = np.zeros((len(labels), *values.shape[1:]))
-    counts = np.zeros_like(totals)
-    np.add.at(totals, inverse, np.where(finite, values, 0))
-    np.add.at(counts, inverse, finite)
-    rng = np.random.default_rng(seed)
-    draws = np.empty(replicates)
-    for replicate in range(replicates):
-        weight = np.bincount(rng.integers(len(labels), size=len(labels)), minlength=len(labels))
-        total = np.tensordot(weight, totals, axes=1)
-        count = np.tensordot(weight, counts, axes=1)
-        if np.any(required_cells & (count == 0)):
-            draws[replicate] = np.nan
-            continue
-        mean = np.divide(total, count, out=np.full_like(total, np.nan), where=count > 0)
-        draws[replicate] = _macro(mean)
-    valid_draws = draws[np.isfinite(draws)]
-    if not valid_draws.size:
-        raise ValueError("No observed scores in bootstrap draws")
-    lower, upper = np.quantile(valid_draws, [(1 - confidence) / 2, (1 + confidence) / 2], method="linear")
-    return _json_ready({"estimate": _macro(_mean(values, axis=0)), "lower": lower, "upper": upper,
-                        "standard_error": np.std(valid_draws, ddof=1) if len(valid_draws) > 1 else np.nan,
-                        "confidence": confidence, "replicates": replicates,
-                        "valid_replicates": len(valid_draws), "groups": len(labels), "seed": seed,
-                        "invalid_replicates_missing_required_cell": int(replicates - len(valid_draws)),
-                        "method": "percentile_whole_group_resampling"})
-
-
-@_reject_numerical_failure
-def evaluate_forecasts(targets, samples, scales, groups=None, bootstrap_replicates=0,
-                       seed=42, phase_names=PHASE_NAMES, include_joint_scores=True,
+def evaluate_forecasts(targets, samples, scales, phase_names=PHASE_NAMES, include_joint_scores=True,
                        joint_cell_groups=None):
     """JSON-ready primary, point, marginal, and joint forecast metrics.
 
@@ -427,10 +351,4 @@ def evaluate_forecasts(targets, samples, scales, groups=None, bootstrap_replicat
                            "per_cell_group": group_scores, "aggregation": "equal_conditioning_group_means",
                            "energy_estimator": "empirical_ensemble_v_statistic",
                            "variogram_pair_weight": "equal_unordered_pair_mean"}
-    if bootstrap_replicates:
-        if groups is None:
-            raise ValueError("groups are required for bootstrap uncertainty")
-        result["group_bootstrap_scaled_wis"] = group_bootstrap_wis(
-            scaled_wis, groups, replicates=bootstrap_replicates, seed=seed
-        )
     return _json_ready(result)

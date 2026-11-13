@@ -36,12 +36,10 @@ def synthetic_data():
     return reports, days, features
 
 
-@pytest.fixture(scope="module", params=[1, 2])
-def external_model(request, synthetic_data):
+@pytest.fixture(scope="module")
+def external_model(synthetic_data):
     reports, days, features = synthetic_data
-    return ContextualGaussianNeuralBaseline(
-        **SETTINGS, mixture_components=request.param, covariate_preprocessing="external"
-    ).fit(reports, days, origins=[0, 30, 60], covariates=features)
+    return ContextualGaussianNeuralBaseline(**SETTINGS).fit(reports, days, origins=[0, 30, 60], covariates=features)
 
 
 def test_external_features_reach_network_unchanged_without_added_masks(external_model, synthetic_data):
@@ -53,10 +51,9 @@ def test_external_features_reach_network_unchanged_without_added_masks(external_
         model.predict_transformed_parameters(reports[:2], 0, features[:2])
     finally:
         hook.remove()
-    assert model.n_covariates_ == model.covariate_feature_count_ == 34
+    assert model.n_covariates_ == 34
     assert model.network_.hidden[0].in_features == 8 * len(days) + 1 + 6 + 34
     np.testing.assert_array_equal(seen[0][:, -40:-6].numpy(), features[:2].astype(np.float32))
-    assert model.covariate_center_.size == model.covariate_scale_.size == 0
     assert model.fit_diagnostics_["covariate_preprocessing"] == "external"
     assert model.fit_diagnostics_["covariate_feature_count"] == 34
 
@@ -114,50 +111,16 @@ def test_external_feature_sampler_matches_joint_transformed_law(external_model, 
     transformed = np.arcsinh(samples[0] / model.phase_scales_).reshape(40000, -1)[:, missing]
     factor = parameters["factor"][0, missing]
     covariance = np.diag(parameters["diagonal_variance"][0, missing]) + factor @ factor.T
-    if model.mixture_components == 1:
-        mean = parameters["location"][0, missing]
-    else:
-        locations = parameters["location"][0][:, missing]
-        weights = parameters["mixture_weights"][0]
-        mean = weights @ locations
-        offsets = locations - mean
-        covariance += (offsets.T * weights) @ offsets
+    mean = parameters["location"][0, missing]
     np.testing.assert_allclose(transformed.mean(0), mean, atol=.012, rtol=0)
     np.testing.assert_allclose(np.cov(transformed.T), covariance, atol=.01, rtol=.04)
     assert (samples[:, :, 1:] < 0).any(), "The report law retains signed support"
 
 
-def test_internal_train_statistics_and_external_equivalent_inputs_give_identical_law(synthetic_data):
-    reports, days, _ = synthetic_data
-    raw = np.column_stack((np.arange(len(reports)), np.full(len(reports), np.nan),
-                           np.where(np.arange(len(reports)) % 2, 4., np.nan)))
-    raw_before = raw.copy()
-    center = np.array([5.5, 0., 4.])
-    scale = np.array([np.std(np.arange(len(reports))), 1., 1e-8])
-    valid = np.isfinite(raw)
-    expected = np.concatenate((np.where(valid, (raw - center) / scale, 0), valid), axis=1)
-    internal = ContextualGaussianNeuralBaseline(**SETTINGS).fit(reports, days, origins=[0, 30], covariates=raw)
-    external = ContextualGaussianNeuralBaseline(**SETTINGS, covariate_preprocessing="external").fit(
-        reports, days, origins=[0, 30], covariates=expected)
-    np.testing.assert_array_equal(internal.covariate_center_, center)
-    np.testing.assert_array_equal(internal.covariate_scale_, scale)
-    for name, value in internal.network_.state_dict().items():
-        torch.testing.assert_close(value, external.network_.state_dict()[name], atol=0, rtol=0)
-    assert internal.fit_diagnostics_["conditional_report_nll_by_epoch"] == external.fit_diagnostics_["conditional_report_nll_by_epoch"]
-    np.testing.assert_array_equal(
-        internal.predict_samples(reports[:2], 30, 19, np.random.default_rng(3), raw[:2]),
-        external.predict_samples(reports[:2], 30, 19, np.random.default_rng(3), expected[:2]))
-    query = np.array([[21., 20., np.nan]])
-    internal.predict_transformed_parameters(reports[:1], 0, query)
-    np.testing.assert_array_equal(internal.covariate_center_, center)
-    np.testing.assert_array_equal(internal.covariate_scale_, scale)
-    np.testing.assert_array_equal(raw, raw_before)
-
-
 @pytest.mark.parametrize("invalid", [np.nan, np.inf, -np.inf, 1e40, -1e40])
 def test_external_nonfinite_and_float32_overflow_rejected_during_fit_and_prediction(synthetic_data, invalid):
     reports, days, features = synthetic_data
-    model = ContextualGaussianNeuralBaseline(**SETTINGS, covariate_preprocessing="external")
+    model = ContextualGaussianNeuralBaseline(**SETTINGS)
     altered = features.copy()
     altered[0, 0] = invalid
     with pytest.raises(ValueError, match="finite"):
@@ -185,7 +148,7 @@ def test_external_checkpoint_preserves_mode_width_and_full_law(external_model, s
     external_model.save(path)
     checkpoint = torch.load(path, weights_only=True)
     assert checkpoint["configuration"]["covariate_preprocessing"] == "external"
-    assert checkpoint["metadata"]["n_covariates"] == checkpoint["metadata"]["covariate_feature_count"] == 34
+    assert checkpoint["metadata"]["n_covariates"] == 34
     restored = ContextualGaussianNeuralBaseline.load(path)
     assert restored.covariate_preprocessing == "external"
     assert restored.fit_diagnostics_ == external_model.fit_diagnostics_
@@ -199,7 +162,7 @@ def test_external_checkpoint_preserves_mode_width_and_full_law(external_model, s
             restored.predict_samples(reports[:2], origin, 17, np.random.default_rng(14), features[:2]))
 
 
-@pytest.mark.parametrize("corruption", ["mode", "count", "width", "statistics", "network"])
+@pytest.mark.parametrize("corruption", ["mode", "count", "network"])
 def test_checkpoint_rejects_inconsistent_covariate_metadata(external_model, tmp_path, corruption):
     path = tmp_path / "corrupt.pt"
     external_model.save(path)
@@ -208,37 +171,14 @@ def test_checkpoint_rejects_inconsistent_covariate_metadata(external_model, tmp_
         checkpoint["configuration"]["covariate_preprocessing"] = "internal"
     elif corruption == "count":
         checkpoint["metadata"]["n_covariates"] = -1
-    elif corruption == "width":
-        checkpoint["metadata"]["covariate_feature_count"] = 68
-    elif corruption == "statistics":
-        checkpoint["metadata"]["covariate_center"] = [0.] * 34
     else:
         checkpoint["metadata"]["n_covariates"] = 33
-        checkpoint["metadata"]["covariate_feature_count"] = 33
     torch.save(checkpoint, path)
     with pytest.raises(ValueError, match="covariate"):
         ContextualGaussianNeuralBaseline.load(path)
 
 
-def test_old_internal_checkpoint_without_mode_or_width_remains_compatible(synthetic_data, tmp_path):
-    reports, days, features = synthetic_data
-    raw = features[:, :2].copy()
-    raw[0, 1] = np.nan
-    model = ContextualGaussianNeuralBaseline(**SETTINGS).fit(reports, days, origins=[0, 30], covariates=raw)
-    path = tmp_path / "legacy.pt"
-    model.save(path)
-    checkpoint = torch.load(path, weights_only=True)
-    del checkpoint["configuration"]["covariate_preprocessing"]
-    del checkpoint["metadata"]["covariate_feature_count"]
-    torch.save(checkpoint, path)
-    restored = ContextualGaussianNeuralBaseline.load(path)
-    assert restored.covariate_preprocessing == "internal"
-    assert restored.n_covariates_ == 2 and restored.covariate_feature_count_ == 4
-    np.testing.assert_array_equal(
-        model.predict_samples(reports[:2], 0, 17, np.random.default_rng(1), raw[:2]),
-        restored.predict_samples(reports[:2], 0, 17, np.random.default_rng(1), raw[:2]))
-
-
 def test_invalid_covariate_preprocessing_mode_is_explicit():
-    with pytest.raises(ValueError, match="covariate_preprocessing"):
-        ContextualGaussianNeuralBaseline(covariate_preprocessing="refit_at_prediction")
+    for options in (dict(covariate_preprocessing="internal"), dict(history_rate_features="none")):
+        with pytest.raises(ValueError, match="last_interval history features and external covariates"):
+            ContextualGaussianNeuralBaseline(**options)

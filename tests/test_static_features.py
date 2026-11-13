@@ -51,7 +51,7 @@ def test_frozen_train_transform_and_raw_records_are_unmodified_by_query_values()
     training = records()
     original = deepcopy(training)
     preprocessing = StaticFeaturePreprocessor.fit(training)
-    metadata = preprocessing.to_dict()
+    fitted = (preprocessing.center, preprocessing.scale, preprocessing.finite_counts)
     query = records((1e9, -1e9), "validation")
     first = preprocessing.transform(query)
     query[0]["reports"] = [[-1e100] * 3 for _ in range(8)]
@@ -60,7 +60,7 @@ def test_frozen_train_transform_and_raw_records_are_unmodified_by_query_values()
     query[0]["api_text"] = "unknown"
     second = preprocessing.transform(query)
     np.testing.assert_array_equal(first, second)
-    assert preprocessing.to_dict() == metadata
+    assert (preprocessing.center, preprocessing.scale, preprocessing.finite_counts) == fitted
     assert training == original
     np.testing.assert_allclose(preprocessing.center, 2.0)
     np.testing.assert_allclose(preprocessing.scale, np.std([1, 2, 4], ddof=0))
@@ -136,23 +136,13 @@ def test_absent_feature_does_not_silently_become_missing():
         StaticFeaturePreprocessor.fit(training)
 
 
-def test_json_roundtrip_has_ordered_training_hash_and_rejects_schema_changes():
+def test_training_hash_records_ordered_row_ids():
     training = records()
     preprocessing = StaticFeaturePreprocessor.fit(training)
-    metadata = json.loads(json.dumps(preprocessing.to_dict(), allow_nan=False))
-    restored = StaticFeaturePreprocessor.from_dict(metadata)
     expected_hash = hashlib.sha256((json.dumps([row["row_id"] for row in training],
                                               separators=(",", ":")) + "\n").encode()).hexdigest()
-    assert metadata["training_row_sha256"] == expected_hash
+    assert preprocessing.training_row_sha256 == expected_hash
     assert StaticFeaturePreprocessor.fit(training[::-1]).training_row_sha256 != expected_hash
-    np.testing.assert_array_equal(preprocessing.transform(training), restored.transform(training))
-    for key, value in [("feature_names", list(reversed(STATIC_FEATURE_NAMES))),
-                       ("scale", [0] * 17), ("fit_split", "test"),
-                       ("finite_counts", [4] * 17), ("training_row_sha256", "unknown")]:
-        changed = deepcopy(metadata)
-        changed[key] = value
-        with pytest.raises(ValueError):
-            StaticFeaturePreprocessor.from_dict(changed)
 
 
 def test_transform_rejects_overflow_even_if_raw_values_are_finite():

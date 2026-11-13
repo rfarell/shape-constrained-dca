@@ -6,14 +6,54 @@ import torch
 
 from joint_production.depletion_bayes import (
     DECAY_TIMES_DAYS, GAS, LATENT_DIM, PEAK, PEAK_MAX_DAYS, WATER, DepletionBayesForecaster,
-    DepletionBayesModel, DepletionRate, accumulated_log_likelihood, bernstein,
-    gaussian_log_prob_precision, gaussian_log_prob_tril,
+    DepletionBayesModel, DepletionRate, bernstein, gaussian_log_prob_precision, gaussian_log_prob_tril,
+    interval_ou_covariance,
 )
 from joint_production.depletion_bayes import NOISE, RATE_DIM, sample_bridge_reports
-from joint_production.observation import gaussian_endpoint_log_likelihood
+from observation_reference import gaussian_endpoint_log_likelihood
 from joint_production.torch_observation import sample_accumulated_reports
 
 DAYS = np.array([0, 30, 60, 90, 180, 360, 720, 1080], dtype=float)
+LOG_2PI = math.log(2 * math.pi)
+
+
+def accumulated_log_likelihood(reports, cumulative, noise_abs, noise_rel, mask, days):
+    """Reference masked accumulated-Gaussian log likelihood [N, S] (successive observed endpoints)."""
+    n, s, t, _ = cumulative.shape
+    if noise_abs.ndim == 2:
+        a2, r = noise_abs.square()[:, None, :], noise_rel[:, None, :]
+    else:
+        a2, r = noise_abs.square(), noise_rel
+    safe_reports = torch.where(mask, reports, torch.zeros_like(reports))
+    prev_q = cumulative.new_zeros((n, s, 3))
+    prev_err = cumulative.new_zeros((n, s, 3))
+    prev_t = cumulative.new_zeros((n, 1, 3))
+    total = cumulative.new_zeros((n, s, 3))
+    for j in range(t):
+        if float(days[j]) <= 0:
+            continue
+        q = cumulative[:, :, j]
+        err = safe_reports[:, None, j] - q
+        include = mask[:, None, j]
+        var = a2 * ((days[j] - prev_t) / 360) + (r * (q - prev_q)) * (r * q + r * prev_q)
+        safe_var = torch.where(include, var.clamp_min(1e-30), torch.ones_like(var))
+        innovation = torch.where(include, err - prev_err, torch.zeros_like(err))
+        log_p = -0.5 * (LOG_2PI + safe_var.log() + innovation.square() / safe_var)
+        total = total + torch.where(include, log_p, torch.zeros_like(log_p))
+        prev_q = torch.where(include, q, prev_q)
+        prev_err = torch.where(include, err, prev_err)
+        prev_t = torch.where(include, days[j].expand_as(prev_t), prev_t)
+    return total.sum(-1)
+
+
+def ou_covariance(cumulative_fn, z, days, a, r, sigma, tau):
+    """Interval-OU persistent term plus accumulated Brownian reporting noise [..., 3, T', T']."""
+    positive = days > 0
+    q = cumulative_fn(z, days)
+    v = a[..., None, :].square() * (days[:, None] / 360) + (r[..., None, :] * q).square()
+    v = v[..., positive, :].transpose(-1, -2)
+    index = torch.arange(int(positive.sum()))
+    return interval_ou_covariance(q, days, sigma, tau) + v[..., torch.minimum(index[:, None], index[None, :])]
 
 
 def random_latents(count=256, seed=0, spread=1.5):
@@ -68,20 +108,26 @@ def test_cumulative_is_zero_at_origin_and_nondecreasing_with_positive_rates():
     assert torch.all(rate.rate(z, t) >= 0)
 
 
+def ratios(law, z, t):
+    """Normalized instantaneous gas/oil and water/oil ratios [..., T, 2] (WOR includes flowback)."""
+    rates = law.rate(z, t)
+    return torch.stack((rates[..., 1] / rates[..., 0], rates[..., 2] / rates[..., 0]), dim=-1)
+
+
 def test_phase_ratios_are_bounded_by_bernstein_coefficients_and_define_rates():
     rate = DepletionRate()
     z = random_latents(128, seed=3)
     t = torch.linspace(0, 3000, 301, dtype=torch.float64)
-    ratios = rate.ratios(z, t)
+    phase_ratios = ratios(rate, z, t)
     rates = rate.rate(z, t)
     coefficients = z[:, GAS].exp()
     low, high = coefficients.min(-1).values[:, None], coefficients.max(-1).values[:, None]
-    assert torch.all(ratios[..., 0] >= low * (1 - 1e-12))
-    assert torch.all(ratios[..., 0] <= high * (1 + 1e-12))
+    assert torch.all(phase_ratios[..., 0] >= low * (1 - 1e-12))
+    assert torch.all(phase_ratios[..., 0] <= high * (1 + 1e-12))
     water_floor = z[:, WATER].exp().min(-1).values[:, None]
-    assert torch.all(ratios[..., 1] >= water_floor * (1 - 1e-12))  # flowback only adds water
+    assert torch.all(phase_ratios[..., 1] >= water_floor * (1 - 1e-12))  # flowback only adds water
     for column in (0, 1):
-        assert torch.allclose(rates[..., column + 1], ratios[..., column] * rates[..., 0])
+        assert torch.allclose(rates[..., column + 1], phase_ratios[..., column] * rates[..., 0])
 
 
 def test_ratio_reparameterization_permits_rising_gas_while_oil_declines():
@@ -120,10 +166,9 @@ def test_likelihood_matches_reference_accumulated_law_under_masks():
     assert torch.allclose(ours, reference, rtol=1e-10, atol=1e-8)
 
 
-def _model(covariates=3, components=1):
+def _model(covariates=3):
     torch.manual_seed(0)
-    return DepletionBayesModel(covariates, DAYS, [1e5, 1.5e5, 4e4], prior_scale="contextual",
-                               components=components)
+    return DepletionBayesModel(covariates, DAYS, [1e5, 1.5e5, 4e4])
 
 
 def _pseudo_likelihood(model, context):
@@ -134,9 +179,8 @@ def _pseudo_likelihood(model, context):
     return out[:, :d], torch.diag_embed(diag) + factor @ factor.transpose(-1, -2)
 
 
-@pytest.mark.parametrize("components", [1, 3])
-def test_empty_history_posterior_equals_prior_exactly_and_data_only_adds_precision(components):
-    model = _model(components=components)
+def test_empty_history_posterior_equals_prior_exactly_and_data_only_adds_precision():
+    model = _model()
     x = torch.randn(5, 3)
     context = torch.randn(5, model.context_dim)
     with torch.no_grad():
@@ -153,9 +197,8 @@ def test_empty_history_posterior_equals_prior_exactly_and_data_only_adds_precisi
     assert torch.all(gain >= -1e-7)
 
 
-@pytest.mark.parametrize("components", [1, 4])
-def test_mixture_posterior_is_prior_times_pseudo_likelihood(components):
-    model = _model(components=components)
+def test_posterior_is_prior_times_pseudo_likelihood():
+    model = _model()
     x = torch.randn(3, 3)
     context = torch.randn(3, model.context_dim)
     with torch.no_grad():
@@ -204,8 +247,7 @@ def _synthetic(n=96, seed=0):
 
 def test_fit_and_prediction_reproduce_history_and_respect_cutoff():
     reports, x = _synthetic()
-    forecaster = DepletionBayesForecaster(epochs=3, batch_size=32, proposals=256, log_every=0, seed=3,
-                                          components=3)
+    forecaster = DepletionBayesForecaster(epochs=3, batch_size=32, proposals=256, log_every=0, seed=3)
     forecaster.fit(reports, DAYS, covariates=x)
     history = reports[:8].copy()
     history[:, DAYS > 90] = np.nan
@@ -270,7 +312,7 @@ def test_well_noise_multiplier_scales_likelihood_noise():
 
 
 def test_ou_likelihood_reduces_to_accumulated_law_without_persistent_deviation():
-    from joint_production.depletion_bayes import discrepancy_covariance, gaussian_discrepancy_log_likelihood
+    from joint_production.depletion_bayes import gaussian_discrepancy_log_likelihood
     rate = DepletionRate()
     z = random_latents(4, seed=21)[:, None].expand(4, 3, LATENT_DIM).clone()
     days = torch.as_tensor(DAYS)
@@ -281,22 +323,22 @@ def test_ou_likelihood_reduces_to_accumulated_law_without_persistent_deviation()
     mask = (torch.rand(reports.shape, generator=generator) > 0.3) & (days > 0)[None, :, None]
     a = torch.full((4, 3, 3), 0.02, dtype=torch.float64)
     r = torch.full((4, 3, 3), 0.05, dtype=torch.float64)
-    cov = discrepancy_covariance(rate.cumulative, z, days, a, r, torch.full((4, 3, 3), 1e-9, dtype=torch.float64),
-                                 torch.full((3,), 120.0, dtype=torch.float64))
+    cov = ou_covariance(rate.cumulative, z, days, a, r, torch.full((4, 3, 3), 1e-9, dtype=torch.float64),
+                        torch.full((3,), 120.0, dtype=torch.float64))
     ours = gaussian_discrepancy_log_likelihood(reports, q, cov, mask, days)
     reference = accumulated_log_likelihood(reports, q, a, r, mask, days)
     assert torch.allclose(ours, reference, rtol=1e-8, atol=1e-6)
 
 
 def test_matheron_sampler_conditions_exactly():
-    from joint_production.depletion_bayes import discrepancy_covariance, sample_gaussian_discrepancy_reports
+    from joint_production.depletion_bayes import sample_gaussian_discrepancy_reports
     rate = DepletionRate()
     days = torch.as_tensor(DAYS)
     z = random_latents(1, seed=22)[:, None].expand(1, 20000, LATENT_DIM).clone()
     q = rate.cumulative(z, days)
     sigma = torch.full((1, 20000, 3), 0.2, dtype=torch.float64)
     a = torch.full((1, 20000, 3), 0.02, dtype=torch.float64)
-    cov = discrepancy_covariance(rate.cumulative, z, days, a, 0.5 * a, sigma, torch.full((3,), 200.0, dtype=torch.float64))
+    cov = ou_covariance(rate.cumulative, z, days, a, 0.5 * a, sigma, torch.full((3,), 200.0, dtype=torch.float64))
     history = q[:, 0].clone() * 1.1
     history[:, 2] = float("nan")  # hidden day-60 report
     draws = sample_gaussian_discrepancy_reports(q, history, days, cov, cutoff=180.0,
@@ -335,12 +377,11 @@ def test_gaussian_mixture_crps_matches_monte_carlo():
 
 
 def test_brownian_covariance_shortcut_matches_general_form():
-    from joint_production.depletion_bayes import discrepancy_covariance
     model = _model()
     z = random_latents(3, seed=31)[:, None].expand(3, 4, LATENT_DIM).clone()
     a, r = model.noise_for(z)
-    general = discrepancy_covariance(model.rate.cumulative, z, torch.as_tensor(DAYS), a, r,
-                                     torch.zeros_like(a), torch.ones(3, dtype=torch.float64))
+    general = ou_covariance(model.rate.cumulative, z, torch.as_tensor(DAYS), a, r,
+                            torch.zeros_like(a), torch.ones(3, dtype=torch.float64))
     assert torch.allclose(model.covariance(z), general, rtol=1e-12, atol=1e-14)
 
 
@@ -362,14 +403,14 @@ def test_brownian_future_moments_match_general_conditioning():
 
 
 def test_float32_ou_conditioning_is_close_to_float64():
-    from joint_production.depletion_bayes import conditional_report_moments, discrepancy_covariance
+    from joint_production.depletion_bayes import conditional_report_moments
     model = _model()
     days = torch.as_tensor(DAYS)
     z = random_latents(4, seed=51)[:, None].expand(4, 6, LATENT_DIM).clone()
     q = model.cumulative(z)
     a, r = model.noise_for(z)
-    cov = discrepancy_covariance(model.rate.cumulative, z, days, a, r, torch.full_like(a, 0.12),
-                                 torch.full((3,), 100.0, dtype=torch.float64))
+    cov = ou_covariance(model.rate.cumulative, z, days, a, r, torch.full_like(a, 0.12),
+                        torch.full((3,), 100.0, dtype=torch.float64))
     reports = q[:, 0] * 1.05
     known = (days <= 180)[None, :, None].expand_as(reports) & (days > 0)[None, :, None]
     m64, v64 = conditional_report_moments(cov, q, reports, known, days)
@@ -380,14 +421,14 @@ def test_float32_ou_conditioning_is_close_to_float64():
 
 
 def test_fast_ou_likelihood_close_to_exact():
-    from joint_production.depletion_bayes import discrepancy_covariance, gaussian_discrepancy_log_likelihood
+    from joint_production.depletion_bayes import gaussian_discrepancy_log_likelihood
     model = _model()
     days = torch.as_tensor(DAYS)
     z = random_latents(5, seed=61)[:, None].expand(5, 4, LATENT_DIM).clone()
     q = model.cumulative(z)
     a, r = model.noise_for(z)
-    cov = discrepancy_covariance(model.rate.cumulative, z, days, a, r, torch.full_like(a, 0.12),
-                                 torch.full((3,), 100.0, dtype=torch.float64))
+    cov = ou_covariance(model.rate.cumulative, z, days, a, r, torch.full_like(a, 0.12),
+                        torch.full((3,), 100.0, dtype=torch.float64))
     reports = q[:, 0] * 1.03
     mask = (days > 0)[None, :, None].expand_as(reports)
     exact = gaussian_discrepancy_log_likelihood(reports, q, cov, mask, days)
@@ -470,7 +511,7 @@ def test_time_indexed_ratio_ablation_integrates_its_rate_and_has_finite_totals()
     law = DepletionRate(ratio_index="time")
     z2 = z.clone()
     z2[:, :8] += 1.0  # different deliverability, same ratio coefficients
-    assert torch.allclose(law.ratios(z, t[1::500])[..., 0], law.ratios(z2, t[1::500])[..., 0])
+    assert torch.allclose(ratios(law, z, t[1::500])[..., 0], ratios(law, z2, t[1::500])[..., 0])
 
 
 def test_interval_ou_kernel_matches_numerical_double_integral_and_is_positive_definite():
@@ -568,25 +609,3 @@ def test_lognormal_law_fits_and_forecasts_nonnegative_volumes():
     known = np.isfinite(history) & ((DAYS <= 90) & (DAYS > 0))[None, :, None]
     full = np.broadcast_to(known[:, None], draws.shape)
     assert np.array_equal(draws[full], np.broadcast_to(history[:, None], draws.shape)[full])
-
-
-def test_depletion_penalized_oil_declines_has_finite_eur_and_integrates():
-    from joint_production.depletion_bayes import DepletionRate, LATENT_DIM, PEAK_MAX_DAYS
-    g = torch.Generator().manual_seed(8)
-    z = 0.7 * torch.randn((16, LATENT_DIM + 1), generator=g, dtype=torch.float64)
-    law = DepletionRate(oil_penalty=True)
-    t = torch.linspace(0.0, 6000.0, 60001, dtype=torch.float64)
-    rate, cumulative = law.rate(z, t), law.cumulative(z, t)
-    probe = torch.tensor([3.3, 47.0, 151.0, 400.0, 1500.0, 5000.0], dtype=torch.float64)  # away from the ramp kink
-    h = 1e-4
-    derivative = (law.cumulative(z, probe + h) - law.cumulative(z, probe - h)) / (2 * h)
-    assert torch.allclose(derivative, law.rate(z, probe), rtol=1e-6, atol=1e-10)  # rates integrate to cumulatives
-    after = t >= PEAK_MAX_DAYS
-    assert torch.all(torch.diff(rate[:, after, 0], dim=1) <= 1e-12)  # oil never rises after the ramp
-    far = law.cumulative(z, torch.tensor([1e8], dtype=torch.float64))[:, 0]
-    assert torch.allclose(law.total_volume(z), far, rtol=1e-6) and torch.all(torch.isfinite(law.total_volume(z)))
-    # Large A recovers the completely monotone law exactly in the limit.
-    big = z.clone()
-    big[:, -1] = 40.0
-    plain = DepletionRate()
-    assert torch.allclose(law.cumulative(big, t[::1000]), plain.cumulative(big[:, :-1], t[::1000]), rtol=1e-9)

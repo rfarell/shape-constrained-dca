@@ -7,7 +7,6 @@ import numpy as np
 from scipy.integrate import quad
 import torch
 
-from joint_production.dca import DCATrajectorySamples
 from joint_production.dca_rates import DCARate
 
 
@@ -21,18 +20,6 @@ class TestDCARate(unittest.TestCase):
         parameters[..., 2] = np.exp(rng.normal(-0.3, 0.8, (2, 4, 3)))
         self.parameters = parameters
         self.z = torch.tensor(np.log(parameters).reshape((2, 4, 9)), dtype=torch.float64)
-
-    def test_agrees_with_native_day_numpy_dca_and_units(self):
-        times = [0., 1e-6, 30., 60., 180., 360., 720., 1080., 1493., 10000.]
-        numpy_paths = DCATrajectorySamples(self.parameters)
-        np.testing.assert_allclose(self.family.cumulative(self.z, times).numpy(), numpy_paths.cumulative(times), rtol=2e-12, atol=1e-13)
-        np.testing.assert_allclose(self.family.rate(self.z, times).numpy(), numpy_paths.rates(times), rtol=2e-12, atol=1e-13)
-        np.testing.assert_allclose(self.family.total_volume(self.z).numpy(), numpy_paths.ultimate(), rtol=2e-12, atol=1e-13)
-        # Native phase scales multiply both integrated volumes and daily rates.
-        scale = np.array([10000., 30000., 5000.])
-        native = self.parameters.copy()
-        native[..., 0] *= scale
-        np.testing.assert_allclose(self.family.cumulative(self.z, times).numpy() * scale, DCATrajectorySamples(native).cumulative(times), rtol=2e-12)
 
     def test_independent_quadrature_and_p_one_limit(self):
         for p in (0.02, 0.999999999, 1.0, 1.000000001, 2.5, 30.0):

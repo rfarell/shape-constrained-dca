@@ -2,8 +2,8 @@
 
 Synthetic wells use real holdout ATTRIBUTES only (no production outcomes):
 z* ~ p(z | x), latent Q* = Q(z*), reports Y* from the fitted accumulated
-Gaussian law. For each origin, the issued inference (amortized Gaussian with
-or without importance reweighting) is applied to Y* through the origin. If
+Gaussian law. For each origin, the issued inference (amortized Gaussian
+with importance reweighting) is applied to Y* through the origin. If
 inference is correct, normalized ranks of z* and of future reports among the
 posterior/predictive draws are uniform, interval coverage is nominal, and
 posterior spread contracts in expectation as history grows.
@@ -46,13 +46,10 @@ def main(argv=None):
     parser.add_argument("--draws", type=int, default=256)
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--seed", type=int, default=7)
-    parser.add_argument("--no-importance", action="store_true")
     parser.add_argument("--proposals", type=int, default=0)
     args = parser.parse_args(argv)
     data = load_internal()
     forecaster = DepletionBayesForecaster.load(args.model, device=args.device)
-    if args.no_importance:
-        forecaster.config["importance"] = False
     if args.proposals:
         forecaster.config["proposals"] = args.proposals
     model = forecaster.model
@@ -116,8 +113,8 @@ def main(argv=None):
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
     critical = 1.36 / np.sqrt(len(pick))
-    write_json(output / ("sbc_no_is.json" if args.no_importance else "sbc.json"), _json_ready(dict(
-        model=str(args.model), wells=len(pick), draws=args.draws, importance=not args.no_importance,
+    write_json(output / "sbc.json", _json_ready(dict(
+        model=str(args.model), wells=len(pick), draws=args.draws, importance=True,
         ks_critical_95=float(critical), by_origin=summary,
         interpretation="Synthetic wells from the fitted prior and report law; uniform ranks and nominal coverage test inference, not model fit to field data.")),
         exclusive=False)

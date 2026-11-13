@@ -1,7 +1,7 @@
-"""Write the ensemble-diversity sweep plan (plan.tsv) used in development.
+"""Write the ensemble-diversity sweep plan (plan.tsv) reported in the supplement.
 
-The sweeps compare ways of diversifying the five ensemble members on the TRAIN-internal
-holdout; sweep 1 selected prior-network width diversity ("arch"). Each variant is a list
+The sweep compares ways of diversifying the five ensemble members on the TRAIN-internal
+holdout and selected prior-network width diversity ("arch"). Each variant is a list
 of extra --set overrides applied to five members (seeds 42-46) on top of a base
 configuration; a variant may instead give per-seed overrides. One plan line per member:
 name<TAB>output_dir<TAB>depletion_dev arguments.
@@ -28,26 +28,10 @@ SWEEPS = {
         "base": [],
         "boot": ["bootstrap=true"],
         "rp03": ["random_prior_scale=0.3"],
-        "rp10": ["random_prior_scale=1.0"],
         "fb60": ["feature_keep=0.6"],
         "arch": {42: ["prior_width=32"], 43: ["prior_width=64"], 44: ["prior_width=128"], 45: ["prior_width=256"], 46: ["prior_width=512"]},
         "cap": ["prior_width=256", "prior_weight_decay=0.0001"],
         "combo": ["bootstrap=true", "random_prior_scale=0.3", "feature_keep=0.75"],
-    },
-    # Sweep 2: build on prior-width diversity (arch), the sweep-1 winner on the internal holdout.
-    "sweep2": {
-        "arch2": {47: ["prior_width=32"], 48: ["prior_width=64"], 49: ["prior_width=128"], 50: ["prior_width=256"], 51: ["prior_width=512"]},
-        "archwd": {42: ["prior_width=32", "prior_weight_decay=0.0001"], 43: ["prior_width=64", "prior_weight_decay=0.0001"],
-                   44: ["prior_width=128", "prior_weight_decay=0.0001"], 45: ["prior_width=256", "prior_weight_decay=0.0001"],
-                   46: ["prior_width=512", "prior_weight_decay=0.0001"]},
-        "archwide": {42: ["prior_width=64"], 43: ["prior_width=128"], 44: ["prior_width=256"], 45: ["prior_width=512"], 46: ["prior_width=1024"]},
-        "archboot": {42: ["prior_width=32", "bootstrap=true"], 43: ["prior_width=64", "bootstrap=true"], 44: ["prior_width=128", "bootstrap=true"],
-                     45: ["prior_width=256", "bootstrap=true"], 46: ["prior_width=512", "bootstrap=true"]},
-        "archrp": {42: ["prior_width=32", "random_prior_scale=0.3"], 43: ["prior_width=64", "random_prior_scale=0.3"],
-                   44: ["prior_width=128", "random_prior_scale=0.3"], 45: ["prior_width=256", "random_prior_scale=0.3"],
-                   46: ["prior_width=512", "random_prior_scale=0.3"]},
-        "archenc": {42: ["prior_width=32", "width=128"], 43: ["prior_width=64", "width=192"], 44: ["prior_width=128", "width=256"],
-                    45: ["prior_width=256", "width=384"], 46: ["prior_width=512", "width=512"]},
     },
 }
 

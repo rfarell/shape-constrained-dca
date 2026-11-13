@@ -14,7 +14,7 @@ import torch
 from joint_production.conditional_rates import ConditionalRateForecaster, INTERPRETATION, _u_scores
 from joint_production.history_features import last_interval_rate_features
 from joint_production.metrics import fit_increment_scales
-from joint_production.observation import sample_gaussian_reports
+from observation_reference import sample_gaussian_reports
 from joint_production.torch_observation import sample_accumulated_reports
 
 
@@ -156,21 +156,6 @@ class TestConditionalRateForecaster(unittest.TestCase):
             for key in ("latent_parameters","latent_cumulative","latent_rate","latent_total_volume","report_cumulative"):
                 np.testing.assert_array_equal(original[key],copied[key])
 
-    def test_basis_query_derivatives_use_same_draws_and_native_units(self):
-        model = self.models["basis"]
-        z = model.predict_distribution(self.reports[:2], 60, 12, np.random.default_rng(6))["latent_parameters"]
-        times = [0., 90., 135., 1080.]
-        original = model.evaluate_trajectories(z, times)
-        extended = model.evaluate_trajectories(z, times, include_rate_derivatives=True)
-        for key, value in original.items():
-            np.testing.assert_array_equal(value, extended[key])
-        scale = model.volume_scale.cpu().numpy()
-        for order, key in ((1, "latent_rate_derivative"), (2, "latent_rate_second_derivative")):
-            expected = model.rate_model.rate_derivative(torch.tensor(z), times, order=order).numpy() * scale
-            np.testing.assert_array_equal(extended[key], expected)
-        with self.assertRaises(NotImplementedError):
-            self.models["dca"].evaluate_trajectories(np.zeros((1, 9)), times, include_rate_derivatives=True)
-
     def test_training_and_prediction_bridge_agree_with_independent_numpy_reference(self):
         model=self.models["basis"]
         history=self.reports[:1].copy();history[:,DAYS>90]=np.nan;history[:,1:4,1]=np.nan
@@ -189,21 +174,13 @@ class TestConditionalRateForecaster(unittest.TestCase):
         np.testing.assert_allclose(x.mean(0),y.mean(0),atol=.006)
         np.testing.assert_allclose(np.cov(x.T),np.cov(y.T),atol=.001,rtol=.12)
 
-    def test_history_diagnostics_expose_bad_latent_history_despite_exact_reports(self):
-        model=self.models["basis"]
-        history=self.reports[:1].copy();history[:,DAYS>60]=np.nan
-        q=np.zeros((1,5,8,3))
-        diagnostic=model._history_discrepancies(history,q)
-        self.assertGreater(diagnostic["historical_latent_rmse_scaled_by_phase"][0][0],0)
-        self.assertGreater(diagnostic["historical_abs_standardized_innovation_median_by_phase"][0][0],0)
-        self.assertIn("not a likelihood penalty",diagnostic["diagnostic_scope"])
-
     def test_gradients_reach_location_cholesky_and_both_discrepancy_parameters(self):
         model=self.models["basis"]
         y=torch.tensor(self.reports[:4]/model.volume_scale.cpu().numpy(),dtype=torch.float32)
         days=torch.tensor(DAYS,dtype=torch.float32)
         observed=torch.isfinite(y)&(days<=90)[None,:,None]
-        mean,lower=model.network(model._context(y,observed,days,90))
+        native=torch.tensor(self.reports[:4],dtype=torch.float64)
+        mean,lower=model.network(model._encoder_context(y,observed,days,90,native_reports=native))
         mean.retain_grad();lower.retain_grad()
         epsilon=torch.randn((4,8,12),generator=torch.Generator().manual_seed(123))
         q=model.rate_model.cumulative(mean[:,None]+torch.einsum("nij,nsj->nsi",lower,epsilon),days)
@@ -244,68 +221,32 @@ class TestConditionalRateHistoryFeatures(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.reports = synthetic_reports(8)
-        cls.models, cls.random_draws, cls.feature_calls = {}, {}, {}
-        original_randn = torch.randn
-        for mode in ("none", "zero", "last_interval"):
-            draws, calls = [], []
+        calls = []
 
-            def record_draw(*args, **kwargs):
-                result = original_randn(*args, **kwargs)
-                draws.append(result.clone())
-                return result
+        def record_features(*args, **kwargs):
+            calls.append((args[0].clone(), args[1].clone(), args[3]))
+            return last_interval_rate_features(*args, **kwargs)
 
-            def record_features(*args, **kwargs):
-                calls.append((args[0].clone(), args[1].clone(), args[3]))
-                return last_interval_rate_features(*args, **kwargs)
-
-            with patch("joint_production.conditional_rates.torch.randn", side_effect=record_draw), \
-                    patch("joint_production.conditional_rates.last_interval_rate_features", side_effect=record_features):
-                model = ConditionalRateForecaster(epochs=1, hidden_width=8, batch_size=4,
-                    train_samples=3, log_every=0, seed=19, history_dropout=.4, phase_dropout=.3,
-                    history_rate_features=mode).fit(cls.reports, DAYS, origins=[60, 90])
-            cls.models[mode], cls.random_draws[mode], cls.feature_calls[mode] = model, draws, calls
-
-    def test_matched_controls_have_identical_initial_parameters_and_random_schedules(self):
-        zero, features = self.models["zero"], self.models["last_interval"]
-        self.assertEqual(zero.fit_diagnostics_["initial_parameter_sha256"],
-                         features.fit_diagnostics_["initial_parameter_sha256"])
-        self.assertEqual(zero.network.hidden[0].in_features, features.network.hidden[0].in_features)
-        self.assertEqual(zero.network.hidden[0].in_features, self.models["none"].network.hidden[0].in_features+6)
-        for model in self.models.values():
-            self.assertEqual(model.fit_diagnostics_["context_mask_sha256_by_epoch"],
-                             zero.fit_diagnostics_["context_mask_sha256_by_epoch"])
-        self.assertEqual(len(self.random_draws["zero"]), len(self.random_draws["last_interval"]))
-        for left, right in zip(self.random_draws["zero"], self.random_draws["last_interval"]):
-            torch.testing.assert_close(left, right, rtol=0, atol=0)
-        # Confirm actual tensors, not only matching hashes of their metadata.
-        initial_models = []
-        for mode in ("zero", "last_interval"):
-            model = ConditionalRateForecaster(hidden_width=8, seed=19, history_rate_features=mode)
-            model._initialize(DAYS, np.ones(3), np.ones((2, 3)))
-            initial_models.append(model)
-        for (name, left), (other, right) in zip(initial_models[0].named_parameters(), initial_models[1].named_parameters()):
-            self.assertEqual(name, other)
-            torch.testing.assert_close(left, right, rtol=0, atol=0)
+        with patch("joint_production.conditional_rates.last_interval_rate_features", side_effect=record_features):
+            cls.model = ConditionalRateForecaster(epochs=1, hidden_width=8, batch_size=4,
+                train_samples=3, log_every=0, seed=19, history_dropout=.4,
+                phase_dropout=.3).fit(cls.reports, DAYS, origins=[60, 90])
+        cls.feature_calls = calls
 
     def test_training_features_receive_native_values_and_actual_dropout_masks(self):
-        self.assertFalse(self.feature_calls["none"])
-        for mode in ("zero", "last_interval"):
-            dropout_seen = False
-            for native, observed, cutoff in self.feature_calls[mode]:
-                self.assertEqual(native.dtype, torch.float64)
-                self.assertFalse(observed[:, DAYS > cutoff].any())
-                self.assertTrue(observed[:, 0].all())
-                dropout_seen |= bool((~observed[:, (DAYS > 0) & (DAYS <= cutoff)]).any())
-                for row in native.numpy():
-                    self.assertTrue(any(np.array_equal(row, source) for source in self.reports))
-            self.assertTrue(dropout_seen)
-        for left, right in zip(self.feature_calls["zero"], self.feature_calls["last_interval"]):
-            torch.testing.assert_close(left[0], right[0], rtol=0, atol=0)
-            self.assertTrue(torch.equal(left[1], right[1]))
-            self.assertEqual(left[2], right[2])
+        self.assertTrue(self.feature_calls)
+        dropout_seen = False
+        for native, observed, cutoff in self.feature_calls:
+            self.assertEqual(native.dtype, torch.float64)
+            self.assertFalse(observed[:, DAYS > cutoff].any())
+            self.assertTrue(observed[:, 0].all())
+            dropout_seen |= bool((~observed[:, (DAYS > 0) & (DAYS <= cutoff)]).any())
+            for row in native.numpy():
+                self.assertTrue(any(np.array_equal(row, source) for source in self.reports))
+        self.assertTrue(dropout_seen)
 
     def test_encoder_preserves_native_difference_and_recomputes_after_dropout(self):
-        model = ConditionalRateForecaster(history_rate_features="last_interval", hidden_width=8)
+        model = ConditionalRateForecaster(hidden_width=8)
         model._initialize(DAYS, np.full(3, 1e12), np.ones((1, 3)))
         native = torch.zeros((1, len(DAYS), 3), dtype=torch.float64)
         native[:, 1], native[:, 2] = 1e12, 1e12+1
@@ -323,47 +264,27 @@ class TestConditionalRateHistoryFeatures(unittest.TestCase):
         after = model._encoder_context(normalized, observed, model.report_days.float(), 60, native_reports=changed)
         torch.testing.assert_close(after[:, -6:-3], torch.asinh(torch.tensor(12.)).expand(1, 3))
 
-    def test_modes_checkpoint_and_future_value_invariance(self):
-        for mode, model in self.models.items():
-            history = self.reports[:2].copy()
-            changed = history.copy()
-            changed[:, DAYS > 60] = np.inf
-            first = model.predict_samples(history, 60, 3, np.random.default_rng(23))
-            second = model.predict_samples(changed, 60, 3, np.random.default_rng(23))
-            np.testing.assert_array_equal(first, second)
-            with TemporaryDirectory() as directory:
-                path = Path(directory)/"features.pt"
-                model.save(path)
-                restored = ConditionalRateForecaster.load(path)
-            self.assertEqual(restored.history_rate_features, mode)
-            self.assertEqual(restored.fit_diagnostics_, model.fit_diagnostics_)
-            copied = restored.predict_samples(history, 60, 3, np.random.default_rng(23))
-            np.testing.assert_array_equal(first, copied)
-
-    def test_legacy_checkpoint_without_mode_keeps_none_predictions(self):
-        model = self.models["none"]
+    def test_checkpoint_and_future_value_invariance(self):
+        model = self.model
+        history = self.reports[:2].copy()
+        changed = history.copy()
+        changed[:, DAYS > 60] = np.inf
+        first = model.predict_samples(history, 60, 3, np.random.default_rng(23))
+        second = model.predict_samples(changed, 60, 3, np.random.default_rng(23))
+        np.testing.assert_array_equal(first, second)
         with TemporaryDirectory() as directory:
-            path = Path(directory)/"legacy.pt"
+            path = Path(directory)/"features.pt"
             model.save(path)
-            checkpoint = torch.load(path, weights_only=True)
-            checkpoint["configuration"].pop("history_rate_features")
-            checkpoint["fit_diagnostics"].pop("history_rate_features")
-            checkpoint["fit_diagnostics"].pop("initial_parameter_sha256")
-            torch.save(checkpoint, path)
             restored = ConditionalRateForecaster.load(path)
-        self.assertEqual(restored.history_rate_features, "none")
-        original = model.predict_samples(self.reports[:1], 60, 3, np.random.default_rng(3))
-        copied = restored.predict_samples(self.reports[:1], 60, 3, np.random.default_rng(3))
-        np.testing.assert_array_equal(original, copied)
-        values = torch.ones((1, len(DAYS), 3))
-        observed = torch.ones_like(values, dtype=torch.bool)
-        days = torch.tensor(DAYS, dtype=torch.float32)
-        torch.testing.assert_close(restored._encoder_context(values, observed, days, 60),
-                                   restored._context(values, observed, days, 60), rtol=0, atol=0)
+        self.assertEqual(restored.fit_diagnostics_, model.fit_diagnostics_)
+        copied = restored.predict_samples(history, 60, 3, np.random.default_rng(23))
+        np.testing.assert_array_equal(first, copied)
 
-    def test_invalid_mode_rejected(self):
-        with self.assertRaisesRegex(ValueError, "history_rate_features"):
-            ConditionalRateForecaster(history_rate_features="latest")
+    def test_unsupported_options_rejected(self):
+        for options in (dict(history_rate_features="none"), dict(covariate_preprocessing="internal"),
+                        dict(basis_dictionary="slow"), dict(rate_family="arps")):
+            with self.assertRaises(ValueError):
+                ConditionalRateForecaster(**options)
 
 
 if __name__=="__main__":

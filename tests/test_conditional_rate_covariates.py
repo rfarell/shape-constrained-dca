@@ -35,7 +35,7 @@ def inputs():
 @pytest.fixture(scope="module", params=["basis", "dca"])
 def model(request, inputs):
     reports, features = inputs
-    return ConditionalRateForecaster(request.param, covariate_preprocessing="external", **SETTINGS).fit(
+    return ConditionalRateForecaster(request.param, **SETTINGS).fit(
         reports, DAYS, origins=[0, 30, 60], covariates=features)
 
 
@@ -45,7 +45,6 @@ def test_external_features_enter_context_unchanged_and_affect_full_curves(model,
     encoded = model._covariates(features, len(features), fit=False)
     np.testing.assert_array_equal(encoded, features.astype(np.float32))
     assert model.n_covariates_ == model.covariate_feature_count_ == 34
-    assert model.covariate_center_.size == model.covariate_scale_.size == 0
     assert model.network.hidden[0].in_features == 8*len(DAYS)+1+6+34
     history = np.full_like(reports[:2], np.nan)
     original = model.conditional_parameters(history, 0, features[:2])[0]
@@ -70,7 +69,6 @@ def test_attribute_only_draws_ignore_all_positive_day_reports(model, inputs):
     assert (a["latent_rate"] >= 0).all()
     assert (np.diff(a["latent_cumulative"], axis=2) >= 0).all()
     assert (a["latent_total_volume"] >= a["latent_cumulative"][:, :, -1]).all()
-    assert a["conditional_diagnostics"]["history_observed_counts_by_phase"] == [[0, 0, 0], [0, 0, 0]]
 
 
 def test_prefix_masking_keeps_native_history_and_same_sample_hidden_origin(model, inputs):
@@ -97,7 +95,7 @@ def test_prefix_masking_keeps_native_history_and_same_sample_hidden_origin(model
 
 def test_feature_and_zero_controls_share_scales_initialization_and_masks(model, inputs):
     reports, features = inputs
-    zero = ConditionalRateForecaster(model.rate_family, covariate_preprocessing="external", **SETTINGS).fit(
+    zero = ConditionalRateForecaster(model.rate_family, **SETTINGS).fit(
         reports, DAYS, origins=[0, 30, 60], covariates=np.zeros_like(features))
     for name in ("initial_parameter_sha256", "context_mask_sha256_by_epoch", "rng_seeds",
                  "increment_scales_native", "increment_observation_counts", "phase_scales_native"):
@@ -141,40 +139,18 @@ def test_external_training_features_fail_before_network_initialization(inputs, v
     reports, features = inputs
     invalid = features.copy()
     invalid[0, 0] = value
-    model = ConditionalRateForecaster(covariate_preprocessing="external", **SETTINGS)
+    model = ConditionalRateForecaster(**SETTINGS)
     with pytest.raises(ValueError, match="[Cc]ovariate"):
         model.fit(reports, DAYS, origins=[0, 30], covariates=invalid)
     assert model.network is None
 
 
-def test_internal_preprocessing_is_train_only_and_portable(inputs, tmp_path):
-    reports, _ = inputs
-    values = np.column_stack((np.arange(len(reports)), np.full(len(reports), np.nan)))
-    model = ConditionalRateForecaster(**SETTINGS).fit(reports, DAYS, origins=[0, 30], covariates=values)
-    np.testing.assert_array_equal(model.covariate_center_, [5.5, 0.])
-    np.testing.assert_array_equal(model.covariate_scale_, [np.std(np.arange(12)), 1.])
-    assert model.covariate_feature_count_ == 4
-    transformed = model._covariates(np.array([[100., np.nan]]), 1, fit=False)
-    np.testing.assert_allclose(transformed, [[(100-5.5)/np.std(np.arange(12)), 0, 1, 0]], rtol=1e-6)
-    center, scale = model.covariate_center_.copy(), model.covariate_scale_.copy()
-    path = tmp_path / "internal.pt"
-    model.save(path)
-    loaded = ConditionalRateForecaster.load(path)
-    a = model.predict_samples(reports[:2], 0, 5, np.random.default_rng(9), values[:2])
-    b = loaded.predict_samples(reports[:2], 0, 5, np.random.default_rng(9), values[:2])
-    np.testing.assert_array_equal(a, b)
-    np.testing.assert_array_equal(model.covariate_center_, center)
-    np.testing.assert_array_equal(model.covariate_scale_, scale)
-
-
-@pytest.mark.parametrize("mutation", ["missing_metadata", "wrong_width", "wrong_mode", "bad_scale"])
+@pytest.mark.parametrize("mutation", ["wrong_width", "wrong_mode", "bad_scale"])
 def test_corrupt_checkpoint_cannot_silently_change_feature_encoding(model, tmp_path, mutation):
     path = tmp_path / "bad.pt"
     model.save(path)
     state = torch.load(path, weights_only=True)
-    if mutation == "missing_metadata":
-        state.pop("covariate_metadata")
-    elif mutation == "wrong_width":
+    if mutation == "wrong_width":
         state["covariate_metadata"]["feature_count"] += 1
     elif mutation == "wrong_mode":
         state["configuration"]["covariate_preprocessing"] = "internal"
@@ -183,25 +159,3 @@ def test_corrupt_checkpoint_cannot_silently_change_feature_encoding(model, tmp_p
     torch.save(state, path)
     with pytest.raises(ValueError, match="covariate"):
         ConditionalRateForecaster.load(path)
-
-
-def test_two_component_model_uses_available_covariates_without_changing_path_scope(inputs, tmp_path):
-    reports, features = inputs
-    model = ConditionalRateForecaster(mixture_mode="two", covariate_preprocessing="external", **SETTINGS).fit(
-        reports, DAYS, origins=[0, 30], covariates=features)
-    means, lower, weights = model.conditional_mixture_parameters(reports[:2], 0, features[:2])
-    assert means.shape == (2, 2, 12) and lower.shape == (2, 12, 12) and weights.shape == (2, 2)
-    result = model.predict_distribution(reports[:2], 0, 12, np.random.default_rng(12), features[:2])
-    assert result["mixture_component"].shape == (2, 12)
-    assert result["component_scope"] == "one_component_for_entire_joint_latent_trajectory"
-    path = tmp_path / "mixture.pt"
-    model.save(path)
-    loaded = ConditionalRateForecaster.load(path)
-    repeated = loaded.predict_distribution(reports[:2], 0, 12, np.random.default_rng(12), features[:2])
-    for key in ("latent_parameters", "report_cumulative", "mixture_component"):
-        np.testing.assert_array_equal(result[key], repeated[key])
-
-
-def test_invalid_preprocessing_mode_fails():
-    with pytest.raises(ValueError, match="covariate_preprocessing"):
-        ConditionalRateForecaster(covariate_preprocessing="unrecognized")

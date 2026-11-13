@@ -172,17 +172,15 @@ class TestContextualNeural(unittest.TestCase):
         np.testing.assert_array_equal(a.predict_samples(self.reports[:2], 60, 4, np.random.default_rng(3)),
                                       b.predict_samples(self.reports[:2], 60, 4, np.random.default_rng(3)))
 
-    def test_all_zero_phase_and_missing_covariates_have_train_only_fallback(self):
+    def test_all_zero_phase_scale_fallback_and_required_covariates(self):
         reports = self.reports.copy()
         reports[:, :, 2] = 0
-        covariates = np.column_stack((np.arange(len(reports)), np.full(len(reports), np.nan)))
+        covariates = np.column_stack((np.arange(len(reports)), np.ones(len(reports))))
         model = ContextualGaussianNeuralBaseline(epochs=1, hidden_width=8).fit(
             reports, self.days, origins=[60], covariates=covariates)
         self.assertEqual(model.phase_scales_[2], 1.0)
-        centers = model.covariate_center_.copy()
         draws = model.predict_samples(reports[:2], 60, 3, np.random.default_rng(1), covariates[:2])
         self.assertTrue(np.isfinite(draws).all())
-        np.testing.assert_array_equal(model.covariate_center_, centers)
         with self.assertRaisesRegex(ValueError, "requires cutoff"):
             model.predict_samples(reports[:2], 60, 3, np.random.default_rng(1))
 

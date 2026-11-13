@@ -1,10 +1,10 @@
 """Issue forecasts from the retained competitor fits for a named accepted split (no refitting).
 
-Loads the saved five-seed basis/DCA/neural checkpoints and forest pickles of the
-secondary-attribute study, encodes the split's static attributes with the same
-TRAIN-fitted preprocessing, and draws 256 forecasts per origin with the original
-prediction seed rule (2026 * 10000 + origin). Writes depletion_dev draw files and a
-holdout.npz for scoring. The test split requires a frozen protocol.
+Loads five-seed basis/DCA/neural checkpoints and forest pickles (models/comparators/,
+or refits from queue ``comparators``), encodes the split's static attributes with the
+same TRAIN-fitted preprocessing, and draws 256 forecasts per origin with the
+prediction seed rule of depletion_dev (2026 * 10000 + origin). Writes depletion_dev
+draw files and a holdout.npz for scoring. The test split requires a frozen protocol.
 
     python scripts/depletion_competitor_forecasts.py --split test --protocol configs/depletion_final_protocol.toml \
         --output <dir> --checkpoint basis=<path>:42 ...

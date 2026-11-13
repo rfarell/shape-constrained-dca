@@ -1,0 +1,21 @@
+# Report-law screen (supplement ablation table, lower panel), seed 42, TRAIN-internal holdout only
+# (no validation/test record): the v2 Gaussian law with persistent interval OU deviation, the positive
+# log-normal law with the same deviation, and that log-normal fit re-forecast with reports widened 1.25x.
+# Run the jobs in order; the last one reads the log-normal checkpoint from the second.
+lanes = 1
+min_available_gb = 40
+
+[[job]]
+label = "dev_ou_interval"
+output = "dev_ou_interval"
+args = "run --models bayes --device cuda --split internal --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=10 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --seeds 42 --set discrepancy=ou_interval"
+
+[[job]]
+label = "dev_lognormal_ou"
+output = "dev_lognormal_ou"
+args = "run --models bayes --device cuda --split internal --set width=256 --set rank=8 --set train_samples=16 --set objective=predictive --set log_every=10 --set epochs=200 --set predictive_samples=32 --set rate_clock=true --set discrepancy=lognormal_ou --seeds 42"
+
+[[job]]
+label = "dev_lognormal_k1.25"
+output = "dev_lognormal_k1.25"
+args = "repredict --model outputs/dev_lognormal_ou/dev_lognormal_ou_seed42_model.pt --device cuda --split internal --set report_inflation=1.25"

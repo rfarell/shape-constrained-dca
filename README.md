@@ -36,7 +36,7 @@ pip install -e ".[dev]"
 make test
 ```
 
-The tests take about 30 seconds on a CPU; tests that need a GPU skip without one. The reported
+The tests take about 20 seconds on a CPU. The reported
 runs used Python 3.11.14, PyTorch 2.10.0 with CUDA 13.0, NumPy 2.3.5, SciPy 1.17.0, and
 scikit-learn 1.8.0 on one NVIDIA GB10 GPU (Linux, aarch64), with BLAS and OpenMP thread counts
 set to 1.
@@ -87,13 +87,13 @@ each job in a queue and scores it. Test queues read the validation checkpoints f
 
 | Stage | Commands |
 | --- | --- |
-| Comparator networks (positive basis, conditional DCA, contextual neural, forest), fitted on training wells | `run_baseline_comparison.py --config configs/secondary_features_pilot.toml`, then the two `secondary_*_replication.toml` configs for seeds 43–46 |
-| Comparator forecasts | `depletion_import_paths.py` (validation), `depletion_competitor_forecasts.py` (calibration, test), `depletion_spread_calibration.py` |
+| Comparators (positive basis, conditional DCA, contextual neural, forest), fitted on training wells, with validation forecasts | queue `comparators` |
+| Comparator calibration and test forecasts | `depletion_competitor_forecasts.py`, then `depletion_spread_calibration.py` |
 | v1 (prespecified) | queues `final_val`, then `depletion_calibrate.py`, then `final_test` |
 | Per-well decline curves | queues `final_val_dca`, `final_test_dca`, `scaling` |
 | v2 (persistent report error) | queues `v2_val`, `v2_test` |
 | Width-diverse ensemble | `ensemble_sweep.py` (development holdout), queues `arch_val`, `arch_test` |
-| Sensitivity and ablations | queues `taumax`, `ablate` |
+| Sensitivity, ablations, and report-law screen | queues `taumax`, `ablate`, `report_law` |
 | Analyses | `depletion_hindcast.py`, `depletion_criteria.py`, `depletion_properties.py`, `depletion_report_properties.py`, `depletion_quickmix.py`, `ensemble_diversity.py`, `depletion_sbc.py`, `paper_taumax_sensitivity.py`, `paper_posterior_check.py` |
 
 ## Where the reported numbers live
@@ -106,6 +106,7 @@ each job in a queue and scores it. Test queues read the validation checkpoints f
 | Updating, decline, mode, phase-coupling, attribute, and correlation figures; forecast card | `results/figures/figures.json` | `make figures` |
 | v1 scores, calibration, ablations, per-well scaling | `results/v1/` | `make tables` |
 | v2 calibration and prediction streams | `results/v2/`, `results/scores/streams/`, `results/scores/test_quick/` | `make tables` |
+| Report-law screen (supplementary ablation table, lower panel) | `results/v2/report_law_screen/` | read directly; refit with queue `report_law` |
 | Terminal-decline sensitivity | `results/scores/taumax/` | `make tables` |
 | Ensemble development study | `results/scores/diversity_dev/` | `make tables` |
 | Latent and reported shape checks | `results/scores/arch/*properties*`, `results/v1/analysis/` | `make tables` |
@@ -113,27 +114,31 @@ each job in a queue and scores it. Test queues read the validation checkpoints f
 
 ## Provenance
 
-- The ensemble was fitted with model code identical to this release: the source hashes in
-  `results/scores/arch/fits/manifest_*.json` match the files in `src/`. Since then,
-  `scripts/depletion_dev.py` has changed in two ways. It imports the training-only loader from
-  `src/joint_production/train_only.py`, which was moved there verbatim. Its score files now
-  record the evaluated split instead of a fixed label.
-- v1, v2, and the comparator networks were produced by earlier versions of the model and scoring
-  code, which are not released. Their saved scores reproduce every reported number, but
-  refitting them with this code need not reproduce those numbers exactly.
+- This release is a reduced copy of the code that produced the paper. Options, report laws,
+  model variants, and scripts that no reported result uses were removed. The ensemble was fitted
+  with the full code. On a deterministic subsample of the curated data, run on a CPU, every
+  released script gives forecasts and scores bit-identical to those of the full code, and fit
+  records that differ only by omitting the removed options. The shipped ensemble and comparator
+  checkpoints give bit-identical forecasts under both. The run-manifest `source_hashes` in
+  `results/scores/arch/fits/` therefore describe the fitting code, not these files.
+- v1, v2, and the shipped comparator networks were fitted by earlier versions of the model and
+  scoring code, which are not released. Their saved scores reproduce every reported number.
+  Refitting them with this code (queues `final_val`, `v2_val`, `comparators`) need not reproduce
+  those numbers exactly.
 - The saved result files were edited in four ways; no value changed:
   - machine-specific paths were rewritten relative to this repository;
   - large files were written without indentation;
   - the `evaluation_split` label, written as `train_internal_holdout` for every holdout at the
     time, was corrected for validation and test scores (`evaluation_split_note` marks each one);
-  - the run-manifest `source_hashes` were restricted to released files.
+  - the run-manifest `source_hashes` were restricted to files that ship in this release.
 
-  `make tables` gives the manuscript's results bundle; only file paths differ, and one
-  fixed-length excerpt shows more of its record because the paths are shorter.
+  `make tables` gives the manuscript's results bundle; only file paths differ, one
+  fixed-length excerpt shows more of its record because the paths are shorter, and a closing
+  pointer to unreleased development notes is omitted.
   `results/figures/summary_figures.json` and `results/data_summary.json` were regenerated from
   the released files, and their values equal the originals.
 - Frozen protocols and experiment configurations are byte-identical to the files whose SHA-256
-  the results record, so their comments still refer to the original run directories.
+  the results record, so their comments still refer to the original run directories and files.
 
 ## License
 

@@ -41,7 +41,7 @@ def test_depletion_permits_rising_gas_with_declining_oil():
 
 
 def test_fast_basis_permits_oil_rise_long_after_cleanup():
-    basis = PositiveBasisRate("fast")
+    basis = PositiveBasisRate()
     z = torch.full((1, 12), -8.0, dtype=torch.float64)
     z[0, 3] = 0.0  # all oil volume on the shape-2, 720-day Erlang term
     oil = basis.rate(z, torch.tensor([300.0, 700.0], dtype=torch.float64))[0, :, 0]

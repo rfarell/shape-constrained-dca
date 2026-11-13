@@ -1,14 +1,12 @@
-"""Matched Gaussian endpoint laws and their history-conditioned report samplers.
+"""Independent reference implementation of the Gaussian endpoint report laws (tests only).
 
 Phase order is oil/gas/water. For each phase and fixed latent trajectory,
 V(t,Q) = a**2*t/360 + r**2*Q(t)**2. Independent errors have diagonal
 covariance V; accumulated errors have covariance V(min(t,u),Q(min(t,u))).
 The latter is Brownian motion under an increasing, trajectory-dependent clock.
 Phases have independent report errors conditional on the joint latent path.
-
-These are alternatives to the original Student-t law, requiring refitting and
-history conditioning under the selected Gaussian law. a has cumulative-volume
-units and r is dimensionless; training and sampling must use consistent units.
+The tests check the torch sampler and the Bayesian likelihood against it.
+a has cumulative-volume units and r is dimensionless.
 """
 from __future__ import annotations
 

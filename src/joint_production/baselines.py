@@ -51,7 +51,8 @@ class ProbabilisticTrajectoryForest:
     increments are zero.  Each coordinate uses a training-only scale before
     signed ``asinh`` so gas units or late horizons do not dominate. Features include
     every available historical endpoint, phase masks, masked timestamps,
-    latest levels, latest observed slopes, and optional numeric covariates.
+    latest levels, latest observed slopes, and optional finite covariates, which
+    enter unchanged (their training-only preprocessing is done by the caller).
 
     A draw chooses a tree uniformly, then a unique training donor uniformly
     from its matching leaf.  Thus the law is a mixture of complete empirical
@@ -72,9 +73,6 @@ class ProbabilisticTrajectoryForest:
 
     Parameters are sklearn-compatible where applicable. ``origins`` in fit
     and ``origin`` in predict_samples are elapsed days, not array indices.
-    ``covariate_preprocessing='external'`` consumes finite covariate columns
-    unchanged, allowing a shared training-only transform and matched zero
-    controls. The default internal transform retains its own scaling/masks.
     """
 
     def __init__(
@@ -90,7 +88,7 @@ class ProbabilisticTrajectoryForest:
         mask_augmentation: int = 1,
         report_mask_probability: float = 0.15,
         phase_mask_probability: float = 0.15,
-        covariate_preprocessing: str = "internal",
+        covariate_preprocessing: str = "external",
     ) -> None:
         if not 0 <= scale_adjustment <= 1:
             raise ValueError("scale_adjustment must be between zero and one")
@@ -100,8 +98,8 @@ class ProbabilisticTrajectoryForest:
             raise ValueError("mask_augmentation must be a nonnegative integer")
         if not 0 <= report_mask_probability <= 1 or not 0 <= phase_mask_probability <= 1:
             raise ValueError("mask probabilities must be between zero and one")
-        if covariate_preprocessing not in {"internal", "external"}:
-            raise ValueError("covariate_preprocessing must be internal or external")
+        if covariate_preprocessing != "external":
+            raise ValueError("Only externally preprocessed (finite) covariates are supported")
         self.n_estimators = n_estimators
         self.min_samples_leaf = min_samples_leaf
         self.max_features = max_features
@@ -195,30 +193,12 @@ class ProbabilisticTrajectoryForest:
     def _fit_covariates(self, covariates, rows, complete) -> np.ndarray:
         if covariates is None:
             self.n_covariates_ = 0
-            self.covariate_center_ = np.empty(0)
-            self.covariate_scale_ = np.empty(0)
             return np.empty((int(complete.sum()), 0))
         cov = np.asarray(covariates, dtype=np.float64)
-        if cov.ndim != 2 or len(cov) != rows or np.isinf(cov).any():
-            raise ValueError("covariates must be a finite-or-NaN matrix with one row per well")
-        if getattr(self, "covariate_preprocessing", "internal") == "external" and not np.isfinite(cov).all():
-            raise ValueError("Externally preprocessed covariates must be finite")
-        cov = cov[complete]
+        if cov.ndim != 2 or len(cov) != rows or not np.isfinite(cov).all():
+            raise ValueError("covariates must be a finite matrix with one row per well")
         self.n_covariates_ = cov.shape[1]
-        if getattr(self, "covariate_preprocessing", "internal") == "external":
-            self.covariate_center_ = np.zeros(self.n_covariates_)
-            self.covariate_scale_ = np.ones(self.n_covariates_)
-            return cov.copy()
-        self.covariate_center_ = np.array([
-            np.median(column[np.isfinite(column)]) if np.isfinite(column).any() else 0.0
-            for column in cov.T
-        ])
-        self.covariate_scale_ = np.array([
-            max(float(np.median(np.abs(column[np.isfinite(column)] - center))), 1e-12)
-            if np.isfinite(column).any() else 1.0
-            for column, center in zip(cov.T, self.covariate_center_)
-        ])
-        return self._covariate_features(cov, len(cov))
+        return cov[complete].copy()
 
     def _covariate_features(self, covariates, rows) -> np.ndarray:
         if self.n_covariates_ == 0:
@@ -226,15 +206,9 @@ class ProbabilisticTrajectoryForest:
                 raise ValueError("model was fitted without covariates")
             return np.empty((rows, 0))
         cov = np.asarray(covariates, dtype=np.float64)
-        if cov.shape != (rows, self.n_covariates_) or np.isinf(cov).any():
-            raise ValueError("prediction covariates must match the fitted covariate matrix")
-        if getattr(self, "covariate_preprocessing", "internal") == "external":
-            if not np.isfinite(cov).all():
-                raise ValueError("Externally preprocessed covariates must be finite")
-            return cov.copy()
-        mask = np.isfinite(cov)
-        scaled = np.where(mask, (cov - self.covariate_center_) / self.covariate_scale_, 0)
-        return np.column_stack([np.arcsinh(scaled), mask])
+        if cov.shape != (rows, self.n_covariates_) or not np.isfinite(cov).all():
+            raise ValueError("prediction covariates must be finite and match the fitted covariate matrix")
+        return cov.copy()
 
     def _origin_index(self, origin: float) -> int:
         matches = np.flatnonzero(self.report_days_ == float(origin))

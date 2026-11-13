@@ -1,4 +1,4 @@
-"""Contextual joint Gaussian or two-component mixture *report* comparator.
+"""Contextual joint Gaussian *report* comparator.
 
 This is a conditional predictive distribution over the canonical cumulative
 reports, not a latent positive-rate model or a Bayesian parameter posterior.
@@ -9,10 +9,7 @@ of ``asinh(report / training_phase_scale)``. Joint normal draws followed by
 increment must use the same report draw. Different origins define separate
 conditional predictions; sequential Bayesian consistency is not claimed.
 
-The optional two-component law has distinct conditional means and one shared
-bounded covariance. One component is selected for an entire joint trajectory,
-including hidden historical endpoints. It is generic distributional flexibility;
-components are not identified physical regimes. Phase order is oil/gas/water.
+Phase order is oil/gas/water.
 
 Training averages conditional log scores over well/origin contexts. Each
 unobserved but measured endpoint enters a context's marginal likelihood once;
@@ -22,8 +19,8 @@ well as forecasting. Repeated origins are conditional training tasks, not
 independent observations in a full-data generative likelihood. All observed
 past reports are fixed when sampling. Unobserved past and future reports are
 sampled together. Day zero is a deterministic zero accounting origin, excluded
-from the likelihood and history masking. Timestamps remain explicit; no static covariates are used
-unless supplied by the caller after an availability audit.
+from the likelihood and history masking. Timestamps remain explicit. Static covariates are
+supplied by the caller, already encoded on training data.
 """
 
 from __future__ import annotations
@@ -79,35 +76,6 @@ def _masked_gaussian_nll(
     return 0.5 * (quadratic + logdet + dimension * math.log(2 * math.pi))
 
 
-def _masked_mixture_gaussian_nll(target, location, diagonal_variance, factor,
-                                mask, mixing_logits):
-    """Exact masked joint mixture NLL in transformed coordinates.
-
-    Locations are [context, component, coordinate]; covariance parameters are
-    shared across components. The common native-report asinh Jacobian belongs
-    outside this logsumexp. Empty target sets have log probability exactly zero.
-    """
-    component_nll = torch.stack([
-        _masked_gaussian_nll(target, location[:, k], diagonal_variance, factor, mask)
-        for k in range(location.shape[1])], dim=-1)
-    log_weights = torch.log_softmax(mixing_logits.to(component_nll.dtype), dim=-1)
-    nll = -torch.logsumexp(log_weights - component_nll, dim=-1)
-    return torch.where(mask.any(-1), nll, torch.zeros_like(nll))
-
-
-def _component_generator(rng):
-    """Domain-separated component stream; never advances the Gaussian RNG.
-
-    Snapshot the caller's state once per predict_samples call. This reproducible
-    pseudorandom stream is separate from the original Gaussian stream; chunking
-    and call partitioning remain part of the sampling replay convention.
-    """
-    state = json.dumps(rng.bit_generator.state, sort_keys=True,
-                       default=lambda value: value.tolist()).encode()
-    digest = hashlib.sha256(b"joint-report-mixture-components-v1:" + state).digest()
-    return np.random.default_rng(int.from_bytes(digest[:16], "big"))
-
-
 class _JointReportNetwork(nn.Module):
     def __init__(self, input_dim: int, output_dim: int, width: int, rank: int,
                  mean_initial: np.ndarray, min_std: float, max_std: float,
@@ -142,35 +110,8 @@ class _JointReportNetwork(nn.Module):
         return location, std.square(), factor
 
 
-class _JointMixtureReportNetwork(_JointReportNetwork):
-    """Two conditional means, equal initial weights, shared bounded covariance."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        width = self.mean.in_features
-        self.mean_offset = nn.Linear(width, self.output_dim)
-        self.mixing_logits = nn.Linear(width, 2)
-        nn.init.zeros_(self.mean_offset.weight)
-        with torch.no_grad():
-            # Fixed outcome-independent direction; RMS per-coordinate offset
-            # .05 transformed units, norm .05*sqrt(D), no privileged phase.
-            signs = 1 - 2 * (torch.arange(self.output_dim) % 2)
-            self.mean_offset.bias.copy_(.05 * signs)
-        nn.init.zeros_(self.mixing_logits.weight)
-        nn.init.zeros_(self.mixing_logits.bias)
-
-    def forward(self, context):
-        hidden = self.hidden(context)
-        center, offset = self.mean(hidden), self.mean_offset(hidden)
-        location = torch.stack((center - offset, center + offset), dim=1)
-        std = self.min_std + (self.max_std - self.min_std) * torch.sigmoid(self.std(hidden))
-        factor = self.max_factor * torch.tanh(self.factor(hidden)).reshape(
-            -1, self.output_dim, self.rank)
-        return location, std.square(), factor, self.mixing_logits(hidden)
-
-
 class ContextualGaussianNeuralBaseline:
-    """Conditional joint Gaussian or two-component mixture in asinh reports.
+    """Conditional joint Gaussian in asinh reports.
 
     ``fit`` consumes only a training split. Its ``origins`` are report-day
     values. ``predict_samples`` returns ``[well, sample, endpoint, phase]`` in
@@ -178,16 +119,12 @@ class ContextualGaussianNeuralBaseline:
     The diagonal standard deviation and factor entries are smoothly bounded
     in transformed units for stable optimization; these bounds are part of
     the model family. There is no sample clipping or positivity projection.
-    ``mixture_components=2`` adds conditional weights and two means with shared
-    covariance; the default one-component training and sampling paths are kept
-    unchanged. Component labels carry no physical or Bayesian interpretation.
 
-    ``covariate_preprocessing="internal"`` fits medians and standard deviations
-    on the supplied training covariates and appends their availability masks.
-    ``"external"`` accepts an already preprocessed finite matrix, with any
-    desired masks included by the caller, without further scaling or columns.
-    External preprocessing must be fitted on training data only; feature
-    availability at the forecast cutoff remains the caller's responsibility.
+    Covariates are an already preprocessed finite matrix, fitted on training
+    data only; feature availability at the forecast cutoff is the caller's
+    responsibility. The context also carries the latest-interval report rates.
+    ``history_rate_features`` and ``covariate_preprocessing`` have one supported
+    value each and are kept because saved configurations record them.
 
     ``fit_diagnostics_`` records per-epoch native-report NLL (including the
     asinh Jacobian), train-only scales, masking, optimization and device.
@@ -201,13 +138,10 @@ class ContextualGaussianNeuralBaseline:
                  phase_dropout: float = 0.1, min_std: float = 0.025,
                  max_std: float = 3.0, max_factor: float = 1.0,
                  gradient_clip: float = 10.0, log_every: int = 25,
-                 history_rate_features: str = "none", mixture_components: int = 1,
-                 covariate_preprocessing: str = "internal"):
-        if (isinstance(mixture_components, (bool, np.bool_))
-                or not isinstance(mixture_components, (int, np.integer))
-                or mixture_components not in (1, 2)):
-            raise ValueError("mixture_components must be 1 or 2")
-        self.mixture_components = int(mixture_components)
+                 history_rate_features: str = "last_interval",
+                 covariate_preprocessing: str = "external"):
+        if history_rate_features != "last_interval" or covariate_preprocessing != "external":
+            raise ValueError("Only last_interval history features and external covariates are supported")
         if min(rank, hidden_width, epochs, batch_size) < 1:
             raise ValueError("rank, hidden_width, epochs and batch_size must be positive")
         if learning_rate <= 0 or weight_decay < 0 or gradient_clip <= 0:
@@ -226,11 +160,7 @@ class ContextualGaussianNeuralBaseline:
         if log_every < 0:
             raise ValueError("log_every must be nonnegative; zero disables progress output")
         self.log_every = int(log_every)
-        if history_rate_features not in {"none", "zero", "last_interval"}:
-            raise ValueError("history_rate_features must be none, zero or last_interval")
         self.history_rate_features = history_rate_features
-        if covariate_preprocessing not in {"internal", "external"}:
-            raise ValueError("covariate_preprocessing must be internal or external")
         self.covariate_preprocessing = covariate_preprocessing
 
     @staticmethod
@@ -246,43 +176,20 @@ class ContextualGaussianNeuralBaseline:
         if covariates is None:
             if fit:
                 self.n_covariates_ = 0
-                self.covariate_feature_count_ = 0
-                self.covariate_center_ = np.array([])
-                self.covariate_scale_ = np.array([])
             elif self.n_covariates_:
                 raise ValueError("This fitted model requires cutoff-available covariates")
             return np.empty((n, 0), dtype=np.float32)
         covariates = np.asarray(covariates, dtype=np.float64)
-        if self.covariate_preprocessing == "external":
-            if (covariates.ndim != 2 or covariates.shape[0] != n
-                    or not np.isfinite(covariates).all()):
-                raise ValueError("External covariates must have shape [well, feature] and be finite")
-            if (np.abs(covariates) > np.finfo(np.float32).max).any():
-                raise ValueError("External covariates must be representable as finite float32")
-            if fit:
-                self.n_covariates_ = covariates.shape[1]
-                self.covariate_feature_count_ = self.n_covariates_
-                self.covariate_center_ = np.array([])
-                self.covariate_scale_ = np.array([])
-            elif covariates.shape[1] != self.n_covariates_:
-                raise ValueError("Covariate dimension differs from training")
-            return covariates.astype(np.float32)
-        if covariates.ndim != 2 or covariates.shape[0] != n or np.isinf(covariates).any():
-            raise ValueError("covariates must have shape [well, feature], finite or NaN")
-        valid = np.isfinite(covariates)
+        if (covariates.ndim != 2 or covariates.shape[0] != n
+                or not np.isfinite(covariates).all()):
+            raise ValueError("Covariates must have shape [well, feature] and be finite")
+        if (np.abs(covariates) > np.finfo(np.float32).max).any():
+            raise ValueError("Covariates must be representable as finite float32")
         if fit:
             self.n_covariates_ = covariates.shape[1]
-            self.covariate_feature_count_ = 2 * self.n_covariates_
-            self.covariate_center_ = np.array([
-                np.median(covariates[valid[:, j], j]) if valid[:, j].any() else 0.0
-                for j in range(self.n_covariates_)])
-            self.covariate_scale_ = np.array([
-                max(float(np.std(covariates[valid[:, j], j])), 1e-8)
-                if valid[:, j].any() else 1.0 for j in range(self.n_covariates_)])
-        if covariates.shape[1] != self.n_covariates_:
+        elif covariates.shape[1] != self.n_covariates_:
             raise ValueError("Covariate dimension differs from training")
-        standardized = np.where(valid, (covariates - self.covariate_center_) / self.covariate_scale_, 0)
-        return np.concatenate((standardized, valid.astype(float)), axis=1).astype(np.float32)
+        return covariates.astype(np.float32)
 
     def fit(self, train_reports: np.ndarray, report_days: np.ndarray,
             origins: list[float] | None = None, covariates: np.ndarray | None = None):
@@ -324,15 +231,12 @@ class ContextualGaussianNeuralBaseline:
         self.torch_device_ = torch.device(self.device)
         if self.torch_device_.type == "cuda" and not torch.cuda.is_available():
             raise ValueError("CUDA requested but unavailable")
-        context_dim = 2 * dimension + 2 * len(days) + 1 + covariate_features.shape[1]
-        if self.history_rate_features != "none":
-            context_dim += 6
+        context_dim = 2 * dimension + 2 * len(days) + 1 + covariate_features.shape[1] + 6
         cuda_devices = ([self.torch_device_.index or torch.cuda.current_device()]
                         if self.torch_device_.type == "cuda" else [])
         with torch.random.fork_rng(devices=cuda_devices):
             torch.manual_seed(self.seed)
-            network_class = _JointReportNetwork if self.mixture_components == 1 else _JointMixtureReportNetwork
-            self.network_ = network_class(
+            self.network_ = _JointReportNetwork(
                 context_dim, dimension, self.hidden_width, self.rank, target_initial,
                 self.min_std, self.max_std, self.max_factor).to(self.torch_device_)
         initial_digest = hashlib.sha256()
@@ -344,8 +248,7 @@ class ContextualGaussianNeuralBaseline:
             initial_digest.update(value.numpy().tobytes())
         tensor = lambda array: torch.as_tensor(array, dtype=torch.float32, device=self.torch_device_)
         y = tensor(flat_target)
-        native = (torch.as_tensor(reports, dtype=torch.float64, device=self.torch_device_)
-                  if self.history_rate_features != "none" else None)
+        native = torch.as_tensor(reports, dtype=torch.float64, device=self.torch_device_)
         native_origins = torch.as_tensor(self.origins_, dtype=torch.float64, device=self.torch_device_)
         measured = torch.as_tensor(flat_valid, dtype=torch.bool, device=self.torch_device_)
         jacobian = tensor(log_jacobian_inverse.reshape(len(reports), dimension))
@@ -365,15 +268,11 @@ class ContextualGaussianNeuralBaseline:
         gradient_norms: list[float] = []
         context_hashes: list[str] = []
         total_updates = 0
-        mixture_diagnostics = []
         self.network_.train()
         for epoch in range(self.epochs):
             context_digest = hashlib.sha256()
             order = generator.permutation(contexts_count)
             total_loss, active_count, largest_gradient = 0.0, 0, 0.0
-            if self.mixture_components == 2:
-                weight_sum = np.zeros(2)
-                entropy_sum = concentrated_count = separation_sum = 0.0
             for start in range(0, contexts_count, self.batch_size):
                 indices = order[start:start + self.batch_size]
                 row = torch.as_tensor(indices // len(self.origins_), device=self.torch_device_)
@@ -393,26 +292,10 @@ class ContextualGaussianNeuralBaseline:
                     continue
                 context = self._torch_context(y[row], observed, origin_values[origin],
                                               normalized_days, covariates_tensor[row])
-                if native is not None:
-                    context = self._append_rate_features(context, native[row],
-                        observed.reshape(-1, len(days), 3), native_origins[origin])
-                parameters = self.network_(context)
-                location, diagonal_variance, factor = parameters[:3]
-                if self.mixture_components == 1:
-                    nll = _masked_gaussian_nll(y[row], location, diagonal_variance, factor, target_mask)
-                else:
-                    nll = _masked_mixture_gaussian_nll(y[row], location, diagonal_variance,
-                                                      factor, target_mask, parameters[3])
-                    with torch.no_grad():
-                        log_weights = torch.log_softmax(parameters[3][active].double(), dim=-1)
-                        weights = log_weights.exp()
-                        weight_sum += weights.sum(0).cpu().numpy()
-                        entropy_sum += float(-(weights * log_weights).sum())
-                        concentrated_count += int((weights.min(-1).values < .01).sum())
-                        squared_separation = (location[:, 1].double() - location[:, 0].double()).square()
-                        rms = ((squared_separation * target_mask).sum(-1)
-                               / target_mask.sum(-1).clamp_min(1)).sqrt()
-                        separation_sum += float(rms[active].sum())
+                context = self._append_rate_features(context, native[row],
+                    observed.reshape(-1, len(days), 3), native_origins[origin])
+                location, diagonal_variance, factor = self.network_(context)
+                nll = _masked_gaussian_nll(y[row], location, diagonal_variance, factor, target_mask)
                 nll = nll + (jacobian[row] * target_mask).sum(-1)
                 loss = nll[active].mean()
                 if not bool(torch.isfinite(loss)):
@@ -432,12 +315,6 @@ class ContextualGaussianNeuralBaseline:
             losses.append(total_loss / active_count)
             gradient_norms.append(largest_gradient)
             context_hashes.append(context_digest.hexdigest())
-            if self.mixture_components == 2:
-                mixture_diagnostics.append({
-                    "mean_component_weights": (weight_sum / active_count).tolist(),
-                    "mean_weight_entropy_nats": entropy_sum / active_count,
-                    "fraction_contexts_min_weight_below_0_01": concentrated_count / active_count,
-                    "mean_component_separation_rms_transformed": separation_sum / active_count})
             if self.log_every and ((epoch + 1) % self.log_every == 0 or epoch + 1 == self.epochs):
                 print(json.dumps({"event": "neural_epoch", "epoch": epoch + 1,
                                   "epochs": self.epochs, "seed": self.seed,
@@ -467,19 +344,9 @@ class ContextualGaussianNeuralBaseline:
             "context_mask_sha256_by_epoch": context_hashes,
             "optimizer_updates": total_updates,
             "total_training_contexts": contexts_count * self.epochs,
+            "covariate_preprocessing": self.covariate_preprocessing,
+            "covariate_feature_count": self.n_covariates_,
         }
-        if self.n_covariates_ or self.covariate_preprocessing != "internal":
-            self.fit_diagnostics_.update(
-                covariate_preprocessing=self.covariate_preprocessing,
-                covariate_feature_count=self.covariate_feature_count_)
-        if self.mixture_components == 2:
-            self.fit_diagnostics_.update(
-                model="contextual_joint_asinh_gaussian_mixture_report_baseline",
-                mixture_components=2, mixture_covariance="shared_low_rank_plus_diagonal",
-                mixture_initialization="shared train-initialized center +/- fixed outcome-independent 0.05*(-1)**coordinate offset; equal weights",
-                mixture_diagnostics_by_epoch=mixture_diagnostics,
-                mixture_diagnostics_scope="descriptive pre-update active training contexts; no physical regime interpretation",
-                component_rng="SHA256 domain joint-report-mixture-components-v1 of caller state at call entry; first128bits big-endian")
         return self
 
     def save(self, path: str | Path) -> None:
@@ -489,14 +356,10 @@ class ContextualGaussianNeuralBaseline:
         names = ("rank", "hidden_width", "epochs", "batch_size", "learning_rate",
                  "weight_decay", "seed", "device", "history_dropout", "phase_dropout",
                  "min_std", "max_std", "max_factor", "gradient_clip", "log_every",
-                 "history_rate_features", "mixture_components", "covariate_preprocessing")
+                 "history_rate_features", "covariate_preprocessing")
         metadata = {
             "report_days": self.report_days_.tolist(), "origins": self.origins_.tolist(),
             "phase_scales": self.phase_scales_.tolist(), "n_covariates": self.n_covariates_,
-            "covariate_feature_count": getattr(self, "covariate_feature_count_",
-                self.n_covariates_ * (2 if self.covariate_preprocessing == "internal" else 1)),
-            "covariate_center": getattr(self, "covariate_center_", np.array([])).tolist(),
-            "covariate_scale": getattr(self, "covariate_scale_", np.array([])).tolist(),
         }
         torch.save({"format_version": 1,
                     "configuration": {name: getattr(self, name) for name in names},
@@ -518,34 +381,15 @@ class ContextualGaussianNeuralBaseline:
         model.origins_ = np.array(metadata["origins"], dtype=float)
         model.phase_scales_ = np.array(metadata["phase_scales"], dtype=float)
         model.n_covariates_ = metadata["n_covariates"]
-        model.covariate_center_ = np.array(metadata["covariate_center"], dtype=float)
-        model.covariate_scale_ = np.array(metadata["covariate_scale"], dtype=float)
         if (isinstance(model.n_covariates_, bool) or not isinstance(model.n_covariates_, int)
                 or model.n_covariates_ < 0):
             raise ValueError("Invalid neural checkpoint covariate count")
-        expected_width = model.n_covariates_ * (2 if model.covariate_preprocessing == "internal" else 1)
-        model.covariate_feature_count_ = metadata.get("covariate_feature_count", expected_width)
-        if (isinstance(model.covariate_feature_count_, bool)
-                or not isinstance(model.covariate_feature_count_, int)
-                or model.covariate_feature_count_ != expected_width):
-            raise ValueError("Neural checkpoint covariate width disagrees with preprocessing mode")
-        statistics_width = model.n_covariates_ if model.covariate_preprocessing == "internal" else 0
-        if (model.covariate_center_.shape != (statistics_width,)
-                or model.covariate_scale_.shape != (statistics_width,)
-                or not np.isfinite(model.covariate_center_).all()
-                or not np.isfinite(model.covariate_scale_).all()
-                or (model.covariate_scale_ <= 0).any()):
-            raise ValueError("Invalid neural checkpoint covariate preprocessing statistics")
         model.torch_device_ = torch.device(device)
         state = checkpoint["state_dict"]
-        expected_context = 8 * len(model.report_days_) + 1 + expected_width
-        if model.history_rate_features != "none":
-            expected_context += 6
-        if state["hidden.0.weight"].shape[1] != expected_context:
+        if state["hidden.0.weight"].shape[1] != 8 * len(model.report_days_) + 1 + model.n_covariates_ + 6:
             raise ValueError("Neural checkpoint network width disagrees with covariate metadata")
         with torch.random.fork_rng(devices=[]):
-            network_class = _JointReportNetwork if model.mixture_components == 1 else _JointMixtureReportNetwork
-            model.network_ = network_class(
+            model.network_ = _JointReportNetwork(
                 state["hidden.0.weight"].shape[1], state["mean.bias"].shape[0],
                 model.hidden_width, model.rank, state["mean.bias"].numpy(),
                 model.min_std, model.max_std, model.max_factor)
@@ -567,7 +411,7 @@ class ContextualGaussianNeuralBaseline:
         extra = last_interval_rate_features(native_reports, observed,
             torch.as_tensor(self.report_days_, dtype=torch.float64, device=context.device),
             cutoff, torch.as_tensor(self.phase_scales_, dtype=torch.float64, device=context.device),
-            dtype=context.dtype, zero_control=self.history_rate_features == "zero")
+            dtype=context.dtype, zero_control=False)
         return torch.cat((context, extra), dim=-1)
 
     def predict_transformed_parameters(self, masked_history: np.ndarray, origin: float,
@@ -575,10 +419,8 @@ class ContextualGaussianNeuralBaseline:
         """Return network parameters for unobserved coordinates; history is fixed.
 
         Parameters have flattened time-major, then oil/gas/water coordinates.
-        Within-component covariance is ``diag(variance) + F F.T``. For K=2,
-        ``location`` is [well,2,coordinate] and ``mixture_weights`` is [well,2];
-        total mixture covariance also includes variation between the means.
-        Parameters at observed coordinates are unused, not conditional variance.
+        The covariance is ``diag(variance) + F F.T``. Parameters at observed
+        coordinates are unused, not conditional variance.
         """
         if not hasattr(self, "fit_diagnostics_"):
             raise RuntimeError("Fit the model before forecasting")
@@ -601,8 +443,6 @@ class ContextualGaussianNeuralBaseline:
         covariate_features = self._covariates(covariates, len(reports), fit=False)
         tensor = lambda array: torch.as_tensor(array, dtype=torch.float32, device=self.torch_device_)
         outputs = {"location": [], "diagonal_variance": [], "factor": []}
-        if self.mixture_components == 2:
-            outputs["mixing_logits"] = []
         with torch.no_grad():
             for start in range(0, len(reports), self.batch_size):
                 stop = start + self.batch_size
@@ -613,23 +453,16 @@ class ContextualGaussianNeuralBaseline:
                     tensor(np.full(count, origin / self.report_days_[-1])),
                     tensor(self.report_days_ / self.report_days_[-1]),
                     tensor(covariate_features[start:stop]))
-                if self.history_rate_features != "none":
-                    context = self._append_rate_features(context,
-                        torch.as_tensor(reports[start:stop], dtype=torch.float64, device=self.torch_device_),
-                        torch.as_tensor(observed[start:stop], dtype=torch.bool, device=self.torch_device_),
-                        origin)
+                context = self._append_rate_features(context,
+                    torch.as_tensor(reports[start:stop], dtype=torch.float64, device=self.torch_device_),
+                    torch.as_tensor(observed[start:stop], dtype=torch.bool, device=self.torch_device_),
+                    origin)
                 parameters = self.network_(context)
                 for name, parameter in zip(outputs, parameters):
                     outputs[name].append(parameter.cpu().numpy().astype(np.float64))
         result = {name: np.concatenate(value) for name, value in outputs.items()}
         if not all(np.isfinite(value).all() for value in result.values()):
             raise FloatingPointError("Network produced nonfinite transformed Gaussian parameters")
-        if self.mixture_components == 2:
-            # All network outputs were cast to float64 above, matching the
-            # likelihood's log-softmax precision even near gate saturation.
-            logits = result["mixing_logits"]
-            weights = np.exp(logits - logits.max(-1, keepdims=True))
-            result["mixture_weights"] = weights / weights.sum(-1, keepdims=True)
         result["observed_mask"] = observed.reshape(len(reports), -1)
         return result
 
@@ -639,7 +472,6 @@ class ContextualGaussianNeuralBaseline:
             raise ValueError("n_samples must be a positive integer")
         parameters = self.predict_transformed_parameters(masked_history, origin, covariates)
         n, dimension = parameters["diagonal_variance"].shape
-        component_rng = _component_generator(rng) if self.mixture_components == 2 else None
         output = np.empty((n, n_samples, len(self.report_days_), 3), dtype=np.float64)
         reports = np.asarray(masked_history, dtype=np.float64).copy()
         reports[:, self.report_days_ == 0] = 0.0
@@ -649,12 +481,7 @@ class ContextualGaussianNeuralBaseline:
             count = stop - start
             shared = rng.standard_normal((count, n_samples, self.rank))
             independent = rng.standard_normal((count, n_samples, dimension))
-            if self.mixture_components == 1:
-                location = parameters["location"][start:stop, None, :]
-            else:
-                component = (component_rng.random((count, n_samples))
-                             >= parameters["mixture_weights"][start:stop, 0, None]).astype(np.int64)
-                location = parameters["location"][start:stop][np.arange(count)[:, None], component]
+            location = parameters["location"][start:stop, None, :]
             transformed = location + np.einsum(
                 "nsr,ndr->nsd", shared, parameters["factor"][start:stop])
             transformed += np.sqrt(parameters["diagonal_variance"][start:stop, None, :]) * independent
