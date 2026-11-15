@@ -110,7 +110,12 @@
    "gas",
    "water"
   ],
-  "note": "width ratios (NaN reference rows) are not plotted"
+  "note": "width ratios (NaN reference rows) are not plotted",
+  "label_revision_2026_11_14": {
+   "date": "2026-11-14",
+   "reason": "Legends and axes use the paper's names (Refined version, Frozen version, Basis network, DCA network, Contextual network, Forest) and give time in months and years.",
+   "method": "Figures re-rendered from the same code, inputs and seeds with only label strings changed; recorded values unchanged."
+  }
  },
  "fig_accuracy": {
   "files": [
@@ -384,7 +389,12 @@
    "forest": "forest_mix5",
    "v1": "bayes_cal_mix5"
   },
-  "note": "per-date values are point values (no per-date paired intervals); width and coverage over all 28 cells"
+  "note": "per-date values are point values (no per-date paired intervals); width and coverage over all 28 cells",
+  "label_revision_2026_11_14": {
+   "date": "2026-11-14",
+   "reason": "Legends and axes use the paper's names (Refined version, Frozen version, Basis network, DCA network, Contextual network, Forest) and give time in months and years.",
+   "method": "Figures re-rendered from the same code, inputs and seeds with only label strings changed; recorded values unchanged."
+  }
  },
  "fig_reliability": {
   "files": [
@@ -872,7 +882,12 @@
    "basis": "basis_mix5",
    "arps": "pw_arps_bayes"
   },
-  "note": "bands ignore clustering in 478 groups and multiplicity"
+  "note": "bands ignore clustering in 478 groups and multiplicity",
+  "label_revision_2026_11_14": {
+   "date": "2026-11-14",
+   "reason": "Legends and axes use the paper's names (Refined version, Frozen version, Basis network, DCA network, Contextual network, Forest) and give time in months and years.",
+   "method": "Figures re-rendered from the same code, inputs and seeds with only label strings changed; recorded values unchanged."
+  }
  },
  "fig_ensemble": {
   "files": [

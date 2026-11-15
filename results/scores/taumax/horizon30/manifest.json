@@ -1,0 +1,55 @@
+{
+ "created_utc": "2026-11-15T04:26:24.424664+00:00",
+ "command": [
+  "python",
+  "scripts/paper_taumax_sensitivity.py",
+  "--model",
+  "1825=outputs/val_taumax1825/bayes_taumax1825_seed42_model.pt",
+  "--model",
+  "3650=outputs/val_bayes_s42/bayes_final_seed42_model.pt",
+  "--model",
+  "7300=outputs/val_taumax7300/bayes_taumax7300_seed42_model.pt",
+  "--reference",
+  "3650",
+  "--horizon",
+  "10950",
+  "--per-well",
+  "--device",
+  "cpu",
+  "--output",
+  "results/scores/taumax/horizon30"
+ ],
+ "script_sha256": "7d8ea2cd322c0bf6663ac35ff5ac3c01e1dc7f6aefd026d1a2ed1a7cbdb3f413",
+ "checkpoints": {
+  "1825": {
+   "path": "outputs/val_taumax1825/bayes_taumax1825_seed42_model.pt",
+   "sha256": "75313047c4009ebe9ae6e20c065a1dcdbf807ecedf3b01b85a3fcf57d29778db"
+  },
+  "3650": {
+   "path": "outputs/val_bayes_s42/bayes_final_seed42_model.pt",
+   "sha256": "1b7d79aa09a5d615b81dd3999c7982202641b8c1c954a95514c1460f7000878e"
+  },
+  "7300": {
+   "path": "outputs/val_taumax7300/bayes_taumax7300_seed42_model.pt",
+   "sha256": "0265403ab18ca957a03fb8683a036ca168de17e58868f5bd17bea786c4b36faf"
+  }
+ },
+ "checkpoint_note": "Fits of the frozen version's configuration (seed 42) from queues taumax and final_val; they are not shipped, and paths are relative to a queue output directory.",
+ "wells": 200,
+ "draws": 256,
+ "origins": [
+  90,
+  360,
+  720
+ ],
+ "rng_seed": "7 + origin",
+ "device": "cpu",
+ "horizons_days": [
+  10950.0
+ ],
+ "python": "3.11.14",
+ "torch": "2.10.0+cu130",
+ "numpy": "2.4.2",
+ "reproduces": "results/scores/taumax/taumax.json exactly (EUR, EUR width, and day-1,080 cumulative ratios)",
+ "not_shipped": "per_well.json (per-well medians); width_ratios.json holds the summary computed from it"
+}

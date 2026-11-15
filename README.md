@@ -11,6 +11,17 @@ integrates them into volumes. It samples complete joint trajectories conditioned
 attributes and whatever reports a well has at the forecast date. Every interval, cumulative,
 ratio, and tail in the paper comes from those joint samples.
 
+The paper and the code use different names for the same things:
+
+| In the paper | In the code and file names |
+| --- | --- |
+| Frozen version | `v1`: `bayes_final`, and `bayes_cal` with its widened ranges |
+| Intermediate version (supplement) | `v2`: `bayes_v2` |
+| Refined version | width-diverse ensemble: `bayes_arch`, `arch` |
+| Baselines: basis, DCA, and contextual networks; forest | comparators: `basis`, `dca`, `neural`, `forest` |
+| Underlying rate | latent rate |
+| Reporting-error model | report law |
+
 ## Contents
 
 | Path | What it holds |
@@ -18,8 +29,8 @@ ratio, and tail in the paper comes from those joint samples.
 | `src/joint_production/` | Model, observation law, fitting, samplers, comparators, scores |
 | `scripts/` | Command-line entry points; each has a docstring with usage |
 | `configs/` | Experiment settings, frozen evaluation protocols, run queues |
-| `models/ensemble/` | The five fitted members of the width-diverse ensemble (seeds 42–46) |
-| `models/comparators/` | Positive-basis and conditional DCA networks (seeds 42–46) |
+| `models/ensemble/` | The five fits of the refined version, the width-diverse ensemble (seeds 42–46) |
+| `models/comparators/` | The basis and DCA networks, two of the baselines (seeds 42–46) |
 | `results/` | Saved scores and diagnostics behind every reported number |
 | `data/` | Data description, raw-file checks, and the accepted split (hashes only) |
 | `tests/` | Unit and invariant tests |
@@ -87,12 +98,12 @@ each job in a queue and scores it. Test queues read the validation checkpoints f
 
 | Stage | Commands |
 | --- | --- |
-| Comparators (positive basis, conditional DCA, contextual neural, forest), fitted on training wells, with validation forecasts | queue `comparators` |
-| Comparator calibration and test forecasts | `depletion_competitor_forecasts.py`, then `depletion_spread_calibration.py` |
-| v1 (prespecified) | queues `final_val`, then `depletion_calibrate.py`, then `final_test` |
+| Baselines (basis, DCA, and contextual networks; forest), fitted on training wells, with validation forecasts | queue `comparators` |
+| Baseline calibration and test forecasts | `depletion_competitor_forecasts.py`, then `depletion_spread_calibration.py` |
+| Frozen version (v1) | queues `final_val`, then `depletion_calibrate.py`, then `final_test` |
 | Per-well decline curves | queues `final_val_dca`, `final_test_dca`, `scaling` |
-| v2 (persistent report error) | queues `v2_val`, `v2_test` |
-| Width-diverse ensemble | `ensemble_sweep.py` (development holdout), queues `arch_val`, `arch_test` |
+| Intermediate version (v2, persistent reporting error) | queues `v2_val`, `v2_test` |
+| Refined version (width-diverse ensemble) | `ensemble_sweep.py` (development holdout), queues `arch_val`, `arch_test` |
 | Sensitivity, ablations, and report-law screen | queues `taumax`, `ablate`, `report_law` |
 | Analyses | `depletion_hindcast.py`, `depletion_criteria.py`, `depletion_properties.py`, `depletion_report_properties.py`, `depletion_quickmix.py`, `ensemble_diversity.py`, `depletion_sbc.py`, `paper_taumax_sensitivity.py`, `paper_posterior_check.py` |
 
@@ -108,6 +119,7 @@ each job in a queue and scores it. Test queues read the validation checkpoints f
 | v2 calibration and prediction streams | `results/v2/`, `results/scores/streams/`, `results/scores/test_quick/` | `make tables` |
 | Report-law screen (supplementary ablation table, lower panel) | `results/v2/report_law_screen/` | read directly; refit with queue `report_law` |
 | Terminal-decline sensitivity | `results/scores/taumax/` | `make tables` |
+| Terminal-decline sensitivity for recovery to 30 years, and EUR width ratios | `results/scores/taumax/horizon30/` | read directly; rerun with `paper_taumax_sensitivity.py --horizon 10950 --per-well` |
 | Ensemble development study | `results/scores/diversity_dev/` | `make tables` |
 | Latent and reported shape checks | `results/scores/arch/*properties*`, `results/v1/analysis/` | `make tables` |
 | Importance-sampling diagnostics and posterior check | `results/v1/sbc/`, `results/scores/{arch/fits,v2_fits,posterior_check}/` | `make tables` |
@@ -137,6 +149,13 @@ each job in a queue and scores it. Test queues read the validation checkpoints f
   pointer to unreleased development notes is omitted.
   `results/figures/summary_figures.json` and `results/data_summary.json` were regenerated from
   the released files, and their values equal the originals.
+- The 30-year comparison in `results/scores/taumax/horizon30/` was added on 14 November 2026. It
+  reran `paper_taumax_sensitivity.py` with the same fits, wells, and seeds, and reproduced
+  `results/scores/taumax/taumax.json` exactly. Its per-well output is not shipped;
+  `width_ratios.json` holds the summary computed from it.
+- The figure scripts label legends and axes with the paper's names, in months and years. The
+  figures were re-rendered with those labels, and the recorded values in `results/figures/` did
+  not change.
 - Frozen protocols and experiment configurations are byte-identical to the files whose SHA-256
   the results record, so their comments still refer to the original run directories and files.
 

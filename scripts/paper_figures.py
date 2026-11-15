@@ -197,8 +197,9 @@ def reports_known(well_reports, origin) -> int:
 def date_title(well_reports, origin) -> str:
     n = reports_known(well_reports, origin)
     if n == 0:
-        return f"Day {origin:,} (attributes only)"
-    return f"Day {origin:,} ({n} report{'s' if n != 1 else ''})"
+        return "New well (no reports)"
+    months = int(round(origin / 30))  # report days are multiples of 30; the paper gives history in months
+    return f"{months} month{'s' if months != 1 else ''} ({n} report{'s' if n != 1 else ''})"
 
 
 def log_axis(ax, axis: str, ticks, limits) -> None:
@@ -319,7 +320,8 @@ def fig_updating(ctx):
         ax.set_ylim(0, cum_max * 1.08)
         ax.set_xticks([0, 360, 720, 1080, 1800])
         plain_ticks(ax)
-        ax.set_xlabel("Time, days")
+        ax.set_xticklabels(["0", "12", "24", "36", "60"])
+        ax.set_xlabel("Time, months")
         if j > 0:
             ax.tick_params(labelleft=False)
         shade_beyond(ax, LAST_REPORT_DAY)
@@ -335,13 +337,13 @@ def fig_updating(ctx):
             ax.plot(j, q[2], ls="none", marker="o", ms=4, mfc="white", mec=color, mew=1.0, zorder=3)
         ax.set_xlim(-0.5, 2.5)
         ax.set_xticks([0, 1, 2])
-        ax.set_xticklabels([f"{o:,}" for o in origins])
+        ax.set_xticklabels([f"{int(round(o / 30))}" for o in origins])
         ax.set_ylim(bottom=0)
         plain_ticks(ax, "y")
         ax.set_ylabel(f"{PHASE_LABEL[phase]} EUR, {VOLUME_UNIT[phase]}")
         if k == 0:
             ax.set_title("EUR")
-    axes[2, 3].set_xlabel("Forecast date, days")
+    axes[2, 3].set_xlabel("History, months")
     leg = axes[3, 3]
     leg.axis("off")
     leg.legend(handles=legend_handles([
@@ -414,8 +416,8 @@ def fig_decline(ctx):
     ax.legend(handles=legend_handles([
         ("line", model_label, dict(color="black", lw=1.5)),
         ("line", MODEL_LABEL["basis"], dict(color=BASIS_COLOR, lw=1.5)),
-        ("marker", "day 1,080 (last report)", dict(marker="o", ms=4.5, mfc="white", mec="0.2")),
-        ("marker", "day 3,650 (10 years)", dict(marker="^", ms=4.5, color="0.2")),
+        ("marker", "three years (last report)", dict(marker="o", ms=4.5, mfc="white", mec="0.2")),
+        ("marker", "ten years", dict(marker="^", ms=4.5, color="0.2")),
         ("marker", "reported period average", dict(marker="s", ms=3.0, color="black")),
         ("marker", "model EUR P90, P50, P10", dict(marker="|", ms=8, mew=1.2, color="black")),
         ("patch", "beyond last report", dict(facecolor="0.93", edgecolor="0.6", lw=0.4))]),
@@ -469,10 +471,11 @@ def fig_decline(ctx):
             rf"$1/\tau_{{\max}}$ (like $D_{{\min}}$), {term['effective_pct_per_year']:.1f}%/yr effective",
             ha="left", va="bottom", fontsize=NOTE_PT, color="0.25")
     log_axis(ax, "x", [180, 365, 1080, 3650, 7300], (180, 7300))
+    ax.set_xticklabels(["0.5", "1", "3", "10", "20"])
     ax.set_yscale("log")
     ax.set_ylim(lo, hi)
     plain_ticks(ax, "y")
-    ax.set_xlabel("Time, days")
+    ax.set_xlabel("Time, years")
     ax.set_ylabel("Nominal decline D(t), 1/yr")
     sec = ax.secondary_yaxis("right", functions=(effective_decline_pct, nominal_from_effective))
     sec.set_ylabel("Effective decline, %/yr")
@@ -489,13 +492,14 @@ def fig_decline(ctx):
     ax.plot(daily, bb[1], color="black", lw=1.2, label=model_label)
     ax.plot(daily, bands["basis"]["b"][1], color=BASIS_COLOR, lw=1.0, label=f"{MODEL_LABEL['basis']} (P50)")
     log_axis(ax, "x", [180, 365, 1080, 3650, 7300], (180, 7300))
+    ax.set_xticklabels(["0.5", "1", "3", "10", "20"])
     ax.set_ylim(-0.5, 3.0)
     plain_ticks(ax, "y")
     peak = int(np.nanargmax(bb[1]))
-    ax.annotate(f"P50 peak\nnear day {daily[peak]:,.0f}", xy=(daily[peak], min(bb[1][peak], 2.9)), xytext=(0.04, 0.96),
+    ax.annotate(f"P50 peak\nnear {daily[peak] / DAYS_PER_YEAR:.1f} years", xy=(daily[peak], min(bb[1][peak], 2.9)), xytext=(0.04, 0.96),
                 textcoords="axes fraction", ha="left", va="top", fontsize=NOTE_PT, color="0.25",
                 arrowprops=dict(arrowstyle="->", lw=0.6, color="0.35"))
-    ax.set_xlabel("Time, days")
+    ax.set_xlabel("Time, years")
     ax.set_ylabel(r"Arps $b(t) = d(1/D)/dt$")
     shade_beyond(ax, LAST_REPORT_DAY)  # colors as in (c); the network's line is its P50
     label_panels([axes[0, 0], axes[0, 1], axes[1, 0], axes[1, 1]])
@@ -712,7 +716,7 @@ def fig_phase_coupling(ctx):
         shade_beyond(ax, last_cum)
         summary[key]["reported_periods"] = reported
     handles, labels = axes[0, 0].get_legend_handles_labels()
-    extra = legend_handles([("line", "reported period ratio", dict(color="black", lw=1.5)),
+    extra = legend_handles([("line", "reported ratio", dict(color="black", lw=1.5)),
                             ("patch", "beyond last report", dict(facecolor="0.93", edgecolor="0.6", lw=0.4))])
     figure_legend(fig, handles + extra, labels + [h.get_label() for h in extra], ncol=5, fallback_ax=axes[0, 0],
                   fallback_loc="upper left")
@@ -741,8 +745,8 @@ def fig_phase_coupling(ctx):
     plain_ticks(ax)
     low, high = ax.get_ylim()
     ax.set_ylim(low, low + 1.32 * (max(tops_c) - low))  # headroom above the samples for the legend
-    ax.set_xlabel("Oil to day 1,080, Mbbl")
-    ax.set_ylabel("Gas to day 1,080, MMcf")
+    ax.set_xlabel("Three-year oil, Mbbl")
+    ax.set_ylabel("Three-year gas, MMcf")
     ax.legend(handles=legend_handles([
         ("marker", date_title(well, 90), dict(marker="o", ms=3, mfc="none", mec="0.45", mew=0.5)),
         ("marker", date_title(well, 360), dict(marker="o", ms=3, color=PHASE_COLOR["gas"], alpha=0.7, mew=0)),

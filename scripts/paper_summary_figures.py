@@ -61,8 +61,8 @@ SCORE_KEY = {"v1": "bayes_cal_mix5", "v1_raw": "bayes_final_mix5", "v2": "bayes_
 HINDCAST_KEY = {"v1": "bayes_cal_mix5", "basis": "basis_mix5", "arps": "pw_arps_bayes"}
 FAMILY_PREFIX = {"v1_raw": "bayes_final", "v2": "bayes_v2", "basis": "basis", "dca": "dca", "neural": "neural",
                  "forest": "forest"}
-SHORT = {"v1": "Prespecified (v1)", "v1_raw": "Prespecified (v1), raw", "v2": "v2 (same width)", "basis": "Basis network", "dca": "DCA network",
-         "neural": "Neural model", "forest": "Forest", "arch": "Width-diverse ensemble", "arps": "Arps",
+SHORT = {"v1": "Frozen version", "v1_raw": "Frozen, before widening", "v2": "Intermediate version", "basis": "Basis network", "dca": "DCA network",
+         "neural": "Contextual network", "forest": "Forest", "arch": "Refined version", "arps": "Arps",
          "duong": "Duong", "sedm": "SEDM", "slab": "Slab scaling"}
 
 # Printed values the figures must reproduce (Supplementary Tables s:tab:wis-origin and s:tab:seeds,
@@ -165,10 +165,10 @@ def paired_gain(comparisons: dict, candidate: str, reference: str, scope: str = 
 
 def origin_axis(ax, label: bool = True) -> None:
     ax.set_xticks(range(len(ORIGINS)))
-    ax.set_xticklabels([("0 (new)" if o == 0 else f"{o:,}") + f"\n{MONTHS[o]}" for o in ORIGINS])
+    ax.set_xticklabels(["0 (new)" if o == 0 else f"{MONTHS[o]}" for o in ORIGINS])
     ax.set_xlim(-0.4, len(ORIGINS) - 0.6)
     if label:
-        ax.set_xlabel("Forecast date, days (months)")
+        ax.set_xlabel("History at the forecast date, months")
 
 
 # ---- Fig. 5: tau_max sensitivity ------------------------------------------------------------------
@@ -214,15 +214,15 @@ def fig_taumax(args, output, summary, sources):
     ax.set_xlim(taus[0] / 1.25, taus[-1] * 1.9)
     ax.set_ylim(0.5, 2.0)
     ax.set_xticks(taus)
-    ax.set_xticklabels([f"{t:,}\n{eff[t]:.1f}%/yr" + ("\n(model)" if t == 3650 else "") for t in taus])
+    ax.set_xticklabels([f"{t / 365:.0f}\n{eff[t]:.1f}%/yr" + ("\n(model)" if t == 3650 else "") for t in taus])
     ax.minorticks_off()
     ax.set_yticks([0.5, 0.75, 1.0, 1.5, 2.0])
     plain_ticks(ax, "y")
-    ax.set_xlabel(r"$\tau_{\max}$, days (effective terminal decline)")
-    ax.set_ylabel(r"Median ratio to $\tau_{\max}$ = 3,650 days")
+    ax.set_xlabel("Terminal decay time, years\n(effective terminal decline)")
+    ax.set_ylabel("Median ratio to the ten-year setting")
     ax.legend(handles=legend_handles([
         ("line", "EUR", dict(color="0.2", ls="-", lw=1.3, marker="o", ms=3)),
-        ("line", "Cumulative to day 1,080", dict(color="0.2", ls="--", lw=0.9)),
+        ("line", "Three-year cumulative", dict(color="0.2", ls="--", lw=0.9)),
         ("line", "EUR, other forecast dates", dict(color="0.2", lw=0.6, alpha=0.35))]),
         loc="upper left", fontsize=NOTE_PT)
     files = save(fig, output, "fig_taumax")
@@ -297,7 +297,7 @@ def fig_accuracy(args, output, summary, sources, arch):
     plain_ticks(ax, "y")
     trans = blended_transform_factory(ax.transData, ax.transAxes)
     ax.plot([2, 2, 6, 6], [0.075, 0.045, 0.045, 0.075], transform=trans, color="0.4", lw=0.6, clip_on=False)
-    ax.text(4, 0.055, "primary scope", transform=trans, ha="center", va="bottom", fontsize=NOTE_PT, color="0.3")
+    ax.text(4, 0.055, "main comparison", transform=trans, ha="center", va="bottom", fontsize=NOTE_PT, color="0.3")
     handles, labels = ax.get_legend_handles_labels()
     rank = {MODEL_LABEL[m]: i for i, m in enumerate(("arch", "v1", "basis", "dca", "neural", "forest", "arps"))}
     pairs = sorted(zip(handles, labels), key=lambda p: rank.get(p[1], 99))
@@ -386,7 +386,7 @@ def fig_reliability(args, output, summary, sources, arch):
         panel_label(bottom, "def"[k])
     axes[0, 0].set_ylabel("Above P90, %")
     axes[1, 0].set_ylabel("Above P50, P10, %")
-    fig.supxlabel("Forecast date, days (months)", fontsize=LABEL_PT)
+    fig.supxlabel("History at the forecast date, months", fontsize=LABEL_PT)
     handles, labels = axes[0, 0].get_legend_handles_labels()
     rank = {MODEL_LABEL[m]: i for i, m in enumerate(("arch", "v1", "basis", "arps"))}
     pairs = sorted(zip(handles, labels), key=lambda p: rank.get(p[1], 99))

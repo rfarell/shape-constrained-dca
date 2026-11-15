@@ -1,0 +1,61 @@
+{
+ "created_utc": "2026-11-15T05:46:14.730410+00:00",
+ "source": "per-well P10 and P90 of EUR from the same run (200 validation wells); the per-well file is not part of this release",
+ "definition": "median over wells of (P90 - P10 of EUR) divided by the same width in the reference fit (tau_max 3,650 d), leaving out wells whose reference width is zero; oil/gas/water",
+ "table": {
+  "1825/90": {
+   "width_ratio": [
+    0.7025156807076027,
+    0.4907430935592135,
+    0.46234978305470886
+   ],
+   "wells_used": 199,
+   "wells_with_zero_reference_width": 1
+  },
+  "7300/90": {
+   "width_ratio": [
+    1.3538569215936134,
+    2.2666398493285875,
+    2.464236273154495
+   ],
+   "wells_used": 199,
+   "wells_with_zero_reference_width": 1
+  },
+  "1825/360": {
+   "width_ratio": [
+    0.6368192067441476,
+    0.46089944496112756,
+    0.42345696450483317
+   ],
+   "wells_used": 200,
+   "wells_with_zero_reference_width": 0
+  },
+  "7300/360": {
+   "width_ratio": [
+    1.4394290651160437,
+    2.255775251073119,
+    2.6301308086347173
+   ],
+   "wells_used": 200,
+   "wells_with_zero_reference_width": 0
+  },
+  "1825/720": {
+   "width_ratio": [
+    0.625070195602635,
+    0.43192435561471676,
+    0.4030225902148154
+   ],
+   "wells_used": 199,
+   "wells_with_zero_reference_width": 1
+  },
+  "7300/720": {
+   "width_ratio": [
+    1.4985114851957273,
+    2.2695274323323793,
+    2.688243909371872
+   ],
+   "wells_used": 199,
+   "wells_with_zero_reference_width": 1
+  }
+ }
+}

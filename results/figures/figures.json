@@ -1,7 +1,7 @@
 {
  "split": "validation",
  "model_label": "arch",
- "model_name": "Width-diverse ensemble",
+ "model_name": "Refined version",
  "bayes_models": [
   "models/ensemble/bayes_arch_seed42_model.pt",
   "models/ensemble/bayes_arch_seed43_model.pt",
@@ -552,6 +552,11 @@
     }
    },
    "run_created_at_utc": "2026-10-05T23:24:07.362321+00:00"
+  },
+  "label_revision_2026_11_14": {
+   "date": "2026-11-14",
+   "reason": "Legends and axes use the paper's names (Refined version, Frozen version, Basis network, DCA network, Contextual network, Forest) and give time in months and years.",
+   "method": "Figures re-rendered from the same code, inputs and seeds with only label strings changed; recorded values unchanged."
   }
  },
  "fig_decline": {
@@ -578,14 +583,14 @@
     "basis": 1.0182033616625228
    },
    "thick_line_samples": {
-    "Width-diverse ensemble": {
+    "Refined version": {
      "sample": 2,
      "q1080": 74.71979045171705,
      "Q1080": 158019.2079732405,
      "q3650": 30.599799518131032,
      "Q3650": 280987.44627442164
     },
-    "Positive-basis network": {
+    "Basis network": {
      "sample": 25,
      "q1080": 62.7372977795382,
      "Q1080": 172999.07951080447,
@@ -721,6 +726,11 @@
    "original_script_sha256": "71dbb2499b1b00aa498809b8bbced6b74fa690c9837c18ac009cb125cd8fee84",
    "revised_script_sha256": "aac9d149a78343681052fd0fcf48768a7b0ff2f99cac9efb69313a6793ff6990",
    "model_inference_rerun": false
+  },
+  "label_revision_2026_11_14": {
+   "date": "2026-11-14",
+   "reason": "Legends and axes use the paper's names (Refined version, Frozen version, Basis network, DCA network, Contextual network, Forest) and give time in months and years.",
+   "method": "Figures re-rendered from the same code, inputs and seeds with only label strings changed; recorded values unchanged."
   }
  },
  "fig_modes": {
@@ -1332,6 +1342,11 @@
     }
    },
    "run_created_at_utc": "2026-10-06T04:04:33.645430+00:00"
+  },
+  "label_revision_2026_11_14": {
+   "date": "2026-11-14",
+   "reason": "Legends and axes use the paper's names (Refined version, Frozen version, Basis network, DCA network, Contextual network, Forest) and give time in months and years.",
+   "method": "Figures re-rendered from the same code, inputs and seeds with only label strings changed; recorded values unchanged."
   }
  },
  "fig_attributes": {
