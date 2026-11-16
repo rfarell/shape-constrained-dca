@@ -113,7 +113,7 @@
   "note": "width ratios (NaN reference rows) are not plotted",
   "label_revision_2026_11_14": {
    "date": "2026-11-14",
-   "reason": "Legends and axes use the paper's names (Refined version, Frozen version, Basis network, DCA network, Contextual network, Forest) and give time in months and years.",
+   "reason": "Legends and axes use the paper's names (The model, First version, Basis network, DCA network, Contextual network, Forest) and give time in months and years.",
    "method": "Figures re-rendered from the same code, inputs and seeds with only label strings changed; recorded values unchanged."
   }
  },
@@ -378,22 +378,21 @@
    }
   },
   "score_keys": {
-   "arps": "pw_arps_bayes_seed42",
-   "duong": "pw_duong_bayes_seed42",
-   "dca": "dca_mix5",
+   "v1": "bayes_cal_mix5",
    "slab": "pw_scaling_bayes_seed42",
    "basis": "basis_mix5",
    "neural": "neural_mix5",
+   "arps": "pw_arps_bayes_seed42",
+   "duong": "pw_duong_bayes_seed42",
    "sedm": "pw_sedm_bayes_seed42",
    "v1_raw": "bayes_final_mix5",
-   "forest": "forest_mix5",
-   "v1": "bayes_cal_mix5"
+   "dca": "dca_mix5",
+   "forest": "forest_mix5"
   },
   "note": "per-date values are point values (no per-date paired intervals); width and coverage over all 28 cells",
-  "label_revision_2026_11_14": {
-   "date": "2026-11-14",
-   "reason": "Legends and axes use the paper's names (Refined version, Frozen version, Basis network, DCA network, Contextual network, Forest) and give time in months and years.",
-   "method": "Figures re-rendered from the same code, inputs and seeds with only label strings changed; recorded values unchanged."
+  "label_revision": {
+   "reason": "Legends and axes use the paper's names (The model, Basis network, DCA network, Contextual network, Forest) and give time in months and years. The accuracy and reliability figures show the model and the baselines; the first version's values remain in this record.",
+   "method": "Re-rendered from the same code, inputs and seeds; only label strings and the list of plotted series changed. Recorded values are identical to the previous record."
   }
  },
  "fig_reliability": {
@@ -883,10 +882,9 @@
    "arps": "pw_arps_bayes"
   },
   "note": "bands ignore clustering in 478 groups and multiplicity",
-  "label_revision_2026_11_14": {
-   "date": "2026-11-14",
-   "reason": "Legends and axes use the paper's names (Refined version, Frozen version, Basis network, DCA network, Contextual network, Forest) and give time in months and years.",
-   "method": "Figures re-rendered from the same code, inputs and seeds with only label strings changed; recorded values unchanged."
+  "label_revision": {
+   "reason": "Legends and axes use the paper's names (The model, Basis network, DCA network, Contextual network, Forest) and give time in months and years. The accuracy and reliability figures show the model and the baselines; the first version's values remain in this record.",
+   "method": "Re-rendered from the same code, inputs and seeds; only label strings and the list of plotted series changed. Recorded values are identical to the previous record."
   }
  },
  "fig_ensemble": {

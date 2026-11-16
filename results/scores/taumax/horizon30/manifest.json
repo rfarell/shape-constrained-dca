@@ -34,7 +34,7 @@
    "sha256": "0265403ab18ca957a03fb8683a036ca168de17e58868f5bd17bea786c4b36faf"
   }
  },
- "checkpoint_note": "Fits of the frozen version's configuration (seed 42) from queues taumax and final_val; they are not shipped, and paths are relative to a queue output directory.",
+ "checkpoint_note": "Fits of the first version's configuration (seed 42) from queues taumax and final_val; they are not shipped, and paths are relative to a queue output directory.",
  "wells": 200,
  "draws": 256,
  "origins": [

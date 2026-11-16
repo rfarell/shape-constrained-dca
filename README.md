@@ -15,9 +15,9 @@ The paper and the code use different names for the same things:
 
 | In the paper | In the code and file names |
 | --- | --- |
-| Frozen version | `v1`: `bayes_final`, and `bayes_cal` with its widened ranges |
+| The model | width-diverse ensemble: `bayes_arch`, `arch` |
+| First version, fixed before testing | `v1`: `bayes_final`, and `bayes_cal` with its widened ranges |
 | Intermediate version (supplement) | `v2`: `bayes_v2` |
-| Refined version | width-diverse ensemble: `bayes_arch`, `arch` |
 | Baselines: basis, DCA, and contextual networks; forest | comparators: `basis`, `dca`, `neural`, `forest` |
 | Underlying rate | latent rate |
 | Reporting-error model | report law |
@@ -29,7 +29,7 @@ The paper and the code use different names for the same things:
 | `src/joint_production/` | Model, observation law, fitting, samplers, comparators, scores |
 | `scripts/` | Command-line entry points; each has a docstring with usage |
 | `configs/` | Experiment settings, frozen evaluation protocols, run queues |
-| `models/ensemble/` | The five fits of the refined version, the width-diverse ensemble (seeds 42–46) |
+| `models/ensemble/` | The model's five fits, the width-diverse ensemble (seeds 42–46) |
 | `models/comparators/` | The basis and DCA networks, two of the baselines (seeds 42–46) |
 | `results/` | Saved scores and diagnostics behind every reported number |
 | `data/` | Data description, raw-file checks, and the accepted split (hashes only) |
@@ -100,10 +100,10 @@ each job in a queue and scores it. Test queues read the validation checkpoints f
 | --- | --- |
 | Baselines (basis, DCA, and contextual networks; forest), fitted on training wells, with validation forecasts | queue `comparators` |
 | Baseline calibration and test forecasts | `depletion_competitor_forecasts.py`, then `depletion_spread_calibration.py` |
-| Frozen version (v1) | queues `final_val`, then `depletion_calibrate.py`, then `final_test` |
+| First version (v1) | queues `final_val`, then `depletion_calibrate.py`, then `final_test` |
 | Per-well decline curves | queues `final_val_dca`, `final_test_dca`, `scaling` |
 | Intermediate version (v2, persistent reporting error) | queues `v2_val`, `v2_test` |
-| Refined version (width-diverse ensemble) | `ensemble_sweep.py` (development holdout), queues `arch_val`, `arch_test` |
+| The model (width-diverse ensemble) | `ensemble_sweep.py` (development holdout), queues `arch_val`, `arch_test` |
 | Sensitivity, ablations, and report-law screen | queues `taumax`, `ablate`, `report_law` |
 | Analyses | `depletion_hindcast.py`, `depletion_criteria.py`, `depletion_properties.py`, `depletion_report_properties.py`, `depletion_quickmix.py`, `ensemble_diversity.py`, `depletion_sbc.py`, `paper_taumax_sensitivity.py`, `paper_posterior_check.py` |
 

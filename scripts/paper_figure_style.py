@@ -113,10 +113,10 @@ DAYS_PER_YEAR = 365.25
 # Model names follow the naming table of the writing brief (Stage B directive, B2): the width-diverse ensemble is
 # the recommended forecaster and is drawn as the primary (solid black) series.
 MODEL_LABEL = {
-    "v1": "Frozen version",
-    "v1_raw": "Frozen version, before widening",
+    "v1": "First version",
+    "v1_raw": "First version, before widening",
     "v2": "Intermediate version",
-    "arch": "Refined version",
+    "arch": "The model",
     "basis": "Basis network",
     "dca": "DCA network",
     "neural": "Contextual network",

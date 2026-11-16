@@ -61,8 +61,8 @@ SCORE_KEY = {"v1": "bayes_cal_mix5", "v1_raw": "bayes_final_mix5", "v2": "bayes_
 HINDCAST_KEY = {"v1": "bayes_cal_mix5", "basis": "basis_mix5", "arps": "pw_arps_bayes"}
 FAMILY_PREFIX = {"v1_raw": "bayes_final", "v2": "bayes_v2", "basis": "basis", "dca": "dca", "neural": "neural",
                  "forest": "forest"}
-SHORT = {"v1": "Frozen version", "v1_raw": "Frozen, before widening", "v2": "Intermediate version", "basis": "Basis network", "dca": "DCA network",
-         "neural": "Contextual network", "forest": "Forest", "arch": "Refined version", "arps": "Arps",
+SHORT = {"v1": "First version", "v1_raw": "First, before widening", "v2": "Intermediate version", "basis": "Basis network", "dca": "DCA network",
+         "neural": "Contextual network", "forest": "Forest", "arch": "The model", "arps": "Arps",
          "duong": "Duong", "sedm": "SEDM", "slab": "Slab scaling"}
 
 # Printed values the figures must reproduce (Supplementary Tables s:tab:wis-origin and s:tab:seeds,
@@ -285,7 +285,8 @@ def fig_accuracy(args, output, summary, sources, arch):
     fig, axes = new_figure(FULL_W, 2.6, 1, 2, gridspec_kw=dict(width_ratios=[1.6, 1.0]))
     ax = axes[0, 0]
     x = np.arange(len(ORIGINS))
-    order = [m for m in ("arps", "forest", "neural", "dca", "basis", "v1", "arch") if m in per]
+    # The main-text figure shows the model and the baselines; the first version's values stay in the record.
+    order = [m for m in ("arps", "forest", "neural", "dca", "basis", "arch") if m in per]
     for m in order:
         st = MODEL_STYLE[m]
         ax.plot(x, per[m], color=st["color"], ls=st["ls"], lw=st["lw"], marker=st["marker"], ms=3.2,
@@ -299,7 +300,7 @@ def fig_accuracy(args, output, summary, sources, arch):
     ax.plot([2, 2, 6, 6], [0.075, 0.045, 0.045, 0.075], transform=trans, color="0.4", lw=0.6, clip_on=False)
     ax.text(4, 0.055, "main comparison", transform=trans, ha="center", va="bottom", fontsize=NOTE_PT, color="0.3")
     handles, labels = ax.get_legend_handles_labels()
-    rank = {MODEL_LABEL[m]: i for i, m in enumerate(("arch", "v1", "basis", "dca", "neural", "forest", "arps"))}
+    rank = {MODEL_LABEL[m]: i for i, m in enumerate(("arch", "basis", "dca", "neural", "forest", "arps"))}
     pairs = sorted(zip(handles, labels), key=lambda p: rank.get(p[1], 99))
     ax.legend([p[0] for p in pairs], [p[1] for p in pairs], loc="upper right")
     panel_label(ax, "a")
@@ -310,6 +311,8 @@ def fig_accuracy(args, output, summary, sources, arch):
     offsets = {"v1_raw": (6, -9, "left"), "arps": (5, 0, "left"), "duong": (5, 0, "left"),
                "sedm": (-5, 0, "right"), "slab": (5, 0, "left")}  # the ensemble and v1 markers are named by the legend of (a)
     for m, (c, w) in cov.items():
+        if m in ("v1", "v1_raw"):
+            continue
         st = MODEL_STYLE[m]
         ax.plot(w, c, ls="none", marker=st["marker"], ms=5 if m == "arch" else 4, color=st["color"],
                 mfc=st.get("mfc", st["color"]), mec=st["color"], zorder=4)
@@ -317,8 +320,6 @@ def fig_accuracy(args, output, summary, sources, arch):
             dx, dy, ha = offsets[m]
             ax.annotate(SHORT[m], xy=(w, c), xytext=(dx, dy), textcoords="offset points", ha=ha, va="center",
                         fontsize=NOTE_PT, color=st["color"])
-    ax.annotate("", xy=(cov["v1"][1], cov["v1"][0]), xytext=(cov["v1_raw"][1], cov["v1_raw"][0]),
-                arrowprops=dict(arrowstyle="->", lw=0.6, color="0.3", shrinkA=3, shrinkB=3))
     ax.set_xlim(0.8, 1.85)
     ax.set_ylim(70.0, 87.0)
     ax.set_xlabel("Scaled 80% interval width")
@@ -362,7 +363,7 @@ def fig_reliability(args, output, summary, sources, arch):
 
     fig, axes = new_figure(FULL_W, 3.2, 2, 3, sharex=True)
     x = np.arange(len(ORIGINS))
-    order = [m for m in ("arps", "basis", "v1", "arch") if m in series]
+    order = [m for m in ("arps", "basis", "arch") if m in series]
     for k, phase in enumerate(PHASES):
         top, bottom = axes[0, k], axes[1, k]
         for ax, levels in ((top, (0.9,)), (bottom, (0.5, 0.1))):
@@ -388,7 +389,7 @@ def fig_reliability(args, output, summary, sources, arch):
     axes[1, 0].set_ylabel("Above P50, P10, %")
     fig.supxlabel("History at the forecast date, months", fontsize=LABEL_PT)
     handles, labels = axes[0, 0].get_legend_handles_labels()
-    rank = {MODEL_LABEL[m]: i for i, m in enumerate(("arch", "v1", "basis", "arps"))}
+    rank = {MODEL_LABEL[m]: i for i, m in enumerate(("arch", "basis", "arps"))}
     pairs = sorted(zip(handles, labels), key=lambda p: rank.get(p[1], 99))
     extra = legend_handles([("patch", "nominal ± 2 binomial SE", dict(color="0.88")),
                             ("marker", "above P50", dict(marker="o", ms=2.8, color="0.3")),
